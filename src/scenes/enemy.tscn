@@ -1,0 +1,107 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://src/Enemy.cs" id="1_EnemyScript"]
+[ext_resource type="Material" path="res://materials/tech_metal.tres" id="2_TechMetal"]
+[ext_resource type="Material" path="res://materials/neon_red.tres" id="3_NeonRed"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_enemy"]
+size = Vector3(0.9, 0.8, 0.9)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_detect"]
+size = Vector3(1.1, 0.9, 1.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+transparency = 1
+blend_mode = 1
+albedo_color = Color(1, 0.5, 0.1, 1)
+emission_enabled = true
+emission = Color(1, 0.3, 0.0, 1)
+emission_energy_multiplier = 5.0
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="BoxMesh" id="BoxMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+size = Vector3(0.08, 0.08, 0.08)
+
+[sub_resource type="Curve" id="Curve_spark"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+
+[node name="Enemy" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 5
+script = ExtResource("1_EnemyScript")
+Speed = 4.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+shape = SubResource("BoxShape3D_enemy")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Shell" type="CSGCombiner3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+
+[node name="Body" type="CSGBox3D" parent="Visuals/Shell"]
+size = Vector3(0.8, 0.5, 0.8)
+material = ExtResource("2_TechMetal")
+
+[node name="HeadSpike" type="CSGCylinder3D" parent="Visuals/Shell"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0.4)
+radius = 0.15
+height = 0.25
+radial_segments = 8
+material = ExtResource("2_TechMetal")
+
+[node name="Visor" type="CSGBox3D" parent="Visuals/Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.38)
+size = Vector3(0.6, 0.12, 0.1)
+material = ExtResource("3_NeonRed")
+
+[node name="LeftWheel" type="CSGCylinder3D" parent="Visuals/Shell"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.42, -0.15, 0)
+radius = 0.25
+height = 0.12
+radial_segments = 12
+material = ExtResource("2_TechMetal")
+
+[node name="RightWheel" type="CSGCylinder3D" parent="Visuals/Shell"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.42, -0.15, 0)
+radius = 0.25
+height = 0.12
+radial_segments = 12
+material = ExtResource("2_TechMetal")
+
+[node name="DetectionArea" type="Area3D" parent="."]
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("BoxShape3D_detect")
+
+[node name="WallRayCast" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+target_position = Vector3(0.8, 0, 0)
+collision_mask = 1
+
+[node name="FloorRayCast" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.1, 0)
+target_position = Vector3(0, -0.6, 0)
+collision_mask = 1
+
+[node name="ExplosionParticles" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+emitting = false
+amount = 20
+lifetime = 0.45
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("BoxMesh_spark")
+direction = Vector3(0, 0, 0)
+spread = 180.0
+gravity = Vector3(0, -12, 0)
+initial_velocity_min = 4.0
+initial_velocity_max = 8.0
+scale_amount_curve = SubResource("Curve_spark")

@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+albedo_color = Color(0.67, 0.85, 0.93, 1) # Baby Blue skin color
+roughness = 0.5
+roughness_texture_channel = 4
+metallic = 0.05
+clearcoat_enabled = true
+clearcoat_roughness = 0.2

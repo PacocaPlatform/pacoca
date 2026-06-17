@@ -1,0 +1,22 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dbuyyv4i7g0p7"]
+
+[ext_resource type="Texture2D" uid="uid://o48ruaqy47kw" path="res://textures/grass_albedo.jpg" id="1_GrassAlbedo"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_grass"]
+noise_type = 3
+frequency = 0.05
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_grass"]
+noise = SubResource("FastNoiseLite_grass")
+seamless = true
+as_normal_map = true
+bump_strength = 2.0
+
+[resource]
+albedo_texture = ExtResource("1_GrassAlbedo")
+roughness = 0.8
+normal_enabled = true
+normal_texture = SubResource("NoiseTexture2D_grass")
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true

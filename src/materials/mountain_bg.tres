@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://textures/mountain_background.jpg" id="1_MountainAlbedo"]
+
+[resource]
+albedo_texture = ExtResource("1_MountainAlbedo")
+roughness = 1.0
+metallic = 0.0
+specular = 0.0
+uv1_scale = Vector3(1, 1, 1)

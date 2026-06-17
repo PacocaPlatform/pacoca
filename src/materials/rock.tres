@@ -1,0 +1,23 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://clhv3grjlph27"]
+
+[ext_resource type="Texture2D" uid="uid://qya21qk7d3vv" path="res://textures/dirt_albedo.jpg" id="1_DirtAlbedo"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_rock"]
+noise_type = 2
+frequency = 0.08
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_rock"]
+noise = SubResource("FastNoiseLite_rock")
+seamless = true
+as_normal_map = true
+bump_strength = 3.0
+
+[resource]
+albedo_texture = ExtResource("1_DirtAlbedo")
+roughness = 0.9
+normal_enabled = true
+normal_texture = SubResource("NoiseTexture2D_rock")
+uv1_scale = Vector3(0.2, 0.2, 0.2)
+uv1_triplanar = true
+uv1_world_triplanar = true

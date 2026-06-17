@@ -1,0 +1,38 @@
+# Godot-specific ignores
+.godot/
+.tmp/
+.import/
+export_presets.cfg
+
+# Mono/C# build artifacts
+.mono/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+*.csproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# IDE and Editor files
+.vs/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Log and crash files
+mono_crash.*
+*.log
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini

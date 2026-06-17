@@ -1,0 +1,60 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/Ring.cs" id="1_RingScript"]
+[ext_resource type="Material" path="res://materials/gold.tres" id="2_GoldMat"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_ring"]
+radius = 0.45
+
+[sub_resource type="TorusMesh" id="TorusMesh_ring"]
+material = ExtResource("2_GoldMat")
+inner_radius = 0.28
+outer_radius = 0.38
+rings = 16
+ring_segments = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+transparency = 1
+blend_mode = 1
+albedo_color = Color(1, 0.9, 0.3, 1)
+emission_enabled = true
+emission = Color(1, 0.8, 0.1, 1)
+emission_energy_multiplier = 4.0
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="BoxMesh" id="BoxMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+size = Vector3(0.06, 0.06, 0.06)
+
+[node name="Ring" type="Area3D"]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1_RingScript")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_ring")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("TorusMesh_ring")
+
+[node name="SparkParticles" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 12
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("BoxMesh_spark")
+direction = Vector3(0, 0, 0)
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 4.0
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+enabled = false
+target_position = Vector3(0, -0.5, 0)
+collision_mask = 1

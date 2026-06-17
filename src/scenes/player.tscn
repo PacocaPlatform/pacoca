@@ -1,0 +1,104 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://src/Player.cs" id="1_PlayerScript"]
+[ext_resource type="Material" path="res://materials/dino_skin.tres" id="2_DinoSkin"]
+[ext_resource type="Material" path="res://materials/dino_belly.tres" id="3_DinoBelly"]
+[ext_resource type="Material" path="res://materials/eye_white.tres" id="4_EyeWhite"]
+[ext_resource type="Material" path="res://materials/eye_black.tres" id="5_EyeBlack"]
+[ext_resource type="PackedScene" uid="uid://oocxp2hv1a1p" path="res://models/paçoca-idle.fbx" id="6_IdleModel"]
+[ext_resource type="PackedScene" uid="uid://cqfqymxv162yn" path="res://models/paçoca-running.fbx" id="7_RunningModel"]
+[ext_resource type="PackedScene" uid="uid://kggrpasvch8" path="res://models/paçoca-JumpingUp.fbx" id="8_JumpingModel"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_player"]
+radius = 0.55
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dust"]
+transparency = 1
+albedo_color = Color(0.88, 0.82, 0.75, 0.35)
+roughness = 1.0
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="SphereMesh" id="SphereMesh_dust"]
+material = SubResource("StandardMaterial3D_dust")
+radius = 0.2
+height = 0.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wind"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.12)
+emission_enabled = true
+emission = Color(0.85, 0.95, 1, 1)
+emission_energy_multiplier = 3.0
+billboard_mode = 2
+
+[sub_resource type="BoxMesh" id="BoxMesh_wind"]
+material = SubResource("StandardMaterial3D_wind")
+size = Vector3(0.02, 1.2, 0.02)
+
+[sub_resource type="Curve" id="Curve_dust_scale"]
+_data = [Vector2(0, 0.4), 0.0, 0.0, 0, 0, Vector2(1, 1.5), 0.0, 0.0, 0, 0]
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_PlayerScript")
+MaxSpeed = 26.0
+Acceleration = 18.0
+Deceleration = 45.0
+Friction = 30.0
+Gravity = 38.0
+JumpVelocity = 15.5
+AirControl = 0.75
+SpinDashMinCharge = 20.0
+SpinDashMaxCharge = 40.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("SphereShape3D_player")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Body" type="Node3D" parent="Visuals"]
+
+[node name="IdleModel" parent="Visuals/Body" instance=ExtResource("6_IdleModel")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, -0.5, 0)
+
+[node name="RunningModel" parent="Visuals/Body" instance=ExtResource("7_RunningModel")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, -0.5, 0)
+visible = false
+
+[node name="JumpingModel" parent="Visuals/Body" instance=ExtResource("8_JumpingModel")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, -0.5, 0)
+visible = false
+
+[node name="DustParticles" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.45, 0)
+emitting = false
+amount = 16
+lifetime = 0.4
+mesh = SubResource("SphereMesh_dust")
+direction = Vector3(-1, 0.3, 0)
+spread = 15.0
+gravity = Vector3(0, 1.5, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 5.0
+scale_amount_min = 0.6
+scale_amount_max = 1.4
+scale_amount_curve = SubResource("Curve_dust_scale")
+
+[node name="SpeedWindParticles" type="CPUParticles3D" parent="."]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+emitting = false
+amount = 25
+lifetime = 0.25
+mesh = SubResource("BoxMesh_wind")
+emission_shape = 3
+emission_box_extents = Vector3(0.5, 0.1, 0.5)
+direction = Vector3(0, 1, 0)
+spread = 0.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 12.0
+initial_velocity_max = 24.0

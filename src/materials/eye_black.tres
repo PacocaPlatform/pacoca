@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+albedo_color = Color(0.08, 0.06, 0.05, 1) # Dark pupil color
+roughness = 0.05
+metallic = 0.0
