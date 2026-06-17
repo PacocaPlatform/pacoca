@@ -1,32 +1,42 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
-public partial class Menu : Node3D
+public partial class Menu : Control
 {
     private Button _startButton = null!;
     private Button _configButton = null!;
     private Button _exitButton = null!;
+    private Button _creditsButton = null!;
+    
+    private Button _trophyButton = null!;
+    private Button _gearButton = null!;
     
     private Button _backButton = null!;
     private Button _mapButton = null!;
     private OptionButton _joyOptionButton = null!;
     private Label _mapInstructionsLabel = null!;
     
-    private PanelContainer _mainMenuPanel = null!;
     private PanelContainer _configPanel = null!;
     private PanelContainer _levelPanel = null!;
+    private PanelContainer _creditsPanel = null!;
+    private PanelContainer _achievementsPanel = null!;
 
     private Button _level1Button = null!;
     private Button _debugLevelButton = null!;
     private Button _levelBackButton = null!;
     
-    private Node3D _playerVisuals = null!;
-    private float _animationTime = 0.0f;
+    private Button _creditsBackButton = null!;
+    private Button _achievementsBackButton = null!;
+
     private bool _isMappingInput = false;
 
     // Procedural sound effects player
     private AudioStreamPlayer _audioPlayer = null!;
     private AudioStreamGeneratorPlayback? _audioPlayback;
+
+    // List of buttons to animate focus scale
+    private List<Button> _animatedButtons = new();
 
     public override void _Ready()
     {
@@ -41,30 +51,63 @@ public partial class Menu : Node3D
         _audioPlayback = _audioPlayer.GetStreamPlayback() as AudioStreamGeneratorPlayback;
 
         // Main Menu references
-        _startButton = GetNode<Button>("CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer/VBoxContainer/StartButton");
-        _configButton = GetNode<Button>("CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer/VBoxContainer/ConfigButton");
-        _exitButton = GetNode<Button>("CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer/VBoxContainer/ExitButton");
-        _mainMenuPanel = GetNode<PanelContainer>("CanvasLayer/Control/MarginContainer/MainMenuPanel");
+        _startButton = GetNode<Button>("MainMenuContainer/JogarButton");
+        _configButton = GetNode<Button>("MainMenuContainer/OpcoesButton");
+        _creditsButton = GetNode<Button>("MainMenuContainer/CreditosButton");
+        _exitButton = GetNode<Button>("MainMenuContainer/SairButton");
+        
+        // Corner Button references
+        _trophyButton = GetNode<Button>("TopLeftContainer/TrophyButton");
+        _gearButton = GetNode<Button>("TopRightContainer/GearButton");
 
         // Config Menu references
-        _backButton = GetNode<Button>("CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer/BackButton");
-        _mapButton = GetNode<Button>("CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer/MapButton");
-        _joyOptionButton = GetNode<OptionButton>("CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer/JoyOptionButton");
-        _mapInstructionsLabel = GetNode<Label>("CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer/MapInstructionsLabel");
-        _configPanel = GetNode<PanelContainer>("CanvasLayer/Control/MarginContainer/ConfigPanel");
+        _backButton = GetNode<Button>("ConfigPanel/MarginContainer/VBoxContainer/BackButton");
+        _mapButton = GetNode<Button>("ConfigPanel/MarginContainer/VBoxContainer/MapButton");
+        _joyOptionButton = GetNode<OptionButton>("ConfigPanel/MarginContainer/VBoxContainer/JoyOptionButton");
+        _mapInstructionsLabel = GetNode<Label>("ConfigPanel/MarginContainer/VBoxContainer/MapInstructionsLabel");
+        _configPanel = GetNode<PanelContainer>("ConfigPanel");
 
         // Level Panel references
-        _level1Button = GetNode<Button>("CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer/VBoxContainer/Level1Button");
-        _debugLevelButton = GetNode<Button>("CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer/VBoxContainer/DebugLevelButton");
-        _levelBackButton = GetNode<Button>("CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer/VBoxContainer/LevelBackButton");
-        _levelPanel = GetNode<PanelContainer>("CanvasLayer/Control/MarginContainer/LevelPanel");
+        _level1Button = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/Level1Button");
+        _debugLevelButton = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/DebugLevelButton");
+        _levelBackButton = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/LevelBackButton");
+        _levelPanel = GetNode<PanelContainer>("LevelPanel");
 
-        _playerVisuals = GetNode<Node3D>("PlayerVisuals");
+        // Credits Panel references
+        _creditsPanel = GetNode<PanelContainer>("CreditsPanel");
+        _creditsBackButton = GetNode<Button>("CreditsPanel/MarginContainer/VBoxContainer/CreditsBackButton");
+
+        // Achievements Panel references
+        _achievementsPanel = GetNode<PanelContainer>("AchievementsPanel");
+        _achievementsBackButton = GetNode<Button>("AchievementsPanel/MarginContainer/VBoxContainer/AchievementsBackButton");
+
+        // Populating animated button list
+        _animatedButtons.Add(_startButton);
+        _animatedButtons.Add(_configButton);
+        _animatedButtons.Add(_creditsButton);
+        _animatedButtons.Add(_exitButton);
+        _animatedButtons.Add(_trophyButton);
+        _animatedButtons.Add(_gearButton);
+        _animatedButtons.Add(_backButton);
+        _animatedButtons.Add(_mapButton);
+        _animatedButtons.Add(_level1Button);
+        _animatedButtons.Add(_debugLevelButton);
+        _animatedButtons.Add(_levelBackButton);
+        _animatedButtons.Add(_creditsBackButton);
+        _animatedButtons.Add(_achievementsBackButton);
+
+        foreach (var btn in _animatedButtons)
+        {
+            // Set pivot offset to center for scale zoom
+            btn.PivotOffset = btn.CustomMinimumSize / 2.0f;
+        }
 
         // Toggle initial panel visibility
-        _mainMenuPanel.Visible = true;
+        SetMainMenuVisible(true);
         _configPanel.Visible = false;
         _levelPanel.Visible = false;
+        _creditsPanel.Visible = false;
+        _achievementsPanel.Visible = false;
         _mapInstructionsLabel.Visible = false;
 
         // Grab focus on the start button for keyboard/joystick navigation immediately
@@ -73,15 +116,22 @@ public partial class Menu : Node3D
         // Connect button press events
         _startButton.Pressed += OnStartPressed;
         _configButton.Pressed += OnConfigPressed;
+        _creditsButton.Pressed += OnCreditsPressed;
         _exitButton.Pressed += OnExitPressed;
+        
+        _trophyButton.Pressed += OnTrophyPressed;
+        _gearButton.Pressed += OnGearPressed;
+
         _backButton.Pressed += OnBackPressed;
         _mapButton.Pressed += OnMapButtonPressed;
         _joyOptionButton.ItemSelected += OnJoypadSelected;
 
-        // Connect Level Panel buttons
         _level1Button.Pressed += OnLevel1Pressed;
         _debugLevelButton.Pressed += OnDebugLevelPressed;
         _levelBackButton.Pressed += OnLevelBackPressed;
+        
+        _creditsBackButton.Pressed += OnCreditsBackPressed;
+        _achievementsBackButton.Pressed += OnAchievementsBackPressed;
 
         // Populate joystick dropdown
         PopulateJoypads();
@@ -90,13 +140,20 @@ public partial class Menu : Node3D
         Input.Singleton.JoyConnectionChanged += OnJoyConnectionChanged;
 
         // Connect procedural sound feedback recursively
-        ConnectUIFeedback(GetNode("CanvasLayer/Control"));
+        ConnectUIFeedback(this);
     }
 
     public override void _ExitTree()
     {
         // Unsubscribe to avoid memory leaks
         Input.Singleton.JoyConnectionChanged -= OnJoyConnectionChanged;
+    }
+
+    private void SetMainMenuVisible(bool visible)
+    {
+        GetNode<Control>("MainMenuContainer").Visible = visible;
+        GetNode<Control>("TopLeftContainer").Visible = visible;
+        GetNode<Control>("TopRightContainer").Visible = visible;
     }
 
     private void ConnectUIFeedback(Node node)
@@ -108,7 +165,7 @@ public partial class Menu : Node3D
             
             // Hover automatically grabs focus for mouse navigation
             btn.MouseEntered += () => {
-                if (!_isMappingInput && !btn.Disabled)
+                if (!_isMappingInput && !btn.Disabled && btn.Visible)
                     btn.GrabFocus();
             };
         }
@@ -116,7 +173,7 @@ public partial class Menu : Node3D
         {
             optBtn.FocusEntered += () => PlaySound(880f, 0.03f, 0.1f);
             optBtn.MouseEntered += () => {
-                if (!_isMappingInput && !optBtn.Disabled)
+                if (!_isMappingInput && !optBtn.Disabled && optBtn.Visible)
                     optBtn.GrabFocus();
             };
         }
@@ -129,25 +186,18 @@ public partial class Menu : Node3D
 
     public override void _Process(double delta)
     {
-        // Animate background T-Rex character gently (idle breathe)
-        _animationTime += (float)delta * 2.0f;
-        float breath = Mathf.Sin(_animationTime);
-        
-        var bodyNode = _playerVisuals.GetNodeOrNull<Node3D>("Body");
-        var headNode = _playerVisuals.GetNodeOrNull<Node3D>("Body/Head");
-        var tailNode = _playerVisuals.GetNodeOrNull<Node3D>("Body/Tail");
-
-        if (bodyNode != null)
+        // Handle focus scaling animation
+        foreach (var btn in _animatedButtons)
         {
-            bodyNode.Scale = new Vector3(1.0f, 1.0f + breath * 0.02f, 1.0f);
-        }
-        if (headNode != null)
-        {
-            headNode.Rotation = new Vector3(0, 0, breath * 0.03f);
-        }
-        if (tailNode != null)
-        {
-            tailNode.Rotation = new Vector3(0, breath * 0.1f, breath * 0.05f);
+            if (btn.Visible && btn.GetParent() is Control parent && parent.Visible)
+            {
+                float targetScale = (btn.HasFocus() || btn.IsHovered()) ? 1.08f : 1.0f;
+                btn.Scale = btn.Scale.Lerp(new Vector2(targetScale, targetScale), (float)delta * 12.0f);
+            }
+            else
+            {
+                btn.Scale = Vector2.One;
+            }
         }
     }
 
@@ -198,7 +248,7 @@ public partial class Menu : Node3D
     private void OnStartPressed()
     {
         PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
-        _mainMenuPanel.Visible = false;
+        SetMainMenuVisible(false);
         _levelPanel.Visible = true;
         _level1Button.GrabFocus();
     }
@@ -220,7 +270,7 @@ public partial class Menu : Node3D
     private void OnLevelBackPressed()
     {
         PlaySound(392.00f, 0.1f, 0.3f); // G4 note back sound
-        _mainMenuPanel.Visible = true;
+        SetMainMenuVisible(true);
         _levelPanel.Visible = false;
         _startButton.GrabFocus();
     }
@@ -228,17 +278,54 @@ public partial class Menu : Node3D
     private void OnConfigPressed()
     {
         PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
-        _mainMenuPanel.Visible = false;
+        SetMainMenuVisible(false);
         _configPanel.Visible = true;
         _joyOptionButton.GrabFocus();
+    }
+
+    private void OnGearPressed()
+    {
+        OnConfigPressed();
     }
 
     private void OnBackPressed()
     {
         PlaySound(392.00f, 0.1f, 0.3f); // G4 note back sound
-        _mainMenuPanel.Visible = true;
+        SetMainMenuVisible(true);
         _configPanel.Visible = false;
         _configButton.GrabFocus();
+    }
+
+    private void OnCreditsPressed()
+    {
+        PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
+        SetMainMenuVisible(false);
+        _creditsPanel.Visible = true;
+        _creditsBackButton.GrabFocus();
+    }
+
+    private void OnCreditsBackPressed()
+    {
+        PlaySound(392.00f, 0.1f, 0.3f); // G4 note back sound
+        SetMainMenuVisible(true);
+        _creditsPanel.Visible = false;
+        _creditsButton.GrabFocus();
+    }
+
+    private void OnTrophyPressed()
+    {
+        PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
+        SetMainMenuVisible(false);
+        _achievementsPanel.Visible = true;
+        _achievementsBackButton.GrabFocus();
+    }
+
+    private void OnAchievementsBackPressed()
+    {
+        PlaySound(392.00f, 0.1f, 0.3f); // G4 note back sound
+        SetMainMenuVisible(true);
+        _achievementsPanel.Visible = false;
+        _trophyButton.GrabFocus();
     }
 
     private void OnMapButtonPressed()
@@ -319,6 +406,10 @@ public partial class Menu : Node3D
         _startButton.Disabled = disabled;
         _configButton.Disabled = disabled;
         _exitButton.Disabled = disabled;
+        _creditsButton.Disabled = disabled;
+        _trophyButton.Disabled = disabled;
+        _gearButton.Disabled = disabled;
+        
         _backButton.Disabled = disabled;
         _joyOptionButton.Disabled = disabled;
         _mapButton.Disabled = disabled;
@@ -326,6 +417,9 @@ public partial class Menu : Node3D
         _level1Button.Disabled = disabled;
         _debugLevelButton.Disabled = disabled;
         _levelBackButton.Disabled = disabled;
+        
+        _creditsBackButton.Disabled = disabled;
+        _achievementsBackButton.Disabled = disabled;
     }
 
     private void OnExitPressed()

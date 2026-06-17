@@ -1,608 +1,571 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://src/Menu.cs" id="1_MenuScript"]
-[ext_resource type="Material" path="res://materials/dino_skin.tres" id="2_DinoSkin"]
-[ext_resource type="Material" path="res://materials/dino_belly.tres" id="3_DinoBelly"]
-[ext_resource type="Material" path="res://materials/eye_white.tres" id="4_EyeWhite"]
-[ext_resource type="Material" path="res://materials/eye_black.tres" id="5_EyeBlack"]
-[ext_resource type="Material" path="res://materials/grass.tres" id="6_GrassMat"]
-[ext_resource type="PackedScene" path="res://scenes/ring.tscn" id="7_RingScene"]
-[ext_resource type="Texture2D" path="res://textures/sky_panorama.jpg" id="8_SkyPanorama"]
+[ext_resource type="Texture2D" path="res://images/main.png" id="2_Background"]
+[ext_resource type="FontFile" path="res://textures/ui/PressStart2P-Regular.ttf" id="3_Font"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_green_normal.png" id="4_BtnGreenNormal"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_green_hover.png" id="5_BtnGreenHover"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_green_pressed.png" id="6_BtnGreenPressed"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_brown_normal.png" id="7_BtnBrownNormal"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_brown_hover.png" id="8_BtnBrownHover"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_brown_pressed.png" id="9_BtnBrownPressed"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_square_normal.png" id="10_BtnSquareNormal"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_square_hover.png" id="11_BtnSquareHover"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_square_pressed.png" id="12_BtnSquarePressed"]
+[ext_resource type="Texture2D" path="res://textures/ui/icon_trophy.png" id="13_IconTrophy"]
+[ext_resource type="Texture2D" path="res://textures/ui/icon_gear.png" id="14_IconGear"]
 
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sky"]
-panorama = ExtResource("8_SkyPanorama")
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_green_normal"]
+texture = ExtResource("4_BtnGreenNormal")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
 
-[sub_resource type="Sky" id="Sky_env"]
-sky_material = SubResource("PanoramaSkyMaterial_sky")
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_green_hover"]
+texture = ExtResource("5_BtnGreenHover")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
 
-[sub_resource type="Environment" id="Environment_menu"]
-background_mode = 2
-sky = SubResource("Sky_env")
-tonemap_mode = 3
-ssao_enabled = true
-ssil_enabled = true
-glow_enabled = true
-glow_bloom = 0.35
-glow_intensity = 1.2
-volumetric_fog_enabled = true
-volumetric_fog_density = 0.02
-volumetric_fog_albedo = Color(0.7, 0.88, 1.0, 1.0)
-volumetric_fog_emission = Color(0.01, 0.03, 0.08, 1.0)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_green_pressed"]
+texture = ExtResource("6_BtnGreenPressed")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_panel"]
-bg_color = Color(0.06, 0.07, 0.1, 0.65)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 1, 1, 0.12)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 12
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_brown_normal"]
+texture = ExtResource("7_BtnBrownNormal")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
 
-[sub_resource type="LabelSettings" id="LabelSettings_menu_title"]
-font_size = 48
-font_color = Color(1, 0.8, 0.05, 1)
-outline_size = 12
-outline_color = Color(0.05, 0.05, 0.05, 1)
-shadow_size = 8
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_brown_hover"]
+texture = ExtResource("8_BtnBrownHover")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_brown_pressed"]
+texture = ExtResource("9_BtnBrownPressed")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_square_normal"]
+texture = ExtResource("10_BtnSquareNormal")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_square_hover"]
+texture = ExtResource("11_BtnSquareHover")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_square_pressed"]
+texture = ExtResource("12_BtnSquarePressed")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.25, 0.16, 0.08, 0.94)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.88, 0.61, 0.33, 1)
+corner_detail = 1
 shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 8
+shadow_offset = Vector2(4, 4)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
-bg_color = Color(1, 1, 1, 0.06)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.2)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-expand_margin_left = 10.0
-expand_margin_top = 5.0
-expand_margin_right = 10.0
-expand_margin_bottom = 5.0
+[sub_resource type="LabelSettings" id="LabelSettings_body"]
+font = ExtResource("3_Font")
+font_size = 12
+font_color = Color(1, 1, 1, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_focus_hover"]
-bg_color = Color(0, 0.8, 1, 0.2)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.85, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-expand_margin_left = 12.0
-expand_margin_top = 6.0
-expand_margin_right = 12.0
-expand_margin_bottom = 6.0
-shadow_color = Color(0, 0.8, 1, 0.2)
-shadow_size = 6
+[sub_resource type="LabelSettings" id="LabelSettings_sub_title"]
+font = ExtResource("3_Font")
+font_size = 18
+font_color = Color(1, 0.82, 0.1, 1)
+outline_size = 6
+outline_color = Color(0.12, 0.08, 0.04, 1)
 
-[node name="Menu" type="Node3D"]
-script = ExtResource("1_MenuScript")
+[sub_resource type="LabelSettings" id="LabelSettings_ach_title"]
+font = ExtResource("3_Font")
+font_size = 11
+font_color = Color(1, 0.85, 0.2, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_menu")
+[sub_resource type="LabelSettings" id="LabelSettings_ach_desc"]
+font = ExtResource("3_Font")
+font_size = 9
+font_color = Color(0.85, 0.85, 0.85, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 8, 0)
-light_color = Color(1, 0.94, 0.85, 1)
-light_energy = 1.5
-shadow_enabled = true
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.965926, -0.0669873, 0.25, 0, 0.965926, 0.258819, -0.258819, -0.25, 0.933013, 0.75, 0.65, 2.0)
-
-[node name="Scenery" type="Node3D" parent="."]
-
-[node name="Platform" type="CSGBox3D" parent="Scenery"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-use_collision = true
-size = Vector3(8, 1, 8)
-material = ExtResource("6_GrassMat")
-
-[node name="Ring" parent="Scenery" instance=ExtResource("7_RingScene")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -1.2, 0.6, -1.5)
-
-[node name="Ring2" parent="Scenery" instance=ExtResource("7_RingScene")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 1.2, 0.6, -1.5)
-
-[node name="PlayerVisuals" type="Node3D" parent="."]
-transform = Transform3D(0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, -0.15, 0.5, -0.2)
-
-[node name="Body" type="Node3D" parent="PlayerVisuals"]
-
-[node name="BodyMesh" type="CSGCombiner3D" parent="PlayerVisuals/Body"]
-
-[node name="Torso" type="CSGSphere3D" parent="PlayerVisuals/Body/BodyMesh"]
-radius = 0.45
-radial_segments = 16
-rings = 12
-material = ExtResource("2_DinoSkin")
-
-[node name="Belly" type="CSGSphere3D" parent="PlayerVisuals/Body/BodyMesh"]
-transform = Transform3D(0.8, 0, 0, 0, 0.95, 0, 0, 0, 0.6, 0, 0.05, 0.22)
-radius = 0.45
-radial_segments = 16
-rings = 12
-material = ExtResource("2_DinoSkin")
-
-[node name="Head" type="Node3D" parent="PlayerVisuals/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0.25)
-
-[node name="HeadMesh" type="CSGCombiner3D" parent="PlayerVisuals/Body/Head"]
-
-[node name="Skull" type="CSGSphere3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-radius = 0.38
-radial_segments = 16
-rings = 12
-material = ExtResource("2_DinoSkin")
-
-[node name="Snout" type="CSGBox3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 0.28)
-size = Vector3(0.42, 0.32, 0.45)
-material = ExtResource("2_DinoSkin")
-
-[node name="SnoutRound" type="CSGSphere3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 0.48)
-radius = 0.21
-radial_segments = 12
-rings = 10
-material = ExtResource("2_DinoSkin")
-
-[node name="LeftEye" type="CSGSphere3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18, 0.16, 0.18)
-radius = 0.12
-radial_segments = 12
-rings = 10
-material = ExtResource("4_EyeWhite")
-
-[node name="RightEye" type="CSGSphere3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, 0.16, 0.18)
-radius = 0.12
-radial_segments = 12
-rings = 10
-material = ExtResource("4_EyeWhite")
-
-[node name="LeftPupil" type="CSGSphere3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0.18, 0.28)
-radius = 0.05
-radial_segments = 10
-rings = 8
-material = ExtResource("5_EyeBlack")
-
-[node name="RightPupil" type="CSGSphere3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.18, 0.28)
-radius = 0.05
-radial_segments = 10
-rings = 8
-material = ExtResource("5_EyeBlack")
-
-[node name="NostrilL" type="CSGBox3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0.02, 0.5)
-size = Vector3(0.03, 0.03, 0.05)
-material = ExtResource("5_EyeBlack")
-
-[node name="NostrilR" type="CSGBox3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06, 0.02, 0.5)
-size = Vector3(0.03, 0.03, 0.05)
-material = ExtResource("5_EyeBlack")
-
-[node name="Spike1" type="CSGCylinder3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 0.866025, -0.5, 0, 0.5, 0.866025, 0, 0.35, 0.12)
-radius = 0.06
-height = 0.12
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="Spike2" type="CSGCylinder3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 0.984808, -0.173648, 0, 0.173648, 0.984808, 0, 0.38, -0.05)
-radius = 0.06
-height = 0.12
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="Spike3" type="CSGCylinder3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.34, -0.22)
-radius = 0.06
-height = 0.12
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="BrowL" type="CSGBox3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(0.965926, 0.088521, -0.24321, -0.066987, 0.992203, 0.095034, 0.25, -0.075486, 0.965303, -0.16, 0.26, 0.23)
-size = Vector3(0.14, 0.06, 0.12)
-material = ExtResource("3_DinoBelly")
-
-[node name="BrowR" type="CSGBox3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(0.965926, -0.088521, 0.24321, 0.066987, 0.992203, 0.095034, -0.25, -0.075486, 0.965303, 0.16, 0.26, 0.23)
-size = Vector3(0.14, 0.06, 0.12)
-material = ExtResource("3_DinoBelly")
-
-[node name="ToothL1" type="CSGCylinder3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, -0.13, -0.23, 0.38)
-radius = 0.03
-height = 0.07
-cone = true
-material = ExtResource("4_EyeWhite")
-
-[node name="ToothL2" type="CSGCylinder3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, -0.14, -0.23, 0.24)
-radius = 0.03
-height = 0.07
-cone = true
-material = ExtResource("4_EyeWhite")
-
-[node name="ToothR1" type="CSGCylinder3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, 0.13, -0.23, 0.38)
-radius = 0.03
-height = 0.07
-cone = true
-material = ExtResource("4_EyeWhite")
-
-[node name="ToothR2" type="CSGCylinder3D" parent="PlayerVisuals/Body/Head/HeadMesh"]
-transform = Transform3D(1, 0, 0, 0, -1, 0, 0, 0, -1, 0.14, -0.23, 0.24)
-radius = 0.03
-height = 0.07
-cone = true
-material = ExtResource("4_EyeWhite")
-
-[node name="Tail" type="Node3D" parent="PlayerVisuals/Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, -0.38)
-
-[node name="TailMesh" type="CSGCylinder3D" parent="PlayerVisuals/Body/Tail"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, -0.25)
-radius = 0.16
-height = 0.55
-cone = true
-radial_segments = 12
-material = ExtResource("2_DinoSkin")
-
-[node name="TailSpike1" type="CSGCylinder3D" parent="PlayerVisuals/Body/Tail"]
-transform = Transform3D(1, 0, 0, 0, 0.939693, -0.34202, 0, 0.34202, 0.939693, 0, 0.08, -0.15)
-radius = 0.03
-height = 0.08
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="TailSpike2" type="CSGCylinder3D" parent="PlayerVisuals/Body/Tail"]
-transform = Transform3D(1, 0, 0, 0, 0.984808, -0.173648, 0, 0.173648, 0.984808, 0, 0.05, -0.32)
-radius = 0.025
-height = 0.06
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="LeftLegJoint" type="Node3D" parent="PlayerVisuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.24, -0.22, 0)
-
-[node name="LeftLeg" type="CSGCombiner3D" parent="PlayerVisuals/LeftLegJoint"]
-
-[node name="Thigh" type="CSGCylinder3D" parent="PlayerVisuals/LeftLegJoint/LeftLeg"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
-radius = 0.09
-height = 0.3
-radial_segments = 10
-material = ExtResource("2_DinoSkin")
-
-[node name="Foot" type="CSGSphere3D" parent="PlayerVisuals/LeftLegJoint/LeftLeg"]
-transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1.4, 0, -0.3, 0.08)
-radius = 0.12
-radial_segments = 12
-rings = 10
-material = ExtResource("2_DinoSkin")
-
-[node name="Claw1" type="CSGCylinder3D" parent="PlayerVisuals/LeftLegJoint/LeftLeg"]
-transform = Transform3D(1, 0, 0, 0, 0.939693, -0.34202, 0, 0.34202, 0.939693, 0, -0.32, 0.22)
-radius = 0.04
-height = 0.1
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="Claw2" type="CSGCylinder3D" parent="PlayerVisuals/LeftLegJoint/LeftLeg"]
-transform = Transform3D(0.906308, -0.145084, 0.397003, 0, 0.939693, 0.34202, -0.422618, -0.31001, 0.851651, -0.06, -0.32, 0.19)
-radius = 0.04
-height = 0.09
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="Claw3" type="CSGCylinder3D" parent="PlayerVisuals/LeftLegJoint/LeftLeg"]
-transform = Transform3D(0.906308, 0.145084, -0.397003, 0, 0.939693, 0.34202, 0.422618, -0.31001, 0.851651, 0.06, -0.32, 0.19)
-radius = 0.04
-height = 0.09
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="RightLegJoint" type="Node3D" parent="PlayerVisuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24, -0.22, 0)
-
-[node name="RightLeg" type="CSGCombiner3D" parent="PlayerVisuals/RightLegJoint"]
-
-[node name="Thigh" type="CSGCylinder3D" parent="PlayerVisuals/RightLegJoint/RightLeg"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
-radius = 0.09
-height = 0.3
-radial_segments = 10
-material = ExtResource("2_DinoSkin")
-
-[node name="Foot" type="CSGSphere3D" parent="PlayerVisuals/RightLegJoint/RightLeg"]
-transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1.4, 0, -0.3, 0.08)
-radius = 0.12
-radial_segments = 12
-rings = 10
-material = ExtResource("2_DinoSkin")
-
-[node name="Claw1" type="CSGCylinder3D" parent="PlayerVisuals/RightLegJoint/RightLeg"]
-transform = Transform3D(1, 0, 0, 0, 0.939693, -0.34202, 0, 0.34202, 0.939693, 0, -0.32, 0.22)
-radius = 0.04
-height = 0.1
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="Claw2" type="CSGCylinder3D" parent="PlayerVisuals/RightLegJoint/RightLeg"]
-transform = Transform3D(0.906308, -0.145084, 0.397003, 0, 0.939693, 0.34202, -0.422618, -0.31001, 0.851651, -0.06, -0.32, 0.19)
-radius = 0.04
-height = 0.09
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="Claw3" type="CSGCylinder3D" parent="PlayerVisuals/RightLegJoint/RightLeg"]
-transform = Transform3D(0.906308, 0.145084, -0.397003, 0, 0.939693, 0.34202, 0.422618, -0.31001, 0.851651, 0.06, -0.32, 0.19)
-radius = 0.04
-height = 0.09
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="LeftArmJoint" type="Node3D" parent="PlayerVisuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 0.15, 0.2)
-
-[node name="LeftArm" type="CSGCylinder3D" parent="PlayerVisuals/LeftArmJoint"]
-transform = Transform3D(0.965926, 0.258819, 0, -0.224144, 0.836516, 0.5, 0.12941, -0.482963, 0.866025, -0.05, -0.08, 0.05)
-radius = 0.04
-height = 0.22
-radial_segments = 8
-material = ExtResource("2_DinoSkin")
-
-[node name="Claw1" type="CSGCylinder3D" parent="PlayerVisuals/LeftArmJoint"]
-transform = Transform3D(0.866025, 0.5, 0, -0.433013, 0.75, 0.5, 0.25, -0.433013, 0.866025, -0.08, -0.2, 0.13)
-radius = 0.025
-height = 0.06
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="Claw2" type="CSGCylinder3D" parent="PlayerVisuals/LeftArmJoint"]
-transform = Transform3D(0.866025, -0.5, 0, 0.433013, 0.75, 0.5, -0.25, -0.433013, 0.866025, -0.12, -0.18, 0.11)
-radius = 0.025
-height = 0.06
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="RightArmJoint" type="Node3D" parent="PlayerVisuals"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.15, 0.2)
-
-[node name="RightArm" type="CSGCylinder3D" parent="PlayerVisuals/RightArmJoint"]
-transform = Transform3D(0.965926, -0.258819, 0, 0.224144, 0.836516, 0.5, -0.129415, -0.482963, 0.866025, 0.05, -0.08, 0.05)
-radius = 0.04
-height = 0.22
-radial_segments = 8
-material = ExtResource("2_DinoSkin")
-
-[node name="Claw1" type="CSGCylinder3D" parent="PlayerVisuals/RightArmJoint"]
-transform = Transform3D(0.866025, -0.5, 0, 0.433013, 0.75, 0.5, -0.25, -0.433013, 0.866025, 0.08, -0.2, 0.13)
-radius = 0.025
-height = 0.06
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="Claw2" type="CSGCylinder3D" parent="PlayerVisuals/RightArmJoint"]
-transform = Transform3D(0.866025, 0.5, 0, -0.433013, 0.75, 0.5, 0.25, -0.433013, 0.866025, 0.12, -0.18, 0.11)
-radius = 0.025
-height = 0.06
-cone = true
-material = ExtResource("3_DinoBelly")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="Control" type="Control" parent="CanvasLayer"]
+[node name="Menu" type="Control"]
+texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_MenuScript")
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control"]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 80
-theme_override_constants/margin_top = 80
-theme_override_constants/margin_right = 80
-theme_override_constants/margin_bottom = 80
+texture = ExtResource("2_Background")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="MainMenuPanel" type="PanelContainer" parent="CanvasLayer/Control/MarginContainer"]
+[node name="TopLeftContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 0
+offset_right = 96.0
+offset_bottom = 96.0
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+
+[node name="TrophyButton" type="Button" parent="TopLeftContainer"]
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_menu_panel")
+theme_override_styles/normal = SubResource("StyleBoxTexture_square_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_square_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_square_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_square_hover")
+icon = ExtResource("13_IconTrophy")
+icon_alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control/MarginContainer/MainMenuPanel"]
+[node name="TopRightContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -96.0
+offset_bottom = 96.0
+grow_horizontal = 0
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+
+[node name="GearButton" type="Button" parent="TopRightContainer"]
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 40
+theme_override_styles/normal = SubResource("StyleBoxTexture_square_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_square_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_square_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_square_hover")
+icon = ExtResource("14_IconGear")
+icon_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer"]
+[node name="MainMenuContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -130.0
+offset_top = 28.0
+offset_right = 130.0
+offset_bottom = 304.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="JogarButton" type="Button" parent="MainMenuContainer"]
+custom_minimum_size = Vector2(260, 56)
 layout_mode = 2
-theme_override_constants/separation = 30
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_outline_color = Color(0.07, 0.13, 0.05, 1)
+theme_override_constants/outline_size = 6
+theme_override_styles/normal = SubResource("StyleBoxTexture_green_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_green_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
+text = "JOGAR"
 
-[node name="Title" type="Label" parent="CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer/VBoxContainer"]
+[node name="OpcoesButton" type="Button" parent="MainMenuContainer"]
+custom_minimum_size = Vector2(260, 56)
 layout_mode = 2
-text = "PAÇOCA 2.5D"
-label_settings = SubResource("LabelSettings_menu_title")
-horizontal_alignment = 1
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 6
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "OPÇÕES"
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer/VBoxContainer"]
+[node name="CreditosButton" type="Button" parent="MainMenuContainer"]
+custom_minimum_size = Vector2(260, 56)
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 6
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "CRÉDITOS"
 
-[node name="StartButton" type="Button" parent="CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer/VBoxContainer"]
+[node name="SairButton" type="Button" parent="MainMenuContainer"]
+custom_minimum_size = Vector2(260, 56)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
-text = "Start"
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 6
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "SAIR"
 
-[node name="ConfigButton" type="Button" parent="CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
-text = "Config"
-
-[node name="ExitButton" type="Button" parent="CanvasLayer/Control/MarginContainer/MainMenuPanel/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
-text = "Sair"
-
-[node name="ConfigPanel" type="PanelContainer" parent="CanvasLayer/Control/MarginContainer"]
+[node name="ConfigPanel" type="PanelContainer" parent="."]
 visible = false
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_menu_panel")
+custom_minimum_size = Vector2(400, 420)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -210.0
+offset_right = 200.0
+offset_top = 210.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control/MarginContainer/ConfigPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="ConfigPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 40
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="ConfigPanel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 25
+theme_override_constants/separation = 20
+alignment = 1
 
-[node name="Title" type="Label" parent="CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="ConfigPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "CONFIGURAÇÕES"
-label_settings = SubResource("LabelSettings_menu_title")
+label_settings = SubResource("LabelSettings_sub_title")
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="ConfigPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 5
 
-[node name="JoyLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer"]
+[node name="JoyLabel" type="Label" parent="ConfigPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
 text = "Selecione o Joystick:"
+label_settings = SubResource("LabelSettings_body")
 
-[node name="JoyOptionButton" type="OptionButton" parent="CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer"]
+[node name="JoyOptionButton" type="OptionButton" parent="ConfigPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+alignment = 1
 
-[node name="MapButton" type="Button" parent="CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer"]
+[node name="MapButton" type="Button" parent="ConfigPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
-text = "Mapear Botão Ação/Pulo"
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "Mapear Pulo/Ação"
 
-[node name="MapInstructionsLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer"]
+[node name="MapInstructionsLabel" type="Label" parent="ConfigPanel/MarginContainer/VBoxContainer"]
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.85, 1, 1)
-theme_override_font_sizes/font_size = 16
-text = "Aperte qualquer botão no seu controle..."
+text = "Aperte qualquer botão no controle..."
+label_settings = SubResource("LabelSettings_body")
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="BackButton" type="Button" parent="CanvasLayer/Control/MarginContainer/ConfigPanel/MarginContainer/VBoxContainer"]
+[node name="BackButton" type="Button" parent="ConfigPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
-text = "Voltar"
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 4
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "VOLTAR"
 
-[node name="LevelPanel" type="PanelContainer" parent="CanvasLayer/Control/MarginContainer"]
+[node name="LevelPanel" type="PanelContainer" parent="."]
 visible = false
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-theme_override_styles/panel = SubResource("StyleBoxFlat_menu_panel")
+custom_minimum_size = Vector2(400, 360)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -180.0
+offset_right = 200.0
+offset_top = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control/MarginContainer/LevelPanel"]
+[node name="MarginContainer" type="MarginContainer" parent="LevelPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 40
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="LevelPanel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 25
+theme_override_constants/separation = 16
+alignment = 1
 
-[node name="Title" type="Label" parent="CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="LevelPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "SELECIONAR FASE"
-label_settings = SubResource("LabelSettings_menu_title")
+label_settings = SubResource("LabelSettings_sub_title")
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="LevelPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 5
 
-[node name="Level1Button" type="Button" parent="CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer/VBoxContainer"]
+[node name="Level1Button" type="Button" parent="LevelPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
-text = "Fase 1"
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_outline_color = Color(0.07, 0.13, 0.05, 1)
+theme_override_constants/outline_size = 5
+theme_override_styles/normal = SubResource("StyleBoxTexture_green_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_green_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
+text = "FASE 1"
 
-[node name="DebugLevelButton" type="Button" parent="CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer/VBoxContainer"]
+[node name="DebugLevelButton" type="Button" parent="LevelPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
-text = "Fase de Teste (Debug)"
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 5
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "FASE DE TESTE"
 
-[node name="LevelBackButton" type="Button" parent="CanvasLayer/Control/MarginContainer/LevelPanel/MarginContainer/VBoxContainer"]
+[node name="LevelBackButton" type="Button" parent="LevelPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
-theme_override_styles/hover = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_focus_hover")
-theme_override_styles/focus = SubResource("StyleBoxFlat_btn_focus_hover")
-text = "Voltar"
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 5
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "VOLTAR"
 
+[node name="CreditsPanel" type="PanelContainer" parent="."]
+visible = false
+custom_minimum_size = Vector2(460, 360)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -180.0
+offset_right = 230.0
+offset_top = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="CreditsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CreditsPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "CRÉDITOS"
+label_settings = SubResource("LabelSettings_sub_title")
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CreditsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CreditsText" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "DESENVOLVIMENTO
+Ricardo Borges
+
+DESIGN ARTÍSTICO
+Pixel Art Engine
+
+MOTOR GRÁFICO
+Godot Engine 4.6 C#
+
+Obrigado por jogar!"
+label_settings = SubResource("LabelSettings_body")
+horizontal_alignment = 1
+
+[node name="CreditsBackButton" type="Button" parent="CreditsPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 5
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "VOLTAR"
+
+[node name="AchievementsPanel" type="PanelContainer" parent="."]
+visible = false
+custom_minimum_size = Vector2(460, 380)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -190.0
+offset_right = 230.0
+offset_top = 190.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="AchievementsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AchievementsPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Title" type="Label" parent="AchievementsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "CONQUISTAS"
+label_settings = SubResource("LabelSettings_sub_title")
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="AchievementsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Ach1" type="VBoxContainer" parent="AchievementsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AchTitle" type="Label" parent="AchievementsPanel/MarginContainer/VBoxContainer/Ach1"]
+layout_mode = 2
+text = "[x] Primeiros Passos"
+label_settings = SubResource("LabelSettings_ach_title")
+
+[node name="AchDesc" type="Label" parent="AchievementsPanel/MarginContainer/VBoxContainer/Ach1"]
+layout_mode = 2
+text = "Conclua a primeira fase de Paçoca."
+label_settings = SubResource("LabelSettings_ach_desc")
+
+[node name="Ach2" type="VBoxContainer" parent="AchievementsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AchTitle" type="Label" parent="AchievementsPanel/MarginContainer/VBoxContainer/Ach2"]
+layout_mode = 2
+text = "[ ] Veloz e Furioso"
+label_settings = SubResource("LabelSettings_ach_title")
+
+[node name="AchDesc" type="Label" parent="AchievementsPanel/MarginContainer/VBoxContainer/Ach2"]
+layout_mode = 2
+text = "Alcance uma velocidade de 50 km/h."
+label_settings = SubResource("LabelSettings_ach_desc")
+
+[node name="Ach3" type="VBoxContainer" parent="AchievementsPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AchTitle" type="Label" parent="AchievementsPanel/MarginContainer/VBoxContainer/Ach3"]
+layout_mode = 2
+text = "[x] Colecionador"
+label_settings = SubResource("LabelSettings_ach_title")
+
+[node name="AchDesc" type="Label" parent="AchievementsPanel/MarginContainer/VBoxContainer/Ach3"]
+layout_mode = 2
+text = "Colete um total de 100 moedas."
+label_settings = SubResource("LabelSettings_ach_desc")
+
+[node name="AchievementsBackButton" type="Button" parent="AchievementsPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 5
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_brown_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_brown_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_brown_hover")
+text = "VOLTAR"
