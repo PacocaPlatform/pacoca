@@ -2,14 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkc34nmhy3esf"
+uid="uid://bdscyu64o1cor"
 path.s3tc="res://.godot/imported/paçoca-JumpingUp_0.png-8dc098d57d7f6858f00e06ac20e83b8d.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
-}
-generator_parameters={
-"md5": "04575645697631752ca0eab02a4dcbd2"
 }
 
 [deps]
