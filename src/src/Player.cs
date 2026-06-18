@@ -42,6 +42,7 @@ public partial class Player : CharacterBody3D
     private bool _hasAirDashed = false;
     private float _airDashGravityDelay = 0.0f;
     private bool _wasOnFloor = true;
+    private CameraController? _camera;
 
     // Node references
     private Node3D _visualsNode = null!;
@@ -232,6 +233,31 @@ public partial class Player : CharacterBody3D
         vel = Velocity;
         vel.Z = 0.0f;
         Velocity = vel;
+
+        // Screen boundary clamp (left edge)
+        if (_camera == null)
+        {
+            _camera = GetParent().GetNodeOrNull<CameraController>("Camera3D");
+        }
+        if (_camera != null)
+        {
+            float leftBoundaryX = _camera.GetLeftBoundaryX();
+            float playerRadius = 0.55f;
+            if (GlobalPosition.X < leftBoundaryX + playerRadius)
+            {
+                Vector3 clampedPos = GlobalPosition;
+                clampedPos.X = leftBoundaryX + playerRadius;
+                GlobalPosition = clampedPos;
+                
+                // Zero horizontal leftward velocity if moving left
+                if (Velocity.X < 0)
+                {
+                    Vector3 pVel = Velocity;
+                    pVel.X = 0;
+                    Velocity = pVel;
+                }
+            }
+        }
 
         // Visual orientation & procedural animations
         UpdateVisuals(fDelta);

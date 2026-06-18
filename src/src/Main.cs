@@ -7,6 +7,7 @@ public partial class Main : Node3D
 
     private Node3D _levelWrapper = null!;
     private Player _player = null!;
+    private CameraController _camera = null!;
 
     // Background music player (gameplay theme)
     private AudioStreamPlayer _musicPlayer = null!;
@@ -15,6 +16,7 @@ public partial class Main : Node3D
     {
         _levelWrapper = GetNode<Node3D>("LevelWrapper");
         _player = GetNode<Player>("Player");
+        _camera = GetNode<CameraController>("Camera3D");
 
         // Setup background music (gameplay theme), routed through the shared "Music" bus
         // controlled by the options volume slider. volume_db is used as a fade envelope.
@@ -79,6 +81,9 @@ public partial class Main : Node3D
         {
             GD.Print("Main.cs: SpawnPoint not found in level scene. Using default spawn position.");
         }
+
+        // Reset camera limits and immediately snap the camera
+        _camera.ResetCameraLimits();
     }
 
     public void RestartStage()

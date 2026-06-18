@@ -32,13 +32,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 1.5, 0)
 use_collision = true
 
 [node name="SpawnPlatform" type="CSGBox3D" parent="Level/TrackCSG" unique_id=1342663695]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, -0.5, 0)
-size = Vector3(520, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 190, -0.5, 0)
+size = Vector3(540, 1, 4)
 material = ExtResource("1_GrassMat")
 
 [node name="SpawnSubRock" type="CSGBox3D" parent="Level/TrackCSG" unique_id=1751204661]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, -3, 0)
-size = Vector3(520, 4, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 190, -3, 0)
+size = Vector3(540, 4, 3.8)
 material = ExtResource("2_RockMat")
 
 [node name="BG_Loop" type="MeshInstance3D" parent="Level" unique_id=1779007172]

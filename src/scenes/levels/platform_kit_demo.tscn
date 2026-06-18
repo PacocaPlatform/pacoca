@@ -15,7 +15,7 @@
 [ext_resource type="PackedScene" path="res://models/platform_kit/tree.glb" id="13_TreeModel"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_spawn"]
-size = Vector3(30, 1, 4)
+size = Vector3(50, 1, 4)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_high"]
 size = Vector3(20, 1, 4)
@@ -49,6 +49,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.5, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, -0.5, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Level/SpawnPlatform"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0)
 shape = SubResource("BoxShape3D_spawn")
 
 [node name="Visuals" type="Node3D" parent="Level/SpawnPlatform"]
@@ -97,6 +98,36 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 12, 0, 0)
 
 [node name="Block14" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 14, 0, 0)
+
+[node name="Block15" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -16, 0, 0)
+
+[node name="Block16" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -18, 0, 0)
+
+[node name="Block17" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -20, 0, 0)
+
+[node name="Block18" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -22, 0, 0)
+
+[node name="Block19" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -24, 0, 0)
+
+[node name="Block20" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -26, 0, 0)
+
+[node name="Block21" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -28, 0, 0)
+
+[node name="Block22" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -30, 0, 0)
+
+[node name="Block23" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -32, 0, 0)
+
+[node name="Block24" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -34, 0, 0)
 
 [node name="Slope1Platform" type="StaticBody3D" parent="Level"]
 
