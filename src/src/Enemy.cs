@@ -106,14 +106,43 @@ public partial class Enemy : CharacterBody3D
         MoveAndSlide();
     }
 
+    public float GetCollisionHeight()
+    {
+        if (_collisionShape != null && _collisionShape.Shape != null)
+        {
+            var shape = _collisionShape.Shape;
+            if (shape is CylinderShape3D cylinder)
+            {
+                return cylinder.Height;
+            }
+            else if (shape is BoxShape3D box)
+            {
+                return box.Size.Y;
+            }
+            else if (shape is SphereShape3D sphere)
+            {
+                return sphere.Radius * 2.0f;
+            }
+        }
+        return 1.0f;
+    }
+
     protected void OnPlayerEntered(Node3D body)
     {
         if (_isDestroyed) return;
 
         if (body is Player player)
         {
-            // If the player is rolling (spin dash/jump/roll state), was rolling, or falling on top of the enemy
-            bool isPlayerAttacking = player.IsRolling || player.WasRolling || (player.Velocity.Y < -1.5f && player.GlobalPosition.Y > GlobalPosition.Y + 0.3f);
+            // Determine enemy midpoint Y in global coordinates
+            float enemyMidY = GlobalPosition.Y + (_collisionShape != null ? _collisionShape.Position.Y : 0.0f);
+            // Player's bottom Y (sphere shape radius is 0.55 at offset 0.05, so bottom is Y - 0.5)
+            float playerBottomY = player.GlobalPosition.Y - 0.5f;
+
+            // Player is landing on top if they are above the midpoint and not moving upwards
+            bool isLandingOnTop = player.Velocity.Y <= 0.1f && (playerBottomY > enemyMidY);
+
+            // If the player is rolling (spin dash/jump/roll state), was rolling, or landing on top of the enemy
+            bool isPlayerAttacking = player.IsRolling || player.WasRolling || isLandingOnTop;
             
             if (isPlayerAttacking)
             {
