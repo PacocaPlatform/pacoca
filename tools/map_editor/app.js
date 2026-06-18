@@ -1,4 +1,5 @@
 // --- Application State ---
+const Y_STEP = 4.0;
 let levelId = "04";
 let levelName = "Ruínas Celestes";
 let gridWidth = 100;
@@ -347,9 +348,9 @@ function toggleGridlines() {
 
 function updateCoordinatesDisplay(c, r) {
     // Col c represents X coord: c * 2.0
-    // Visual row r represents Y coord: (gridHeight - 1 - r) * 1.0
+    // Visual row r represents Y coord: (gridHeight - 1 - r) * Y_STEP
     const xCoord = (c * 2.0).toFixed(1);
-    const yCoord = ((gridHeight - 1 - r) * 1.0).toFixed(1);
+    const yCoord = ((gridHeight - 1 - r) * Y_STEP).toFixed(1);
     
     document.getElementById("coord-display").innerText = 
         `Coord: Col: ${c}, Lin: ${r} | Posição Real (Godot): X: ${xCoord}m, Y: ${yCoord}m`;
@@ -409,7 +410,7 @@ function generateJSONExport() {
     
     // 1. Merge Platforms '#'
     for (let r = 0; r < gridHeight; r++) {
-        const yCoord = (gridHeight - 1 - r) * 1.0;
+        const yCoord = (gridHeight - 1 - r) * Y_STEP;
         let c = 0;
         while (c < gridWidth) {
             if (getCell(c, r) === "#" && !visitedHashes.has(`${c},${r}`)) {
@@ -455,9 +456,9 @@ function generateJSONExport() {
                 let [cEnd, rEnd] = chain[chain.length - 1]; // Top-right visually
                 
                 let width = (cEnd - cStart + 1) * 2.0;
-                let height = (rStart - rEnd + 1) * 1.0;
+                let height = (rStart - rEnd + 1) * Y_STEP;
                 let start_x = cStart * 2.0 - 1.0;
-                let start_y = (gridHeight - 1 - rStart) * 1.0 - 0.5;
+                let start_y = (gridHeight - 1 - rStart) * Y_STEP - Y_STEP + 0.5;
                 
                 ramps_up.push({
                     x: parseFloat(start_x.toFixed(2)),
@@ -490,9 +491,9 @@ function generateJSONExport() {
                 let [cEnd, rEnd] = chain[chain.length - 1]; // Bottom-right visually
                 
                 let width = (cEnd - cStart + 1) * 2.0;
-                let height = (rEnd - rStart + 1) * 1.0;
+                let height = (rEnd - rStart + 1) * Y_STEP;
                 let start_x = cStart * 2.0 - 1.0;
-                let start_y = (gridHeight - 1 - rStart) * 1.0 + 0.5;
+                let start_y = (gridHeight - 1 - rStart) * Y_STEP + 0.5;
                 
                 ramps_down.push({
                     x: parseFloat(start_x.toFixed(2)),
@@ -506,34 +507,33 @@ function generateJSONExport() {
 
     // 4. Parse Items
     for (let r = 0; r < gridHeight; r++) {
-        const yCoord = (gridHeight - 1 - r) * 1.0;
         for (let c = 0; c < gridWidth; c++) {
             const char = grid[c][r];
             const xCoord = c * 2.0;
             
             if (char === "o") {
-                rings.push([parseFloat(xCoord.toFixed(2)), parseFloat((yCoord + 0.2).toFixed(2))]);
+                rings.push([parseFloat(xCoord.toFixed(2)), parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 1.2).toFixed(2))]);
             } else if (char === "V") {
-                springs_vert.push({ x: parseFloat(xCoord.toFixed(2)), y: parseFloat((yCoord - 0.5).toFixed(2)), force: 22.0 });
+                springs_vert.push({ x: parseFloat(xCoord.toFixed(2)), y: parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 0.5).toFixed(2)), force: 22.0 });
             } else if (char === "F") {
                 springs_diag.push({ 
                     x: parseFloat(xCoord.toFixed(2)), 
-                    y: parseFloat((yCoord - 0.5).toFixed(2)), 
+                    y: parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 0.5).toFixed(2)), 
                     force: 25.0, 
                     dx: 1.2, 
                     dy: 1.5, 
                     lock: 0.6 
                 });
             } else if (char === "D") {
-                dash_pads.push([parseFloat(xCoord.toFixed(2)), parseFloat((yCoord - 0.5).toFixed(2))]);
+                dash_pads.push([parseFloat(xCoord.toFixed(2)), parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 0.5).toFixed(2))]);
             } else if (char === "E") {
-                enemies.push({ x: parseFloat(xCoord.toFixed(2)), y: parseFloat(yCoord.toFixed(2)), speed: 3.0 });
+                enemies.push({ x: parseFloat(xCoord.toFixed(2)), y: parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 1.0).toFixed(2)), speed: 3.0 });
             } else if (char === "C") {
-                cactus_enemies.push({ x: parseFloat(xCoord.toFixed(2)), y: parseFloat(yCoord.toFixed(2)), speed: 1.25 });
+                cactus_enemies.push({ x: parseFloat(xCoord.toFixed(2)), y: parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 1.0).toFixed(2)), speed: 1.25 });
             } else if (char === "S") {
-                spikes.push([parseFloat(xCoord.toFixed(2)), parseFloat((yCoord - 0.5).toFixed(2))]);
+                spikes.push([parseFloat(xCoord.toFixed(2)), parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 0.5).toFixed(2))]);
             } else if (char === "P") {
-                spawn = [parseFloat(xCoord.toFixed(2)), parseFloat((yCoord + 0.5).toFixed(2))];
+                spawn = [parseFloat(xCoord.toFixed(2)), parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 1.5).toFixed(2))];
             }
         }
     }
@@ -601,47 +601,55 @@ function importJSON(data) {
     let maxX = 50; // default min width
     let maxY = 12; // default min height
     
+    // Detect import Y_STEP automatically
+    let import_Y_STEP = 4.0;
+    if (data.level === "01" || (data.platforms && data.platforms.some(p => p.y % 4 !== 0))) {
+        import_Y_STEP = 1.0;
+    }
+    
     // Scan coordinates to set grid size
     const checkCoords = (x, y) => {
         const c = Math.round(x / 2.0);
-        const r = Math.round(y);
+        const r = Math.round(y / import_Y_STEP);
         if (c > maxX) maxX = c;
         if (r > maxY) maxY = r;
     };
     
+    // Adjust y coordinates scan helper
     if (data.spawn) checkCoords(data.spawn[0], data.spawn[1]);
     if (data.platforms) {
         data.platforms.forEach(p => {
-            // start_col to end_col
             const colWidth = p.width / 2.0;
             const colCenter = p.x / 2.0;
             const cEnd = Math.round(colCenter + colWidth / 2.0 - 0.5);
             if (cEnd > maxX) maxX = cEnd;
-            if (p.y > maxY) maxY = Math.round(p.y);
+            checkCoords(p.x, p.y);
         });
     }
     if (data.ramps_up) {
         data.ramps_up.forEach(r => {
             const cEnd = Math.round((r.x + r.width) / 2.0);
             if (cEnd > maxX) maxX = cEnd;
-            if (r.y + r.height > maxY) maxY = Math.round(r.y + r.height);
+            checkCoords(r.x, r.y);
+            checkCoords(r.x + r.width, r.y + r.height);
         });
     }
     if (data.ramps_down) {
         data.ramps_down.forEach(r => {
             const cEnd = Math.round((r.x + r.width) / 2.0);
             if (cEnd > maxX) maxX = cEnd;
-            if (r.y > maxY) maxY = Math.round(r.y);
+            checkCoords(r.x, r.y);
+            checkCoords(r.x + r.width, r.y - r.height);
         });
     }
     
     // Arrays helper
-    const scanArray = (arr, hasYOffset = false, yOffset = 0) => {
+    const scanArray = (arr) => {
         if (arr) {
             arr.forEach(item => {
                 let x = Array.isArray(item) ? item[0] : item.x;
                 let y = Array.isArray(item) ? item[1] : item.y;
-                checkCoords(x, y + yOffset);
+                checkCoords(x, y);
             });
         }
     };
@@ -670,11 +678,10 @@ function importJSON(data) {
         }
     }
     
-    // Helper to set element in grid: x -> col, y -> visual row
-    const setCellByCoords = (x, y, char) => {
+    // Helper to set element in grid: x -> col, r -> visual row index
+    const setElementAt = (x, r, char) => {
         const c = Math.round(x / 2.0);
-        const r_coord = Math.round(y);
-        const r_visual = gridHeight - 1 - r_coord;
+        const r_visual = gridHeight - 1 - r;
         if (c >= 0 && c < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
             grid[c][r_visual] = char;
         }
@@ -687,9 +694,10 @@ function importJSON(data) {
             const colCenter = p.x / 2.0;
             const cStart = Math.round(colCenter - colWidth / 2.0);
             const cEnd = cStart + colWidth - 1;
-            const r_visual = gridHeight - 1 - Math.round(p.y);
+            const r = Math.round(p.y / import_Y_STEP);
             
             for (let c = cStart; c <= cEnd; c++) {
+                const r_visual = gridHeight - 1 - r;
                 if (c >= 0 && c < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
                     grid[c][r_visual] = "#";
                 }
@@ -701,14 +709,13 @@ function importJSON(data) {
     if (data.ramps_up) {
         data.ramps_up.forEach(ramp => {
             const colWidth = Math.round(ramp.width / 2.0);
-            const height = Math.round(ramp.height / 1.0);
             const cStart = Math.round((ramp.x + 1.0) / 2.0);
-            const rStartCoord = Math.round(ramp.y + 0.5);
+            const rStart = Math.round((ramp.y - 0.5) / import_Y_STEP) + 1;
             
             for (let i = 0; i < colWidth; i++) {
                 const c = cStart + i;
-                const rCoord = rStartCoord + i; // slope up-right: coordinate Y increases
-                const r_visual = gridHeight - 1 - rCoord;
+                const r = rStart + i;
+                const r_visual = gridHeight - 1 - r;
                 if (c >= 0 && c < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
                     grid[c][r_visual] = "/";
                 }
@@ -720,14 +727,13 @@ function importJSON(data) {
     if (data.ramps_down) {
         data.ramps_down.forEach(ramp => {
             const colWidth = Math.round(ramp.width / 2.0);
-            const height = Math.round(ramp.height / 1.0);
             const cStart = Math.round((ramp.x + 1.0) / 2.0);
-            const rStartCoord = Math.round(ramp.y - 0.5); // top visual y coordinate
+            const rStart = Math.round((ramp.y - 0.5) / import_Y_STEP);
             
             for (let i = 0; i < colWidth; i++) {
                 const c = cStart + i;
-                const rCoord = rStartCoord - i; // slope down-right: coordinate Y decreases
-                const r_visual = gridHeight - 1 - rCoord;
+                const r = rStart - i;
+                const r_visual = gridHeight - 1 - r;
                 if (c >= 0 && c < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
                     grid[c][r_visual] = "\\";
                 }
@@ -736,14 +742,52 @@ function importJSON(data) {
     }
     
     // Populate items
-    if (data.spawn) setCellByCoords(data.spawn[0], data.spawn[1] - 0.5, "P");
-    if (data.rings) data.rings.forEach(item => setCellByCoords(item[0], item[1] - 0.2, "o"));
-    if (data.springs_vert) data.springs_vert.forEach(item => setCellByCoords(item.x, item.y + 0.5, "V"));
-    if (data.springs_diag) data.springs_diag.forEach(item => setCellByCoords(item.x, item.y + 0.5, "F"));
-    if (data.dash_pads) data.dash_pads.forEach(item => setCellByCoords(item[0], item[1] + 0.5, "D"));
-    if (data.enemies) data.enemies.forEach(item => setCellByCoords(item.x, item.y, "E"));
-    if (data.cactus_enemies) data.cactus_enemies.forEach(item => setCellByCoords(item.x, item.y, "C"));
-    if (data.spikes) data.spikes.forEach(item => setCellByCoords(item[0], item[1] + 0.5, "S"));
+    if (data.spawn) {
+        const r = Math.round((data.spawn[1] - 1.5) / import_Y_STEP) + 1;
+        setElementAt(data.spawn[0], r, "P");
+    }
+    if (data.rings) {
+        data.rings.forEach(item => {
+            const r = Math.round((item[1] - 1.2) / import_Y_STEP) + 1;
+            setElementAt(item[0], r, "o");
+        });
+    }
+    if (data.springs_vert) {
+        data.springs_vert.forEach(item => {
+            const r = Math.round((item.y - 0.5) / import_Y_STEP) + 1;
+            setElementAt(item.x, r, "V");
+        });
+    }
+    if (data.springs_diag) {
+        data.springs_diag.forEach(item => {
+            const r = Math.round((item.y - 0.5) / import_Y_STEP) + 1;
+            setElementAt(item.x, r, "F");
+        });
+    }
+    if (data.dash_pads) {
+        data.dash_pads.forEach(item => {
+            const r = Math.round((item[1] - 0.5) / import_Y_STEP) + 1;
+            setElementAt(item[0], r, "D");
+        });
+    }
+    if (data.enemies) {
+        data.enemies.forEach(item => {
+            const r = Math.round((item.y - 1.0) / import_Y_STEP) + 1;
+            setElementAt(item.x, r, "E");
+        });
+    }
+    if (data.cactus_enemies) {
+        data.cactus_enemies.forEach(item => {
+            const r = Math.round((item.y - 1.0) / import_Y_STEP) + 1;
+            setElementAt(item.x, r, "C");
+        });
+    }
+    if (data.spikes) {
+        data.spikes.forEach(item => {
+            const r = Math.round((item[1] - 0.5) / import_Y_STEP) + 1;
+            setElementAt(item[0], r, "S");
+        });
+    }
     
     renderGrid();
     generateExports();

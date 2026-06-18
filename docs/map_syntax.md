@@ -25,10 +25,11 @@ name: Templo do Caos
 ```
 
 ### Regras do Grid
-- **Dimensões das Células**: Cada coluna no editor de texto representa **2 metros** no eixo horizontal (X). Cada linha representa **1 metro** no eixo vertical (Y).
+- **Dimensões das Células**: Cada coluna no editor de texto representa **2 metros** no eixo horizontal (X). Por padrão, cada linha representa **4 metros** no eixo vertical (Y) (este valor pode ser configurado com o parâmetro `ystep` no cabeçalho).
 - **Direção**:
   - A primeira coluna à esquerda é o início do nível (X menor).
   - A última linha no final do bloco de texto representa o chão mais baixo (Y = 0). As linhas acima aumentam a altura (Y maior).
+- **Parâmetro `ystep`**: Define o espaçamento em metros entre cada linha vertical do grid. Por padrão é `4.0` para novos mapas, permitindo passagem do jogador caso haja linhas em branco. Caso queira o comportamento antigo de 1 metro por linha, adicione `ystep: 1.0` no cabeçalho do arquivo (como feito no `level_01.txt`).
 - **Física contínua**: O conversor detecta sequências horizontais de plataformas (`#`) e as mescla em um único colisor de física no Godot, o que evita que o jogador fique preso nas emendas dos blocos!
 
 ### Legenda dos Caracteres

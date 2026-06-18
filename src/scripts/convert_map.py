@@ -138,9 +138,13 @@ def parse_ascii_grid(lines: list[str]) -> dict:
     # Pad all lines to same width
     padded_grid = [line.ljust(W) for line in grid_lines]
     
+    # Read ystep setting (default to 4.0)
+    ystep_val = settings.get("ystep") or settings.get("y_step")
+    Y_STEP = float(ystep_val) if ystep_val is not None else 4.0
+    
     # We will build structures by scanning the grid cells
     # Column width: 2.0 (X)
-    # Row height: 1.0 (Y)
+    # Row height: Y_STEP (Y)
     
     platforms = []
     ramps_up = []
@@ -180,7 +184,7 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 # Compute coordinates
                 width = (c_end - c_start + 1) * 2.0
                 x = ((c_start + c_end) / 2.0) * 2.0
-                y = r * 1.0
+                y = r * Y_STEP
                 platforms.append({"x": x, "y": y, "width": width})
             else:
                 c += 1
@@ -203,11 +207,11 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 c_end, r_end = chain[-1]
                 
                 width = (c_end - c_start + 1) * 2.0
-                height = (r_end - r_start + 1) * 1.0
+                height = (r_end - r_start + 1) * Y_STEP
                 start_x = c_start * 2.0 - 1.0
-                start_y = r_start * 1.0 - 0.5
+                start_y = (r_start - 1) * Y_STEP + 0.5
                 ramps_up.append({"x": start_x, "y": start_y, "width": width, "height": height})
-
+ 
     # 3. Merge ramps down '\' (diagonally down-right: c+1, r-1)
     for r in reversed(range(H)):
         for c in range(W):
@@ -226,11 +230,11 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 c_end, r_end = chain[-1]
                 
                 width = (c_end - c_start + 1) * 2.0
-                height = (r_start - r_end + 1) * 1.0
+                height = (r_start - r_end + 1) * Y_STEP
                 start_x = c_start * 2.0 - 1.0
-                start_y = r_start * 1.0 + 0.5
+                start_y = r_start * Y_STEP + 0.5
                 ramps_down.append({"x": start_x, "y": start_y, "width": width, "height": height})
-
+ 
     # 4. Parse items
     for r in range(H):
         for c in range(W):
@@ -238,26 +242,26 @@ def parse_ascii_grid(lines: list[str]) -> dict:
             x = c * 2.0
             
             if char == 'o': # Ring
-                rings.append([x, r * 1.0 + 0.2])
+                rings.append([x, (r - 1) * Y_STEP + 1.2])
             elif char == 'V': # Vertical Spring
-                springs_vert.append({"x": x, "y": r * 1.0 - 0.5, "force": 22.0})
+                springs_vert.append({"x": x, "y": (r - 1) * Y_STEP + 0.5, "force": 22.0})
             elif char == 'F': # Diagonal Spring (Forward)
-                springs_diag.append({"x": x, "y": r * 1.0 - 0.5, "force": 25.0, "dx": 1.2, "dy": 1.5, "lock": 0.6})
+                springs_diag.append({"x": x, "y": (r - 1) * Y_STEP + 0.5, "force": 25.0, "dx": 1.2, "dy": 1.5, "lock": 0.6})
             elif char in ('>', 'D'): # Dash Pad
-                dash_pads.append([x, r * 1.0 - 0.5])
+                dash_pads.append([x, (r - 1) * Y_STEP + 0.5])
             elif char == 'E': # Enemy
-                enemies.append({"x": x, "y": r * 1.0, "speed": 3.0})
+                enemies.append({"x": x, "y": (r - 1) * Y_STEP + 1.0, "speed": 3.0})
             elif char == 'C': # Cactus Enemy
-                cactus_enemies.append({"x": x, "y": r * 1.0, "speed": 1.25})
+                cactus_enemies.append({"x": x, "y": (r - 1) * Y_STEP + 1.0, "speed": 1.25})
             elif char == 'S': # Spikes
-                spikes.append([x, r * 1.0 - 0.5])
+                spikes.append([x, (r - 1) * Y_STEP + 0.5])
             elif char == 'P': # Player Spawn
-                spawn = [x, r * 1.0 + 0.5]
+                spawn = [x, (r - 1) * Y_STEP + 1.5]
                 
     # If no spawn point was specified, place it default
     if spawn is None:
         spawn = [0.0, 1.5]
-
+ 
     return {
         "level": settings.get("level", "03"),
         "name": settings.get("name", "Generated Level"),

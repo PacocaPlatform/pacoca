@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://hla0rkd70p20"]
+[gd_scene format=3 uid="uid://c33r1q6joc2l03"]
 
 [ext_resource type="Material" uid="uid://dbuyyv4i7g0p7" path="res://materials/grass.tres" id="1_GrassMat"]
 [ext_resource type="Material" uid="uid://clhv3grjlph27" path="res://materials/rock.tres" id="2_RockMat"]
@@ -19,7 +19,7 @@ size = Vector3(5000, 2, 8)
 material = ExtResource("4_MountainMat")
 size = Vector2(5000, 120)
 
-[node name="Level04" type="Node3D"]
+[node name="Level03" type="Node3D"]
 
 [node name="SpawnPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 1.50, 0)
@@ -56,12 +56,12 @@ material = ExtResource("2_RockMat")
 
 
 [node name="Platform_1" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.00, 8.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.00, 2.00, 0)
 size = Vector3(16.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.00, 5.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.00, -0.50, 0)
 size = Vector3(16.00, 4, 3.8)
 material = ExtResource("2_RockMat")

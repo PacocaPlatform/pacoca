@@ -1,5 +1,6 @@
 level: 01
 name: Nível 01
+ystep: 1.0
 
 [grid]
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     #####
