@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paçoca 2.5D - Editor Visual de Mapas</title>
+    <!-- Google Fonts: Outfit (modern sans) and JetBrains Mono (coding font) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons for premium visual indicator icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="logo-badge">2.5D</span>
+                <h1>Paçoca <span class="accent">Map Editor</span></h1>
+            </div>
+            <p class="subtitle">Criador visual de níveis e exportador ASCII / JSON para Godot Engine</p>
+            <div class="header-status" id="header-status">
+                <i data-lucide="info"></i>
+                <span>Modo de edição ativo</span>
+            </div>
+        </header>
+
+        <main class="app-body">
+            <!-- SIDEBAR: PALETTE & METADATA -->
+            <section class="sidebar panel">
+                <div class="panel-section">
+                    <h3><i data-lucide="settings"></i> Configurações do Nível</h3>
+                    <div class="input-group">
+                        <label for="level-id">ID do Nível</label>
+                        <input type="text" id="level-id" value="04" placeholder="Ex: 04" maxlength="3">
+                    </div>
+                    <div class="input-group">
+                        <label for="level-name">Nome do Nível</label>
+                        <input type="text" id="level-name" value="Ruínas Celestes" placeholder="Ex: Templo do Caos">
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i data-lucide="grid"></i> Dimensões do Grid</h3>
+                    <div class="size-controls">
+                        <div class="input-group">
+                            <label for="grid-width">Largura (X)</label>
+                            <div class="number-input">
+                                <button type="button" class="btn-step" onclick="changeGridSize('width', -10)">-10</button>
+                                <input type="number" id="grid-width" value="100" min="10" max="1000">
+                                <button type="button" class="btn-step" onclick="changeGridSize('width', 10)">+10</button>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="grid-height">Altura (Y)</label>
+                            <div class="number-input">
+                                <button type="button" class="btn-step" onclick="changeGridSize('height', -1)">-1</button>
+                                <input type="number" id="grid-height" value="15" min="5" max="100">
+                                <button type="button" class="btn-step" onclick="changeGridSize('height', 1)">+1</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="rebuildGrid()">Aplicar Novas Dimensões</button>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i data-lucide="brush"></i> Ferramentas</h3>
+                    <div class="tool-selector">
+                        <button class="tool-btn active" id="tool-paint" onclick="setToolMode('paint')">
+                            <i data-lucide="pencil"></i> Pintar
+                        </button>
+                        <button class="tool-btn" id="tool-erase" onclick="setToolMode('erase')">
+                            <i data-lucide="eraser"></i> Borracha
+                        </button>
+                        <button class="tool-btn" id="tool-clear" onclick="clearGrid()">
+                            <i data-lucide="trash-2"></i> Limpar Tudo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3><i data-lucide="layers"></i> Paleta de Blocos</h3>
+                    <div class="palette-list" id="palette-list">
+                        <!-- Instantiated by Javascript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTER WORKSPACE: CANVAS GRID -->
+            <section class="workspace">
+                <div class="toolbar">
+                    <button class="btn btn-secondary btn-toggle" id="btn-toggle-sidebar" onclick="toggleSidebar()" title="Recolher Configurações">
+                        <i data-lucide="chevron-left"></i> Configurações
+                    </button>
+                    
+                    <div class="view-controls">
+                        <button class="btn btn-secondary" onclick="adjustZoom(-0.1)" title="Zoom Out"><i data-lucide="zoom-out"></i></button>
+                        <span class="zoom-level" id="zoom-label">100%</span>
+                        <button class="btn btn-secondary" onclick="adjustZoom(0.1)" title="Zoom In"><i data-lucide="zoom-in"></i></button>
+                        <button class="btn btn-secondary" onclick="adjustZoom(0, true)" title="Resetar Zoom"><i data-lucide="maximize-2"></i></button>
+                        <span class="divider"></span>
+                        <button class="btn btn-secondary btn-toggle" id="btn-toggle-grid" onclick="toggleGridlines()" title="Alternar Linhas do Grid">
+                            <i data-lucide="grid-3x3"></i> Linhas do Grid
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-right">
+                        <div class="coordinate-info">
+                            <span id="coord-display">Coord: X: 0, Y: 0 | Posição Real: X: 0.0m, Y: 0.0m</span>
+                        </div>
+                        <button class="btn btn-secondary btn-toggle" id="btn-toggle-output" onclick="toggleOutput()" title="Recolher Código/Exportações">
+                            Código <i data-lucide="chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid-container" id="grid-container">
+                    <div class="grid-scroll-area">
+                        <div class="map-grid" id="map-grid">
+                            <!-- Cells dynamically created by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-nav">
+                    <label>Navegação Horizontal Rápida</label>
+                    <input type="range" id="scroll-slider" min="0" max="100" value="0">
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: EXPORTS / IMPORTS -->
+            <section class="output-drawer panel">
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="switchTab('tab-ascii')">Grid ASCII</button>
+                    <button class="tab-btn" onclick="switchTab('tab-json')">JSON</button>
+                    <button class="tab-btn" onclick="switchTab('tab-import')">Importar</button>
+                    <button class="tab-btn" onclick="switchTab('tab-instructions')">Compilar</button>
+                </div>
+
+                <div class="tabs-content">
+                    <!-- ASCII Tab -->
+                    <div class="tab-panel active" id="tab-ascii">
+                        <div class="tab-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('ascii-output')">
+                                <i data-lucide="copy"></i> Copiar ASCII
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="downloadFile('txt')">
+                                <i data-lucide="download"></i> Baixar .txt
+                            </button>
+                        </div>
+                        <textarea id="ascii-output" readonly class="code-view" spellcheck="false"></textarea>
+                    </div>
+
+                    <!-- JSON Tab -->
+                    <div class="tab-panel" id="tab-json">
+                        <div class="tab-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('json-output')">
+                                <i data-lucide="copy"></i> Copiar JSON
+                            </button>
+                            <button class="btn btn-sm btn-primary" onclick="downloadFile('json')">
+                                <i data-lucide="download"></i> Baixar .json
+                            </button>
+                        </div>
+                        <textarea id="json-output" readonly class="code-view" spellcheck="false"></textarea>
+                    </div>
+
+                    <!-- Import Tab -->
+                    <div class="tab-panel" id="tab-import">
+                        <p class="tab-note">Cole o código do mapa em formato Grid ASCII (incluindo cabeçalhos) ou JSON estruturado para importá-lo no editor.</p>
+                        <textarea id="import-input" class="code-view input-view" placeholder="Cole aqui seu arquivo level_XX_map.txt ou .json..." spellcheck="false"></textarea>
+                        <div class="tab-actions justify-end">
+                            <button class="btn btn-primary" onclick="importMap()">
+                                <i data-lucide="upload"></i> Carregar Mapa no Editor
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Instructions Tab -->
+                    <div class="tab-panel" id="tab-instructions">
+                        <div class="instructions-guide">
+                            <h4>Como compilar este nível para o Godot:</h4>
+                            <ol>
+                                <li>Salve/Baixe o arquivo de texto como <code class="highlight">level_<span class="dynamic-level-id">04</span>_map.txt</code>.</li>
+                                <li>Coloque o arquivo na pasta do projeto em: <br><code>src/scripts/levels/</code>.</li>
+                                <li>Abra seu terminal na raiz do projeto e execute a compilação:</li>
+                            </ol>
+                            
+                            <div class="command-box">
+                                <code id="compile-command">python scripts/convert_map.py --input scripts/levels/level_04_map.txt --level 04</code>
+                                <button class="btn-copy-icon" onclick="copyCommand()" title="Copiar Comando"><i data-lucide="copy"></i></button>
+                            </div>
+
+                            <div class="metrics-card">
+                                <h5>Métricas Importantes (Platformer Kit)</h5>
+                                <ul>
+                                    <li><strong>Grade X (Largura)</strong>: Cada bloco <code>#</code> ou rampa <code>/</code> mede <strong>2m</strong>.</li>
+                                    <li><strong>Grade Y (Altura)</strong>: Cada linha mede <strong>1m</strong>.</li>
+                                    <li><strong>Salto Médio</strong>: 4m horizontalmente (parado), até 15m (com velocidade máxima).</li>
+                                    <li><strong>Molas</strong>: Verticais lançam a 22m de altura. Diagonais para cruzamento rápido.</li>
+                                    <li><strong>Queda Fatal</strong>: Evite plataformas em Y &lt; -15m.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- TOAST SYSTEM -->
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <!-- Script loading -->
+    <script src="app.js"></script>
+    <script>
+        // Initialize lucide icons after page load
+        lucide.createIcons();
+    </script>
+</body>
+</html>

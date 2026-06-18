@@ -411,6 +411,19 @@ theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
 theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
 text = "FASE 2"
 
+[node name="Level3Button" type="Button" parent="LevelPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_outline_color = Color(0.07, 0.13, 0.05, 1)
+theme_override_constants/outline_size = 5
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_green_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
+text = "FASE 3"
+
 [node name="PlatformKitDemoButton" type="Button" parent="LevelPanel/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2

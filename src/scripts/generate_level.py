@@ -197,7 +197,7 @@ def scene_path_for(level: str) -> str:
     script_dir = os.path.dirname(os.path.abspath(__file__))
     return os.path.normpath(
         os.path.join(
-            script_dir, "..", "src", "scenes", "levels", f"level_{level}.tscn"
+            script_dir, "..", "scenes", "levels", f"level_{level}.tscn"
         )
     )
 

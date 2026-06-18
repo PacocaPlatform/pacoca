@@ -1,0 +1,10 @@
+level: 04
+name: Ruinas Celestes
+
+[grid]
+                                                                                                        
+                                                                             o o o                      
+                                                                            #######                     
+                                                                           /       \                    
+  P     o o o                                E                    S S S   #         #                   
+#####  #######  D  V  E  #######  /##\  #####  C  D  ####### #########         #  F  #####  D  #####

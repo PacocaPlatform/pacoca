@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://c33r1q6joc2l03"]
+
+[ext_resource type="Material" uid="uid://dbuyyv4i7g0p7" path="res://materials/grass.tres" id="1_GrassMat"]
+[ext_resource type="Material" uid="uid://clhv3grjlph27" path="res://materials/rock.tres" id="2_RockMat"]
+[ext_resource type="Material" path="res://materials/water.tres" id="3_WaterMat"]
+[ext_resource type="Material" path="res://materials/mountain_bg.tres" id="4_MountainMat"]
+[ext_resource type="PackedScene" path="res://scenes/ring.tscn" id="5_RingScene"]
+[ext_resource type="PackedScene" path="res://scenes/spring.tscn" id="6_SpringScene"]
+[ext_resource type="PackedScene" path="res://scenes/dash_pad.tscn" id="7_DashPadScene"]
+[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="8_EnemyScene"]
+[ext_resource type="PackedScene" path="res://scenes/cactus_enemy.tscn" id="9_CactusEnemyScene"]
+[ext_resource type="PackedScene" path="res://scenes/spikes.tscn" id="10_SpikesScene"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_water"]
+material = ExtResource("3_WaterMat")
+size = Vector3(5000, 2, 8)
+
+[sub_resource type="QuadMesh" id="QuadMesh_mountain"]
+material = ExtResource("4_MountainMat")
+size = Vector2(5000, 120)
+
+[node name="Level03" type="Node3D"]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.5, 0)
+
+[node name="Level" type="Node3D" parent="."]
+
+[node name="TrackCSG" type="CSGCombiner3D" parent="Level"]
+use_collision = true
+
+[node name="WaterPlane" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, -7.5, 0)
+mesh = SubResource("BoxMesh_water")
+
+[node name="BG_Mountains" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, 15, -22)
+mesh = SubResource("QuadMesh_mountain")
+
+[node name="InteractiveObjects" type="Node3D" parent="."]
+
+[node name="Rings" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Enemies" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Platform_0" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -100, -100, 0)
+size = Vector3(1, 1, 1)
+material = ExtResource("1_GrassMat")
