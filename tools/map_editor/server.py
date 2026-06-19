@@ -178,6 +178,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         route = self.path.split("?", 1)[0]
         if route == "/api/config":
             self._handle_get_config()
+        elif route == "/api/status":
+            self._handle_status()
         elif route == "/api/maps":
             self._handle_list_maps()
         elif route == "/api/maps/item":
@@ -192,6 +194,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._handle_compile()
         elif self.path == "/api/run":
             self._handle_run()
+        elif self.path == "/api/stop":
+            self._handle_stop()
         elif self.path == "/api/config":
             self._handle_set_config()
         elif self.path == "/api/maps":
@@ -444,7 +448,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             CREATE_NEW_PROCESS_GROUP = 0x00000200
             kwargs["creationflags"] = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
         try:
-            subprocess.Popen(cmd, **kwargs)
+            proc = subprocess.Popen(cmd, **kwargs)
+            lock = getattr(self.server, "_process_lock", None)
+            if lock:
+                with lock:
+                    old_proc = getattr(self.server, "_game_process", None)
+                    if old_proc and old_proc.poll() is None:
+                        try:
+                            old_proc.terminate()
+                            old_proc.wait(timeout=0.5)
+                        except Exception:
+                            pass
+                    self.server._game_process = proc
         except Exception as exc:  # pragma: no cover - environment failure
             self._json(500, {"ok": False, "error": f"failed to launch Godot: {exc}"})
             return
@@ -455,6 +470,45 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if build_warning:
             resp["build_warning"] = build_warning
         self._json(200, resp)
+
+    def _handle_status(self):
+        running = False
+        lock = getattr(self.server, "_process_lock", None)
+        if lock:
+            with lock:
+                proc = getattr(self.server, "_game_process", None)
+                if proc and proc.poll() is None:
+                    running = True
+        self._json(200, {"ok": True, "running": running})
+
+    def _handle_stop(self):
+        proc = None
+        lock = getattr(self.server, "_process_lock", None)
+        if lock:
+            with lock:
+                proc = getattr(self.server, "_game_process", None)
+                if hasattr(self.server, "_game_process"):
+                    self.server._game_process = None
+
+        if proc:
+            if proc.poll() is None:
+                try:
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=1.0)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                    self._json(200, {"ok": True, "status": "stopped"})
+                    return
+                except Exception as exc:
+                    self._json(500, {"ok": False, "error": f"failed to stop game: {exc}"})
+                    return
+            else:
+                self._json(200, {"ok": True, "status": "already_stopped"})
+                return
+        else:
+            self._json(200, {"ok": True, "status": "no_process"})
+            return
 
     def _dotnet_build(self):
         """Incremental `dotnet build` of the Godot C# project. Best-effort.
@@ -548,6 +602,8 @@ def main() -> int:
     # Latest player telemetry sample shared across request threads (see /api/telemetry).
     httpd._telemetry = None
     httpd._telemetry_lock = threading.Lock()
+    httpd._game_process = None
+    httpd._process_lock = threading.Lock()
     print("Paçoca Map Editor")
     print(f"  Editor:    http://127.0.0.1:{port}")
     print(f"  Serving:   {EDITOR_DIR}")

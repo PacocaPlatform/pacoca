@@ -280,6 +280,20 @@ body {
 }
 .btn-run:hover { background: #15803d; }
 
+.btn-stop {
+    background: #dc2626;
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+.btn-stop:hover { background: #b91c1c; }
+.btn-stop[disabled] {
+    background: var(--ov-soft);
+    color: var(--text-muted);
+    box-shadow: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
 
 #btn-toggle-output.active {

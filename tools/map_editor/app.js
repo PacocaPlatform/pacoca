@@ -132,6 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
     updateDynamicTexts();
     generateExports();
     loadGodotConfig();
+    checkGameStatus();
+    setInterval(checkGameStatus, 2000);
 });
 
 // --- UI Construction ---
@@ -1349,6 +1351,7 @@ async function testLevel() {
             if (rData.build_warning) showToast(rData.build_warning, "alert-triangle");
             // Enter live view: follow the player on the map as soon as the game connects.
             startLiveView();
+            setStopButtonState(true);
         } else {
             openDrawerTab("tab-instructions");
             resultBox.hidden = false;
@@ -1379,11 +1382,57 @@ async function runGame() {
         const data = await resp.json();
         if (data.ok) {
             showToast("Godot started!", "check");
+            setStopButtonState(true);
         } else {
             showToast(data.error || "Failed to start Godot", "alert-triangle");
         }
     } catch (err) {
         showToast("Local server not found", "alert-triangle");
+    }
+}
+
+async function stopGame() {
+    if (location.protocol === "file:") {
+        showToast("Requires local server", "alert-triangle");
+        return;
+    }
+    const btn = document.getElementById("btn-stop-game");
+    if (btn) btn.disabled = true;
+    showToast("Stopping game...", "hammer");
+    try {
+        const resp = await fetch("/api/stop", {
+            method: "POST"
+        });
+        const data = await resp.json();
+        if (data.ok) {
+            showToast("Game stopped!", "check");
+            setStopButtonState(false);
+            stopLiveView();
+        } else {
+            showToast(data.error || "Failed to stop game", "alert-triangle");
+            if (btn) btn.disabled = false;
+        }
+    } catch (err) {
+        showToast("Local server not found", "alert-triangle");
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function checkGameStatus() {
+    if (location.protocol === "file:") return;
+    try {
+        const resp = await fetch("/api/status");
+        const data = await resp.json();
+        setStopButtonState(data.ok && data.running);
+    } catch (err) {
+        setStopButtonState(false);
+    }
+}
+
+function setStopButtonState(running) {
+    const btn = document.getElementById("btn-stop-game");
+    if (btn) {
+        btn.disabled = !running;
     }
 }
 
@@ -1556,6 +1605,7 @@ function stopLiveView() {
     const ind = document.getElementById("live-indicator");
     if (ind) ind.hidden = true;
     if (liveMarker) liveMarker.style.display = "none";
+    setStopButtonState(false);
 }
 
 function toggleLiveView() {
