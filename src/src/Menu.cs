@@ -554,14 +554,14 @@ public partial class Menu : Control
         switch (_selectedTheme)
         {
             case "glacial":
-                return $"res://scenes/levels/level_glacial_{levelNum:02}.tscn";
+                return $"res://scenes/levels/level_glacial_{levelNum:00}.tscn";
             case "city":
-                return $"res://scenes/levels/level_cidade_{levelNum:02}.tscn";
+                return $"res://scenes/levels/level_cidade_{levelNum:00}.tscn";
             case "cave":
-                return $"res://scenes/levels/level_caverna_{levelNum:02}.tscn";
+                return $"res://scenes/levels/level_caverna_{levelNum:00}.tscn";
             case "forest":
             default:
-                return $"res://scenes/levels/level_{levelNum:02}.tscn";
+                return $"res://scenes/levels/level_{levelNum:00}.tscn";
         }
     }
 
