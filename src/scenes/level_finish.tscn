@@ -1,0 +1,57 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/LevelFinish.cs" id="1_FinishScript"]
+[ext_resource type="Material" path="res://materials/gold.tres" id="2_GoldMat"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_finish"]
+radius = 1.8
+
+[sub_resource type="TorusMesh" id="TorusMesh_finish_rim"]
+material = ExtResource("2_GoldMat")
+inner_radius = 1.12
+outer_radius = 1.52
+rings = 32
+ring_segments = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_finish_spark"]
+transparency = 1
+blend_mode = 1
+albedo_color = Color(1, 0.92, 0.4, 1)
+emission_enabled = true
+emission = Color(1, 0.85, 0.2, 1)
+emission_energy_multiplier = 5.0
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="BoxMesh" id="BoxMesh_finish_spark"]
+material = SubResource("StandardMaterial3D_finish_spark")
+size = Vector3(0.12, 0.12, 0.12)
+
+[node name="LevelFinish" type="Area3D"]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1_FinishScript")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_finish")
+
+[node name="CoinVisual" type="Node3D" parent="."]
+
+[node name="MeshInstance3D_Rim" type="MeshInstance3D" parent="CoinVisual"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("TorusMesh_finish_rim")
+
+[node name="SparkParticles" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 24
+lifetime = 0.6
+one_shot = true
+explosiveness = 0.95
+mesh = SubResource("BoxMesh_finish_spark")
+direction = Vector3(0, 0, 0)
+spread = 180.0
+gravity = Vector3(0, -3.0, 0)
+initial_velocity_min = 4.0
+initial_velocity_max = 8.0

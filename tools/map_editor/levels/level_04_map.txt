@@ -1,0 +1,20 @@
+level: 04
+name: Ruínas Celestes
+ystep: 3.0
+
+[grid]
+
+
+
+
+
+
+
+
+
+
+
+                  G
+
+  P ooooo
+#####################

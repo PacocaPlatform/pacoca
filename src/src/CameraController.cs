@@ -3,52 +3,143 @@ using System;
 
 public partial class CameraController : Camera3D
 {
-    [Export] public NodePath TargetPath = null!;
-    [Export] public float FollowSpeed = 6.0f;
-    [Export] public Vector2 Offset = new Vector2(2.0f, 1.5f); // Look slightly ahead of player
+	[Export] public NodePath TargetPath = null!;
+	[Export] public float FollowSpeed = 6.0f;
+	[Export] public Vector2 Offset = new Vector2(2.0f, 4.5f); // Look slightly ahead of player
 
-    private Node3D? _target;
-    private float _originalZ;
+	private Node3D? _target;
+	private float _originalZ;
+	private float _minX;
+	private float _targetY;
+	private bool _limitsInitialized = false;
 
-    public override void _Ready()
-    {
-        if (TargetPath != null)
-        {
-            _target = GetNodeOrNull<Node3D>(TargetPath);
-        }
-        
-        // Save initial Z distance
-        _originalZ = GlobalPosition.Z;
-    }
+	public override void _Ready()
+	{
+		if (TargetPath != null)
+		{
+			_target = GetNodeOrNull<Node3D>(TargetPath);
+		}
+		
+		// Save initial Z distance
+		_originalZ = GlobalPosition.Z;
+	}
 
-    public override void _PhysicsProcess(double delta)
-    {
-        if (_target == null) return;
+	public void ResetCameraLimits()
+	{
+		if (_target == null) return;
+		_minX = _target.GlobalPosition.X + Offset.X;
+		_targetY = _target.GlobalPosition.Y + Offset.Y;
+		_limitsInitialized = true;
 
-        float fDelta = (float)delta;
-        Vector3 targetPos = _target.GlobalPosition;
+		Vector3 targetCameraPos = new Vector3(
+			_minX,
+			_targetY,
+			_originalZ
+		);
+		if (targetCameraPos.Y < 2.0f)
+		{
+			targetCameraPos.Y = 2.0f;
+		}
+		GlobalPosition = targetCameraPos;
+	}
 
-        // Smoothly interpolate the X and Y coordinates to track the player, plus offset
-        // In Sonic, we offset the camera in the direction of the player's movement
-        Vector3 playerVel = Vector3.Zero;
-        if (_target is Player player)
-        {
-            playerVel = player.Velocity;
-        }
+	public float GetLeftBoundaryX()
+	{
+		float fovRad = Mathf.DegToRad(Fov);
+		float distance = Mathf.Abs(GlobalPosition.Z);
+		float halfHeight = distance * Mathf.Tan(fovRad / 2.0f);
+		
+		float aspect = 16.0f / 9.0f;
+		if (GetViewport() != null)
+		{
+			var rect = GetViewport().GetVisibleRect();
+			if (rect.Size.Y > 0)
+			{
+				aspect = rect.Size.X / rect.Size.Y;
+			}
+		}
+		
+		float halfWidth = halfHeight * aspect;
+		return GlobalPosition.X - halfWidth;
+	}
 
-        float leadX = Mathf.Clamp(playerVel.X * 0.15f, -3.0f, 3.0f);
-        Vector3 targetCameraPos = new Vector3(
-            targetPos.X + Offset.X + leadX,
-            targetPos.Y + Offset.Y,
-            _originalZ
-        );
+	public override void _PhysicsProcess(double delta)
+	{
+		if (_target == null) return;
 
-        // Keep camera bound within level limits (optional, but prevents going below ground)
-        if (targetCameraPos.Y < 2.0f)
-        {
-            targetCameraPos.Y = 2.0f;
-        }
+		if (!_limitsInitialized)
+		{
+			ResetCameraLimits();
+		}
 
-        GlobalPosition = GlobalPosition.Lerp(targetCameraPos, FollowSpeed * fDelta);
-    }
+		float fDelta = (float)delta;
+		Vector3 targetPos = _target.GlobalPosition;
+
+		// Smoothly interpolate the X and Y coordinates to track the player, plus offset
+		// In Sonic, we offset the camera in the direction of the player's movement
+		Vector3 playerVel = Vector3.Zero;
+		bool isGrounded = true;
+		if (_target is Player player)
+		{
+			playerVel = player.Velocity;
+			isGrounded = player.IsOnFloor();
+		}
+
+		// Calculate screen half-height in 3D units based on camera FOV and Z distance
+		float fovRad = Mathf.DegToRad(Fov);
+		float distance = Mathf.Abs(GlobalPosition.Z);
+		float halfHeight = distance * Mathf.Tan(fovRad / 2.0f);
+
+		if (isGrounded)
+		{
+			_targetY = targetPos.Y + Offset.Y;
+		}
+		else
+		{
+			// In the air (jumping/falling):
+			// 1. If player passes 80% of the viewport height from bottom, push the camera target Y up.
+			// 80% height corresponds to GlobalPosition.Y + 0.6f * halfHeight
+			float upperThreshold = GlobalPosition.Y + 0.6f * halfHeight;
+			if (targetPos.Y > upperThreshold)
+			{
+				_targetY = Mathf.Max(_targetY, targetPos.Y - 0.6f * halfHeight);
+			}
+			// 2. If player falls below 15% of the viewport height from bottom, pull the camera target Y down.
+			// 15% height corresponds to GlobalPosition.Y - 0.7f * halfHeight
+			float lowerThreshold = GlobalPosition.Y - 0.7f * halfHeight;
+			if (targetPos.Y < lowerThreshold)
+			{
+				_targetY = Mathf.Min(_targetY, targetPos.Y + 0.7f * halfHeight);
+			}
+		}
+
+		float leadX = Mathf.Clamp(playerVel.X * 0.15f, -3.0f, 3.0f);
+		Vector3 targetCameraPos = new Vector3(
+			targetPos.X + Offset.X + leadX,
+			_targetY,
+			_originalZ
+		);
+
+		// Clamp the camera's target position to the left limit
+		if (targetCameraPos.X < _minX)
+		{
+			targetCameraPos.X = _minX;
+		}
+
+		// Keep camera bound within level limits (optional, but prevents going below ground)
+		if (targetCameraPos.Y < 2.0f)
+		{
+			targetCameraPos.Y = 2.0f;
+		}
+
+		GlobalPosition = GlobalPosition.Lerp(targetCameraPos, FollowSpeed * fDelta);
+
+		// Enforce limit strictly
+		if (GlobalPosition.X < _minX)
+		{
+			Vector3 currentPos = GlobalPosition;
+			currentPos.X = _minX;
+			GlobalPosition = currentPos;
+		}
+	}
 }

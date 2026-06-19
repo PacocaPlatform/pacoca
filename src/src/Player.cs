@@ -5,11 +5,13 @@ public partial class Player : CharacterBody3D
 {
     // Movement configuration (Sonic style)
     [Export] public float MaxSpeed = 24.0f;
+    // Absolute horizontal speed cap (70 km/h = 19.44 m/s). Caps spin dash, slopes and boosts.
+    [Export] public float MaxSpeedCap = 19.44f;
     [Export] public float Acceleration = 18.0f;
     [Export] public float Deceleration = 45.0f;
     [Export] public float Friction = 30.0f;
     [Export] public float Gravity = 35.0f;
-    [Export] public float JumpVelocity = 15.0f;
+    [Export] public float JumpVelocity = 21.0f;
     [Export] public float AirControl = 0.7f;
     [Export] public float SlopeAccelerationMultiplier = 15.0f;
     
@@ -21,11 +23,13 @@ public partial class Player : CharacterBody3D
     [Export] public int Lives = 3;
     [Export] public Vector3 SpawnPosition = new Vector3(-12.0f, 1.5f, 0.0f);
     public bool IsRolling = false;
+    public bool WasRolling = false;
     public bool IsSpinDashing = false;
     public float SpinDashCharge = 0.0f;
     public int Rings = 0;
     public int Score = 0;
     public double TimeElapsed = 0.0;
+    public bool IsLevelFinished = false;
     
     private bool _isInvincible = false;
     private float _invincibilityTimer = 0.0f;
@@ -39,6 +43,7 @@ public partial class Player : CharacterBody3D
     private bool _hasAirDashed = false;
     private float _airDashGravityDelay = 0.0f;
     private bool _wasOnFloor = true;
+    private CameraController? _camera;
 
     // Node references
     private Node3D _visualsNode = null!;
@@ -118,6 +123,16 @@ public partial class Player : CharacterBody3D
     public override void _PhysicsProcess(double delta)
     {
         float fDelta = (float)delta;
+        
+        if (IsLevelFinished)
+        {
+            Velocity = Vector3.Zero;
+            IsRolling = true;
+            UpdateVisuals(fDelta);
+            return;
+        }
+
+        WasRolling = IsRolling;
         TimeElapsed += delta;
         
         // Pit detection (falling below the level)
@@ -206,6 +221,12 @@ public partial class Player : CharacterBody3D
             _customBoostVelocity = _customBoostVelocity.Lerp(Vector3.Zero, 2.0f * fDelta);
         }
 
+        // Clamp horizontal speed to the cap (80 km/h) regardless of source (spin dash, slopes, boost)
+        if (Mathf.Abs(vel.X) > MaxSpeedCap)
+        {
+            vel.X = Mathf.Sign(vel.X) * MaxSpeedCap;
+        }
+
         // Apply velocities
         Velocity = vel;
         MoveAndSlide();
@@ -222,6 +243,31 @@ public partial class Player : CharacterBody3D
         vel = Velocity;
         vel.Z = 0.0f;
         Velocity = vel;
+
+        // Screen boundary clamp (left edge)
+        if (_camera == null)
+        {
+            _camera = GetParent().GetNodeOrNull<CameraController>("Camera3D");
+        }
+        if (_camera != null)
+        {
+            float leftBoundaryX = _camera.GetLeftBoundaryX();
+            float playerRadius = 0.55f;
+            if (GlobalPosition.X < leftBoundaryX + playerRadius)
+            {
+                Vector3 clampedPos = GlobalPosition;
+                clampedPos.X = leftBoundaryX + playerRadius;
+                GlobalPosition = clampedPos;
+                
+                // Zero horizontal leftward velocity if moving left
+                if (Velocity.X < 0)
+                {
+                    Vector3 pVel = Velocity;
+                    pVel.X = 0;
+                    Velocity = pVel;
+                }
+            }
+        }
 
         // Visual orientation & procedural animations
         UpdateVisuals(fDelta);

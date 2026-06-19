@@ -1,46 +1,60 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://src/HUD.cs" id="1_HUDScript"]
+[ext_resource type="FontFile" path="res://textures/ui/Oxanium-Bold.ttf" id="2_OxaniumBold"]
+[ext_resource type="FontFile" path="res://textures/ui/Oxanium-Regular.ttf" id="3_OxaniumRegular"]
+[ext_resource type="Texture2D" path="res://textures/ui/hud_ring.png" id="4_HudRing"]
+[ext_resource type="Texture2D" path="res://textures/ui/hud_stopwatch.png" id="5_HudStopwatch"]
+[ext_resource type="Texture2D" path="res://textures/ui/hud_dino_head.png" id="6_HudDinoHead"]
+[ext_resource type="Script" path="res://src/SlantedPanel.cs" id="7_SlantedPanelScript"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.08, 0.09, 0.12, 0.6)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 0.15)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0, 0, 0, 0.2)
-shadow_size = 6
+[sub_resource type="LabelSettings" id="LabelSettings_rings"]
+font = ExtResource("2_OxaniumBold")
+font_size = 36
+outline_size = 8
+outline_color = Color(0, 0, 0, 0.9)
 
-[sub_resource type="LabelSettings" id="LabelSettings_hud"]
+[sub_resource type="LabelSettings" id="LabelSettings_score_label"]
+font = ExtResource("3_OxaniumRegular")
+font_size = 20
+font_color = Color(0.8, 0.95, 1, 0.9)
+outline_size = 5
+outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_score_val"]
+font = ExtResource("2_OxaniumBold")
+font_size = 24
+font_color = Color(0, 0.83, 1, 1)
+outline_size = 6
+outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_time_val"]
+font = ExtResource("2_OxaniumBold")
 font_size = 24
 font_color = Color(1, 0.9, 0, 1)
 outline_size = 6
-outline_color = Color(0, 0, 0, 0.8)
+outline_color = Color(0, 0, 0, 0.95)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_speed"]
-bg_color = Color(0.08, 0.09, 0.12, 0.6)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.8, 1, 0.3)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0, 0, 0, 0.2)
-shadow_size = 4
+[sub_resource type="LabelSettings" id="LabelSettings_lives_name"]
+font = ExtResource("3_OxaniumRegular")
+font_size = 14
+font_color = Color(1, 1, 1, 0.9)
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_lives_val"]
+font = ExtResource("2_OxaniumBold")
+font_size = 22
+font_color = Color(1, 1, 1, 1)
+outline_size = 6
+outline_color = Color(0, 0, 0, 0.9)
 
 [sub_resource type="LabelSettings" id="LabelSettings_speed"]
-font_size = 28
-font_color = Color(0, 0.85, 1, 1)
+font = ExtResource("2_OxaniumBold")
+font_size = 26
+font_color = Color(0, 1, 0.53, 1)
 outline_size = 8
-outline_color = Color(0, 0, 0, 0.8)
+outline_color = Color(0, 0, 0, 0.95)
 
 [node name="HUD" type="Control"]
 layout_mode = 3
@@ -63,59 +77,161 @@ theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 30
 theme_override_constants/margin_bottom = 30
 
-[node name="StatsPanel" type="PanelContainer" parent="MarginContainer"]
+[node name="TopLeftContainer" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+theme_override_constants/separation = 20
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/StatsPanel"]
+[node name="RingContainer" type="Control" parent="MarginContainer/TopLeftContainer"]
+custom_minimum_size = Vector2(150, 70)
+layout_mode = 2
+
+[node name="RingIcon" type="TextureRect" parent="MarginContainer/TopLeftContainer/RingContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -32.0
+offset_right = 64.0
+offset_bottom = 32.0
+grow_vertical = 2
+texture = ExtResource("4_HudRing")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RingsLabel" type="Label" parent="MarginContainer/TopLeftContainer/RingContainer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 52.0
+offset_top = -24.0
+offset_right = 144.0
+offset_bottom = 24.0
+grow_vertical = 2
+text = "000"
+label_settings = SubResource("LabelSettings_rings")
+vertical_alignment = 1
+
+[node name="StatsVBox" type="VBoxContainer" parent="MarginContainer/TopLeftContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ScorePanel" type="PanelContainer" parent="MarginContainer/TopLeftContainer/StatsVBox"]
+layout_mode = 2
+script = ExtResource("7_SlantedPanelScript")
+BgColor = Color(0.0431373, 0.0588235, 0.0901961, 0.745098)
+BorderColor = Color(0, 0.831373, 1, 0.901961)
+BorderWidth = 2.5
+SkewAmount = 15.0
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/TopLeftContainer/StatsVBox/ScorePanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 15
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 6
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/StatsPanel/MarginContainer"]
+[node name="HBox" type="HBoxContainer" parent="MarginContainer/TopLeftContainer/StatsVBox/ScorePanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 15
 
-[node name="ScoreLabel" type="Label" parent="MarginContainer/StatsPanel/MarginContainer/VBoxContainer"]
+[node name="ScoreText" type="Label" parent="MarginContainer/TopLeftContainer/StatsVBox/ScorePanel/Margin/HBox"]
 layout_mode = 2
-text = "SCORE 000000"
-label_settings = SubResource("LabelSettings_hud")
+text = "SCORE"
+label_settings = SubResource("LabelSettings_score_label")
 
-[node name="TimeLabel" type="Label" parent="MarginContainer/StatsPanel/MarginContainer/VBoxContainer"]
+[node name="ScoreValueLabel" type="Label" parent="MarginContainer/TopLeftContainer/StatsVBox/ScorePanel/Margin/HBox"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "TIME  00:00:00"
-label_settings = SubResource("LabelSettings_hud")
+text = "000000000"
+label_settings = SubResource("LabelSettings_score_val")
+horizontal_alignment = 2
 
-[node name="RingsLabel" type="Label" parent="MarginContainer/StatsPanel/MarginContainer/VBoxContainer"]
+[node name="TimePanel" type="PanelContainer" parent="MarginContainer/TopLeftContainer/StatsVBox"]
 layout_mode = 2
-text = "MOEDAS 000"
-label_settings = SubResource("LabelSettings_hud")
+script = ExtResource("7_SlantedPanelScript")
+BgColor = Color(0.0431373, 0.0588235, 0.0901961, 0.745098)
+BorderColor = Color(1, 1, 1, 0.686275)
+BorderWidth = 2.0
+SkewAmount = 15.0
 
-[node name="LivesLabel" type="Label" parent="MarginContainer/StatsPanel/MarginContainer/VBoxContainer"]
+[node name="Margin" type="MarginContainer" parent="MarginContainer/TopLeftContainer/StatsVBox/TimePanel"]
 layout_mode = 2
-text = "VIDAS 3"
-label_settings = SubResource("LabelSettings_hud")
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 4
+
+[node name="HBox" type="HBoxContainer" parent="MarginContainer/TopLeftContainer/StatsVBox/TimePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StopwatchIcon" type="TextureRect" parent="MarginContainer/TopLeftContainer/StatsVBox/TimePanel/Margin/HBox"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("5_HudStopwatch")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TimeValueLabel" type="Label" parent="MarginContainer/TopLeftContainer/StatsVBox/TimePanel/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0' 00\" 00"
+label_settings = SubResource("LabelSettings_time_val")
+
+[node name="LivesContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+theme_override_constants/separation = 10
+
+[node name="DinoIcon" type="TextureRect" parent="MarginContainer/LivesContainer"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("6_HudDinoHead")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextVBox" type="VBoxContainer" parent="MarginContainer/LivesContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="MarginContainer/LivesContainer/TextVBox"]
+layout_mode = 2
+text = "PAÇOCA"
+label_settings = SubResource("LabelSettings_lives_name")
+
+[node name="LivesLabel" type="Label" parent="MarginContainer/LivesContainer/TextVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "x 03"
+label_settings = SubResource("LabelSettings_lives_val")
 
 [node name="SpeedPanel" type="PanelContainer" parent="MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
-theme_override_styles/panel = SubResource("StyleBoxFlat_speed")
+script = ExtResource("7_SlantedPanelScript")
+BgColor = Color(0.0431373, 0.0588235, 0.0901961, 0.745098)
+BorderColor = Color(0, 1, 0.529412, 0.901961)
+BorderWidth = 2.5
+SkewAmount = 15.0
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/SpeedPanel"]
+[node name="Margin" type="MarginContainer" parent="MarginContainer/SpeedPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 25
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 25
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 8
 
-[node name="SpeedLabel" type="Label" parent="MarginContainer/SpeedPanel/MarginContainer"]
+[node name="SpeedLabel" type="Label" parent="MarginContainer/SpeedPanel/Margin"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "0.0 km/h"
 label_settings = SubResource("LabelSettings_speed")
 horizontal_alignment = 1
-vertical_alignment = 1

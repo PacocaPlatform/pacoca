@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="4_HUDScene"]
 [ext_resource type="PackedScene" path="res://scenes/pause_menu.tscn" id="5_PauseScene"]
 [ext_resource type="Texture2D" path="res://textures/sky_panorama.jpg" id="6_SkyPanorama"]
+[ext_resource type="PackedScene" path="res://scenes/level_finish_screen.tscn" id="7_FinishScreenScene"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sky"]
 panorama = ExtResource("6_SkyPanorama")
@@ -49,12 +50,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 3, 11)
 script = ExtResource("3_CamScript")
 TargetPath = NodePath("../Player")
 FollowSpeed = 7.0
-Offset = Vector2(1.5, 1.2)
+Offset = Vector2(2.0, 4.5)
 
 [node name="HUDLayer" type="CanvasLayer" parent="."]
 
 [node name="HUD" parent="HUDLayer" instance=ExtResource("4_HUDScene")]
 
 [node name="PauseMenu" parent="HUDLayer" instance=ExtResource("5_PauseScene")]
+
+[node name="LevelFinishScreen" parent="HUDLayer" instance=ExtResource("7_FinishScreenScene")]
 
 [node name="LevelWrapper" type="Node3D" parent="."]

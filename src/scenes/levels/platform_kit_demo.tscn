@@ -1,0 +1,548 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Material" path="res://materials/grass.tres" id="1_GrassMat"]
+[ext_resource type="Material" path="res://materials/rock.tres" id="2_RockMat"]
+[ext_resource type="PackedScene" path="res://scenes/ring.tscn" id="3_RingScene"]
+[ext_resource type="PackedScene" path="res://scenes/spring.tscn" id="4_SpringScene"]
+[ext_resource type="PackedScene" path="res://scenes/dash_pad.tscn" id="5_DashPadScene"]
+[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="6_EnemyScene"]
+[ext_resource type="PackedScene" path="res://scenes/spikes.tscn" id="7_SpikesScene"]
+[ext_resource type="PackedScene" path="res://models/platform_kit/block-grass-large.glb" id="8_BlockGrassLarge"]
+[ext_resource type="PackedScene" path="res://models/platform_kit/block-grass-large-slope.glb" id="9_BlockGrassLargeSlope"]
+[ext_resource type="PackedScene" path="res://models/platform_kit/block-grass-large-slope-steep.glb" id="10_BlockGrassLargeSlopeSteep"]
+[ext_resource type="PackedScene" path="res://models/platform_kit/block-grass-low.glb" id="11_BlockGrassLow"]
+[ext_resource type="PackedScene" path="res://models/platform_kit/crate.glb" id="12_CrateModel"]
+[ext_resource type="PackedScene" path="res://models/platform_kit/tree.glb" id="13_TreeModel"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_spawn"]
+size = Vector3(50, 1, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_high"]
+size = Vector3(20, 1, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_low"]
+size = Vector3(12, 1, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pit_floor"]
+size = Vector3(16, 1, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_float"]
+size = Vector3(3, 0.5, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_right"]
+size = Vector3(34, 1, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_crate_block"]
+size = Vector3(1, 2, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_goal"]
+size = Vector3(20, 1, 4)
+
+[node name="PlatformKitDemo" type="Node3D"]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.5, 0)
+
+[node name="Level" type="Node3D" parent="."]
+
+[node name="SpawnPlatform" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/SpawnPlatform"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0)
+shape = SubResource("BoxShape3D_spawn")
+
+[node name="Visuals" type="Node3D" parent="Level/SpawnPlatform"]
+
+[node name="Block0" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -14, 0, 0)
+
+[node name="Block1" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -12, 0, 0)
+
+[node name="Block2" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -10, 0, 0)
+
+[node name="Block3" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -8, 0, 0)
+
+[node name="Block4" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -6, 0, 0)
+
+[node name="Block5" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -4, 0, 0)
+
+[node name="Block6" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -2, 0, 0)
+
+[node name="Block7" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0)
+
+[node name="Block8" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 2, 0, 0)
+
+[node name="Block9" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 4, 0, 0)
+
+[node name="Block10" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 6, 0, 0)
+
+[node name="Block11" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 8, 0, 0)
+
+[node name="Block12" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 10, 0, 0)
+
+[node name="Block13" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 12, 0, 0)
+
+[node name="Block14" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 14, 0, 0)
+
+[node name="Block15" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -16, 0, 0)
+
+[node name="Block16" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -18, 0, 0)
+
+[node name="Block17" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -20, 0, 0)
+
+[node name="Block18" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -22, 0, 0)
+
+[node name="Block19" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -24, 0, 0)
+
+[node name="Block20" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -26, 0, 0)
+
+[node name="Block21" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -28, 0, 0)
+
+[node name="Block22" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -30, 0, 0)
+
+[node name="Block23" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -32, 0, 0)
+
+[node name="Block24" parent="Level/SpawnPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -34, 0, 0)
+
+[node name="Slope1Platform" type="StaticBody3D" parent="Level"]
+
+[node name="CollisionPolygon3D" type="CollisionPolygon3D" parent="Level/Slope1Platform"]
+depth = 4.0
+polygon = PackedVector2Array(10, -1, 16, 2.5, 16, -1, 10, -1)
+
+[node name="Visuals" type="Node3D" parent="Level/Slope1Platform"]
+
+[node name="Slope1" parent="Level/Slope1Platform/Visuals" instance=ExtResource("9_BlockGrassLargeSlope")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 11, 0, 0)
+
+[node name="Slope2" parent="Level/Slope1Platform/Visuals" instance=ExtResource("9_BlockGrassLargeSlope")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 13, 1, 0)
+
+[node name="Slope3" parent="Level/Slope1Platform/Visuals" instance=ExtResource("9_BlockGrassLargeSlope")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 15, 2, 0)
+
+[node name="HighPlatform" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 2.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/HighPlatform"]
+shape = SubResource("BoxShape3D_high")
+
+[node name="Visuals" type="Node3D" parent="Level/HighPlatform"]
+
+[node name="Block0" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -9, 0, 0)
+
+[node name="Block1" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -7, 0, 0)
+
+[node name="Block2" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -5, 0, 0)
+
+[node name="Block3" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -3, 0, 0)
+
+[node name="Block4" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -1, 0, 0)
+
+[node name="Block5" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0)
+
+[node name="Block6" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 3, 0, 0)
+
+[node name="Block7" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 5, 0, 0)
+
+[node name="Block8" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 7, 0, 0)
+
+[node name="Block9" parent="Level/HighPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 9, 0, 0)
+
+[node name="Slope2Platform" type="StaticBody3D" parent="Level"]
+
+[node name="CollisionPolygon3D" type="CollisionPolygon3D" parent="Level/Slope2Platform"]
+depth = 4.0
+polygon = PackedVector2Array(36, 2.5, 38, 0.5, 38, -1, 36, -1)
+
+[node name="Visuals" type="Node3D" parent="Level/Slope2Platform"]
+
+[node name="SlopeDesc" parent="Level/Slope2Platform/Visuals" instance=ExtResource("10_BlockGrassLargeSlopeSteep")]
+transform = Transform3D(-1, 0, -1.74846e-07, 0, 1, 0, 1.74846e-07, 0, -1, 37, 1.5, 0)
+
+[node name="LowPlatform" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/LowPlatform"]
+shape = SubResource("BoxShape3D_low")
+
+[node name="Visuals" type="Node3D" parent="Level/LowPlatform"]
+
+[node name="Block0" parent="Level/LowPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -5, 0, 0)
+
+[node name="Block1" parent="Level/LowPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -3, 0, 0)
+
+[node name="Block2" parent="Level/LowPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -1, 0, 0)
+
+[node name="Block3" parent="Level/LowPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0)
+
+[node name="Block4" parent="Level/LowPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 3, 0, 0)
+
+[node name="Block5" parent="Level/LowPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 5, 0, 0)
+
+[node name="PitFloorPlatform" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, -3.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/PitFloorPlatform"]
+shape = SubResource("BoxShape3D_pit_floor")
+
+[node name="Visuals" type="Node3D" parent="Level/PitFloorPlatform"]
+
+[node name="Block0" parent="Level/PitFloorPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -7, 0, 0)
+
+[node name="Block1" parent="Level/PitFloorPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -5, 0, 0)
+
+[node name="Block2" parent="Level/PitFloorPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -3, 0, 0)
+
+[node name="Block3" parent="Level/PitFloorPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -1, 0, 0)
+
+[node name="Block4" parent="Level/PitFloorPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0)
+
+[node name="Block5" parent="Level/PitFloorPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 3, 0, 0)
+
+[node name="Block6" parent="Level/PitFloorPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 5, 0, 0)
+
+[node name="Block7" parent="Level/PitFloorPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 7, 0, 0)
+
+[node name="FloatPlatform1" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.5, 0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/FloatPlatform1"]
+shape = SubResource("BoxShape3D_float")
+
+[node name="Visuals" type="Node3D" parent="Level/FloatPlatform1"]
+
+[node name="Block0" parent="Level/FloatPlatform1/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, -1, 0, 0)
+
+[node name="Block1" parent="Level/FloatPlatform1/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0)
+
+[node name="Block2" parent="Level/FloatPlatform1/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 1, 0, 0)
+
+[node name="FloatPlatform2" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58.5, 1.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/FloatPlatform2"]
+shape = SubResource("BoxShape3D_float")
+
+[node name="Visuals" type="Node3D" parent="Level/FloatPlatform2"]
+
+[node name="Block0" parent="Level/FloatPlatform2/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, -1, 0, 0)
+
+[node name="Block1" parent="Level/FloatPlatform2/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0)
+
+[node name="Block2" parent="Level/FloatPlatform2/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 1, 0, 0)
+
+[node name="FloatPlatform3" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63.5, 0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/FloatPlatform3"]
+shape = SubResource("BoxShape3D_float")
+
+[node name="Visuals" type="Node3D" parent="Level/FloatPlatform3"]
+
+[node name="Block0" parent="Level/FloatPlatform3/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, -1, 0, 0)
+
+[node name="Block1" parent="Level/FloatPlatform3/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0, 0)
+
+[node name="Block2" parent="Level/FloatPlatform3/Visuals" instance=ExtResource("11_BlockGrassLow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 1, 0, 0)
+
+[node name="RightPlatform" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/RightPlatform"]
+shape = SubResource("BoxShape3D_right")
+
+[node name="Visuals" type="Node3D" parent="Level/RightPlatform"]
+
+[node name="Block0" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -16, 0, 0)
+
+[node name="Block1" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -14, 0, 0)
+
+[node name="Block2" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -12, 0, 0)
+
+[node name="Block3" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -10, 0, 0)
+
+[node name="Block4" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -8, 0, 0)
+
+[node name="Block5" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -6, 0, 0)
+
+[node name="Block6" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -4, 0, 0)
+
+[node name="Block7" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -2, 0, 0)
+
+[node name="Block8" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0)
+
+[node name="Block9" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 2, 0, 0)
+
+[node name="Block10" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 4, 0, 0)
+
+[node name="Block11" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 6, 0, 0)
+
+[node name="Block12" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 8, 0, 0)
+
+[node name="Block13" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 10, 0, 0)
+
+[node name="Block14" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 12, 0, 0)
+
+[node name="Block15" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 14, 0, 0)
+
+[node name="Block16" parent="Level/RightPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 16, 0, 0)
+
+[node name="Cratesobstacle" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Cratesobstacle"]
+shape = SubResource("BoxShape3D_crate_block")
+
+[node name="Crate0" parent="Level/Cratesobstacle" instance=ExtResource("12_CrateModel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 0, -0.5, 0)
+
+[node name="Crate1" parent="Level/Cratesobstacle" instance=ExtResource("12_CrateModel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0.5, 0)
+
+[node name="GoalPlatform" type="StaticBody3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110, 1.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/GoalPlatform"]
+shape = SubResource("BoxShape3D_goal")
+
+[node name="Visuals" type="Node3D" parent="Level/GoalPlatform"]
+
+[node name="Block0" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -9, 0, 0)
+
+[node name="Block1" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -7, 0, 0)
+
+[node name="Block2" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -5, 0, 0)
+
+[node name="Block3" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -3, 0, 0)
+
+[node name="Block4" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, -1, 0, 0)
+
+[node name="Block5" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0)
+
+[node name="Block6" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 3, 0, 0)
+
+[node name="Block7" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 5, 0, 0)
+
+[node name="Block8" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 7, 0, 0)
+
+[node name="Block9" parent="Level/GoalPlatform/Visuals" instance=ExtResource("8_BlockGrassLarge")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 2, 9, 0, 0)
+
+[node name="Decorations" type="Node3D" parent="Level"]
+
+[node name="Tree0" parent="Level/Decorations" instance=ExtResource("13_TreeModel")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -5, 0, -1.8)
+
+[node name="Tree1" parent="Level/Decorations" instance=ExtResource("13_TreeModel")]
+transform = Transform3D(1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 8, 0, -1.8)
+
+[node name="Tree2" parent="Level/Decorations" instance=ExtResource("13_TreeModel")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 22, 3, -1.8)
+
+[node name="Tree3" parent="Level/Decorations" instance=ExtResource("13_TreeModel")]
+transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 44, 1, -1.8)
+
+[node name="Tree4" parent="Level/Decorations" instance=ExtResource("13_TreeModel")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 72, 0, -1.8)
+
+[node name="Tree5" parent="Level/Decorations" instance=ExtResource("13_TreeModel")]
+transform = Transform3D(1.6, 0, 0, 0, 1.6, 0, 0, 0, 1.6, 88, 0, -1.8)
+
+[node name="InteractiveObjects" type="Node3D" parent="."]
+
+[node name="DashPad" parent="InteractiveObjects" instance=ExtResource("5_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)
+
+[node name="DashPad2" parent="InteractiveObjects" instance=ExtResource("5_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 0, 0)
+
+[node name="SpringGapLauncher" parent="InteractiveObjects" instance=ExtResource("4_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.5, 3.0, 0)
+LaunchForce = 22.0
+
+[node name="SpringGoalLauncher" parent="InteractiveObjects" instance=ExtResource("4_SpringScene")]
+transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, 92, 0.0, 0)
+LaunchForce = 24.0
+LaunchDirection = Vector3(1.2, 1.5, 0)
+ControlLockDuration = 0.6
+
+[node name="SpikesGroup" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Spikes0" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53, -3.0, 0)
+
+[node name="Spikes1" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54, -3.0, 0)
+
+[node name="Spikes2" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, -3.0, 0)
+
+[node name="Spikes3" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56, -3.0, 0)
+
+[node name="Spikes4" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 57, -3.0, 0)
+
+[node name="Spikes5" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, -3.0, 0)
+
+[node name="Spikes6" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59, -3.0, 0)
+
+[node name="Spikes7" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, -3.0, 0)
+
+[node name="Spikes8" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61, -3.0, 0)
+
+[node name="Spikes9" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, -3.0, 0)
+
+[node name="Spikes10" parent="InteractiveObjects/SpikesGroup" instance=ExtResource("7_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63, -3.0, 0)
+
+[node name="Rings" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Ring0" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.2, 0)
+
+[node name="Ring1" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1.2, 0)
+
+[node name="Ring2" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.2, 0)
+
+[node name="Ring3" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+
+[node name="Ring4" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1.2, 0)
+
+[node name="Ring5" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 1.5, 0)
+
+[node name="Ring6" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.5, 0)
+
+[node name="Ring7" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 3.5, 0)
+
+[node name="Ring8" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.5, 1.5, 0)
+
+[node name="Ring9" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58.5, 2.5, 0)
+
+[node name="Ring10" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63.5, 1.5, 0)
+
+[node name="Ring11" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 1.2, 0)
+
+[node name="Ring12" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 1.2, 0)
+
+[node name="Ring13" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 1.2, 0)
+
+[node name="Ring14" parent="InteractiveObjects/Rings" instance=ExtResource("3_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76, 1.2, 0)
+
+[node name="Enemies" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Enemy0" parent="InteractiveObjects/Enemies" instance=ExtResource("6_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 0)
+Speed = 2.5
+
+[node name="Enemy1" parent="InteractiveObjects/Enemies" instance=ExtResource("6_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 3.5, 0)
+Speed = 3.0
+
+[node name="Enemy2" parent="InteractiveObjects/Enemies" instance=ExtResource("6_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84, 0.5, 0)
+Speed = 3.5

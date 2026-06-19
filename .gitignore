@@ -36,3 +36,10 @@ mono_crash.*
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+assets/platform_kit/
+
+__pycache__/
+
+# Map editor local config (user's Godot path, etc.)
+tools/map_editor/editor_config.json

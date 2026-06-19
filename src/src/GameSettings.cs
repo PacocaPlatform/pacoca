@@ -6,6 +6,66 @@ public static class GameSettings
     public static int SelectedJoypadId = -1; // -1 means All/Auto
     public static string LevelToLoad = "res://scenes/levels/level_01.tscn";
 
+    // Music volume (0..1 linear), routed through a dedicated "Music" audio bus.
+    public static float MusicVolume = 0.6f;
+
+    // Loads a music track. Prefers the imported resource, but falls back to reading the
+    // raw file directly so it works even when the .mp3 has no .import sidecar yet.
+    public static AudioStream? LoadMusic(string path)
+    {
+        if (ResourceLoader.Exists(path))
+        {
+            var res = GD.Load<AudioStream>(path);
+            if (res != null) return res;
+        }
+
+        if (path.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) && Godot.FileAccess.FileExists(path))
+        {
+            using var f = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Read);
+            if (f != null)
+            {
+                var mp3 = new AudioStreamMP3();
+                mp3.Data = f.GetBuffer((long)f.GetLength());
+                return mp3;
+            }
+        }
+
+        GD.PrintErr($"[GameSettings] Could not load music: {path}");
+        return null;
+    }
+
+    // Creates the "Music" audio bus at runtime if it doesn't exist yet and applies
+    // the current MusicVolume. Music players should set Bus = "Music".
+    public static void EnsureMusicBus()
+    {
+        if (AudioServer.GetBusIndex("Music") == -1)
+        {
+            AudioServer.AddBus();
+            int idx = AudioServer.BusCount - 1;
+            AudioServer.SetBusName(idx, "Music");
+            AudioServer.SetBusSend(idx, "Master");
+        }
+        ApplyMusicVolume();
+    }
+
+    // Applies MusicVolume to the "Music" bus. Mutes the bus at (near) zero to avoid
+    // -inf dB artifacts.
+    public static void ApplyMusicVolume()
+    {
+        int idx = AudioServer.GetBusIndex("Music");
+        if (idx == -1) return;
+
+        if (MusicVolume <= 0.0001f)
+        {
+            AudioServer.SetBusMute(idx, true);
+        }
+        else
+        {
+            AudioServer.SetBusMute(idx, false);
+            AudioServer.SetBusVolumeDb(idx, Mathf.LinearToDb(MusicVolume));
+        }
+    }
+
     public static void ApplyJoypadSettings()
     {
         // Get all custom and built-in actions in the InputMap

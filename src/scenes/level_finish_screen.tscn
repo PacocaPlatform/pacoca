@@ -1,0 +1,174 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/LevelFinishScreen.cs" id="1_FinishScript"]
+[ext_resource type="Script" path="res://src/SlantedPanel.cs" id="2_SlantedPanelScript"]
+[ext_resource type="FontFile" path="res://textures/ui/PressStart2P-Regular.ttf" id="3_FontRetro"]
+[ext_resource type="FontFile" path="res://textures/ui/Oxanium-Bold.ttf" id="4_FontModern"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_brown_normal.png" id="5_BtnNormal"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_green_hover.png" id="6_BtnHover"]
+[ext_resource type="Texture2D" path="res://textures/ui/btn_green_pressed.png" id="7_BtnPressed"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_btn_normal"]
+texture = ExtResource("5_BtnNormal")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_btn_hover"]
+texture = ExtResource("6_BtnHover")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_btn_pressed"]
+texture = ExtResource("7_BtnPressed")
+texture_margin_left = 6.0
+texture_margin_top = 6.0
+texture_margin_right = 6.0
+texture_margin_bottom = 6.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_stat_name"]
+font = ExtResource("3_FontRetro")
+font_size = 14
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_stat_val"]
+font = ExtResource("4_FontModern")
+font_size = 24
+outline_size = 6
+outline_color = Color(0, 0, 0, 1)
+
+[node name="LevelFinishScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_FinishScript")
+
+[node name="BackgroundDim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0313726, 0.0392157, 0.0588235, 0.65)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 60
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer"]
+custom_minimum_size = Vector2(480, 380)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("2_SlantedPanelScript")
+BgColor = Color(0.0588235, 0.0823529, 0.141176, 0.88)
+BorderColor = Color(1, 0.756863, 0.027451, 0.95)
+BorderWidth = 3.5
+SkewAmount = 16.0
+
+[node name="Margin" type="MarginContainer" parent="MarginContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 30
+
+[node name="VBox" type="VBoxContainer" parent="MarginContainer/PanelContainer/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Title" type="Label" parent="MarginContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.756863, 0.027451, 1)
+theme_override_colors/font_outline_color = Color(0.129412, 0.0823529, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("3_FontRetro")
+theme_override_font_sizes/font_size = 22
+text = "NÍVEL CONCLUÍDO!"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatsGrid" type="GridContainer" parent="MarginContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/horizontal_separation = 30
+theme_override_constants/vertical_separation = 16
+columns = 2
+
+[node name="ScoreName" type="Label" parent="MarginContainer/PanelContainer/Margin/VBox/StatsGrid"]
+layout_mode = 2
+text = "PONTOS"
+label_settings = SubResource("LabelSettings_stat_name")
+
+[node name="ScoreValueLabel" type="Label" parent="MarginContainer/PanelContainer/Margin/VBox/StatsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.83, 1, 1)
+text = "000000000"
+label_settings = SubResource("LabelSettings_stat_val")
+horizontal_alignment = 2
+
+[node name="RingsName" type="Label" parent="MarginContainer/PanelContainer/Margin/VBox/StatsGrid"]
+layout_mode = 2
+text = "MOEDAS"
+label_settings = SubResource("LabelSettings_stat_name")
+
+[node name="RingsValueLabel" type="Label" parent="MarginContainer/PanelContainer/Margin/VBox/StatsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0, 1)
+text = "000"
+label_settings = SubResource("LabelSettings_stat_val")
+horizontal_alignment = 2
+
+[node name="TimeName" type="Label" parent="MarginContainer/PanelContainer/Margin/VBox/StatsGrid"]
+layout_mode = 2
+text = "TEMPO"
+label_settings = SubResource("LabelSettings_stat_name")
+
+[node name="TimeValueLabel" type="Label" parent="MarginContainer/PanelContainer/Margin/VBox/StatsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+text = "0' 00\" 00"
+label_settings = SubResource("LabelSettings_stat_val")
+horizontal_alignment = 2
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/PanelContainer/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ContinueButton" type="Button" parent="MarginContainer/PanelContainer/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("3_FontRetro")
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxTexture_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_btn_hover")
+text = "CONTINUAR"

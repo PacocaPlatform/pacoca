@@ -1,74 +1,122 @@
 # Paçoca
 
-Plataforma 2.5D no estilo Sonic, feito em **Godot 4.6** com **C# (.NET 8)**.
+A 2.5D Sonic-style platformer built with **Godot 4.6** and **C# (.NET 8)**.
 
-O jogador controla o Paçoca por fases corrido-rápidas: corre, pula, faz *roll*, carrega *spin dash* e *air dash*, coleta moedas (anéis) e desvia de inimigos — tudo com física customizada de aceleração, atrito e rampas.
+The player controls Paçoca through fast-paced levels: running, jumping, rolling, charging spin dash, performing air dashes, collecting rings (coins), and dodging enemies — all powered by custom physics for acceleration, friction, and slope mechanics.
 
-## Funcionalidades
+## Features
 
-- **Física estilo Sonic**: aceleração/desaceleração, atrito, gravidade manual, força em rampas, *spin dash* carregável, *air dash* diagonal e altura de pulo variável.
-- **Renderização 3D em plano 2D (2.5D)**: o jogador é um `CharacterBody3D` travado no plano XY, com modelos 3D animados.
-- **Áudio 100% procedural**: todos os efeitos sonoros são gerados em tempo real como ondas senoidais — não há arquivos de áudio.
-- **HUD**: pontuação, tempo, moedas, vidas e velocidade (km/h).
-- **Suporte a gamepad**: seleção de joystick e mapeamento automático dos botões mais comuns.
-- **Menu completo**: jogar, opções, créditos, conquistas e seleção de fase (incluindo fase de *debug*).
+- **Sonic-style Physics**: acceleration/deceleration, friction, manual gravity, slope force, chargeable spin dash, diagonal air dash, and variable jump height.
+- **3D Rendering on a 2D Plane (2.5D)**: the player is a `CharacterBody3D` locked to the XY plane, using animated 3D models.
+- **100% Procedural Audio**: all sound effects are generated in real-time as sine waves — there are no audio files.
+- **HUD**: score, time, rings, lives, and speed (km/h).
+- **Gamepad Support**: controller selection and automatic mapping for the most common buttons.
+- **Complete Menu**: play, options, credits, achievements, and stage select (including debug stage).
 
-## Controles
+## Controls
 
-| Ação | Teclado | Gamepad |
+| Action | Keyboard | Gamepad |
 |------|---------|---------|
-| Mover | Setas / `A` `D` | D-pad / analógico esquerdo |
-| Pular / Air dash | `Espaço` / `Z` | A, B, X, Y |
-| Agachar / Roll / Spin dash | `S` (segurar) + pular para carregar | D-pad ↓ |
+| Move | Arrow keys / `A` `D` | D-pad / left analog stick |
+| Jump / Air dash | `Space` / `Z` | A, B, X, Y |
+| Crouch / Roll / Spin dash | `S` (hold) + jump to charge | D-pad ↓ |
 | Dash | `X` / `Shift` | — |
-| Pausar | `Esc` | Start |
+| Pause | `Esc` | Start |
 
-## Requisitos
+## Requirements
 
-- **Godot 4.6** edição **.NET / Mono** (necessária para projetos C#)
+- **Godot 4.6** - **.NET / Mono** edition (required for C# projects)
 - **.NET SDK 8.0**
 
-## Como rodar
+## How to Run
 
-1. Abra o projeto no editor Godot apontando para `src/project.godot`.
-2. O Godot compila o assembly C# automaticamente.
-3. Execute o projeto (F5). A cena inicial é `res://scenes/menu.tscn`.
+1. Open the project in the Godot editor by pointing it to `src/project.godot`.
+2. Godot will automatically compile the C# assembly.
+3. Run the project (F5). The initial scene is `res://scenes/menu.tscn`.
 
-Para apenas compilar o C# pela linha de comando (a partir de `src/`, onde fica `Paçoca.csproj`):
+To just compile the C# project via command line (from `src/`, where `Paçoca.csproj` is located):
 
 ```bash
 dotnet build
 ```
 
-## Estrutura do projeto
+## Project Structure
 
-> Atenção à pasta `src` aninhada: o repositório git fica na raiz, mas o **projeto Godot** está em `src/`, e os **scripts C#** ficam em `src/src/`.
+> Note the nested `src` directory: the git repository root is at the top level, but the **Godot project** is in `src/`, and the **C# scripts** are located in `src/src/`.
 
 ```
 Paçoca/
-├── assets/                 # Assets brutos (modelos exportados, etc.)
-└── src/                    # Raiz do projeto Godot (res://)
+├── assets/                 # Raw assets (exported models, etc.)
+├── docs/                   # Documentation (e.g., map_syntax.md)
+├── tools/
+│   └── map_editor/         # Visual map editor (web + server.py)
+└── src/                    # Godot project root (res://)
     ├── project.godot
     ├── Paçoca.csproj
-    ├── scenes/             # Cenas: menu, main, hud, player, inimigos, fases...
+    ├── scenes/             # Scenes: menu, main, hud, player, enemies, levels...
     │   └── levels/         # level_01.tscn, debug.tscn
-    ├── models/             # Modelos FBX animados (Mixamo)
+    ├── scripts/            # Level pipeline (convert_map.py, generate_level.py)
+    │   └── levels/         # Source maps (.txt/.json) and generated modules
+    ├── models/             # Animated FBX models (Mixamo)
     ├── materials/
     ├── textures/
-    └── src/                # Scripts C#  (res://src/*.cs)
-        ├── Main.cs         # Coordena o gameplay e carrega as fases
-        ├── Player.cs       # Jogador (CharacterBody3D) e física
-        ├── GameSettings.cs # Estado global entre cenas (fase, gamepad)
+    └── src/                # C# scripts (res://src/*.cs)
+        ├── Main.cs         # Coordinates gameplay and loads levels
+        ├── Player.cs       # Player (CharacterBody3D) and physics
+        ├── GameSettings.cs # Global state across scenes (level, gamepad)
         ├── CameraController.cs
         ├── HUD.cs, Menu.cs, PauseMenu.cs, GameOver.cs
         └── Ring.cs, Spring.cs, DashPad.cs, Enemy.cs
 ```
 
-## Arquitetura
+## Level Creation (Map Editor)
 
-- **`Main.cs`** é o coordenador do gameplay (raiz de `main.tscn`): lê `GameSettings.LevelToLoad`, instancia a fase dentro de um `LevelWrapper` e posiciona o jogador no `SpawnPoint` (`Marker3D`) da fase. As fases são cenas intercambiáveis em `scenes/levels/`.
-- **`GameSettings.cs`** é um estado estático global que guarda a fase selecionada e o joystick escolhido, persistindo entre as trocas de cena.
-- **Fluxo de cenas**: `menu.tscn` → `main.tscn` → `game_over.tscn` → `menu.tscn`, com `pause_menu.tscn` sobreposto durante o jogo.
-- **Comunicação com a UI**: o `Player` emite o sinal `PlayerStatsChanged(rings, score, speed, lives)`, ao qual o `HUD` se conecta. Objetos como `Ring`, `Spring`, `DashPad` e `Enemy` chamam métodos públicos do `Player` (`CollectRing()`, `ApplyBoost()`, `Hurt()`).
+Levels are drawn as **maps** (ASCII grid or JSON) and converted into Godot scenes (`level_XX.tscn`) via a Python pipeline. There is a **visual web editor** that covers the entire loop: draw → compile → test.
 
-Para detalhes de desenvolvimento, veja `src/CLAUDE.md`.
+### Visual Editor (`tools/map_editor/`)
+
+```bash
+python tools/map_editor/server.py     # open http://localhost:8000
+```
+
+- **Palette Dock** (platforms, ramps, rings, springs, enemies, spikes, spawn, level finish) + paint/erase tools.
+- **Compile** — generates the level `.tscn` from the drawing.
+- **Test Level** (`F5`) — compiles the current level and opens Godot **directly in it**.
+- **Run** — opens the game starting from the main menu.
+- **Settings Gear** — configures the Godot executable path (automatically detected in PATH; specify manually if not found).
+- Shortcuts: `B` paint · `E` erase · `F5` test · `Esc` close.
+
+> The editor also works when opened directly (`file://`) to draw and export, but buttons that run Godot/compile require the local server.
+
+### Command Line Compiling
+
+From `src/` (Godot project root):
+
+```powershell
+python scripts/convert_map.py --input scripts/levels/level_04_map.txt --level 04
+```
+
+This generates/updates `src/scenes/levels/level_04.tscn`, ready to open in Godot.
+
+### Quick Syntax
+
+Each **column** of the grid equals 2 m (X) and each **row** is 3 m (Y, `ystep`); the last non-empty row is the ground (`Y = 0`).
+
+| Char | Element | Char | Element |
+| :---: | --- | :---: | --- |
+| `#` | platform | `V` `F` | vertical / diagonal spring |
+| `/` `\` | ramp up / down | `D` | booster (dash pad) |
+| `o` | ring | `E` `C` | enemy / cactus enemy |
+| `P` | player spawn | `S` | spikes |
+| `G` | level finish coin | ` ` | empty |
+
+📖 **Complete documentation** (grid rules, heights, player headroom, JSON format, `--level` flag): [`docs/map_syntax.md`](docs/map_syntax.md).
+
+## Architecture
+
+- **`Main.cs`** is the gameplay coordinator (root of `main.tscn`): it reads `GameSettings.LevelToLoad`, instantiates the level inside a `LevelWrapper` node, and positions the player at the level's `SpawnPoint` (`Marker3D`). Levels are interchangeable scenes in `scenes/levels/`.
+- **`GameSettings.cs`** is a global static state that stores the selected level and joystick, persisting between scene changes.
+- **Scene Flow**: `menu.tscn` → `main.tscn` → `game_over.tscn` → `menu.tscn`, with `pause_menu.tscn` overlaid during gameplay.
+- **UI Communication**: the `Player` emits the `PlayerStatsChanged(rings, score, speed, lives)` signal, to which `HUD` connects. Objects like `Ring`, `Spring`, `DashPad`, and `Enemy` call public methods on `Player` (`CollectRing()`, `ApplyBoost()`, `Hurt()`).
+
+For development details, see `src/CLAUDE.md`.

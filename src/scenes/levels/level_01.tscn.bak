@@ -1,0 +1,1645 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Material" path="res://materials/grass.tres" id="1_GrassMat"]
+[ext_resource type="Material" path="res://materials/rock.tres" id="2_RockMat"]
+[ext_resource type="Material" path="res://materials/water.tres" id="3_WaterMat"]
+[ext_resource type="Material" path="res://materials/mountain_bg.tres" id="4_MountainMat"]
+[ext_resource type="PackedScene" path="res://scenes/ring.tscn" id="5_RingScene"]
+[ext_resource type="PackedScene" path="res://scenes/spring.tscn" id="6_SpringScene"]
+[ext_resource type="PackedScene" path="res://scenes/dash_pad.tscn" id="7_DashPadScene"]
+[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="8_EnemyScene"]
+[ext_resource type="PackedScene" path="res://scenes/cactus_enemy.tscn" id="9_CactusEnemyScene"]
+[ext_resource type="PackedScene" path="res://scenes/spikes.tscn" id="10_SpikesScene"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_water"]
+material = ExtResource("3_WaterMat")
+size = Vector3(3000, 2, 8)
+
+[sub_resource type="TorusMesh" id="TorusMesh_bg_loop"]
+material = ExtResource("1_GrassMat")
+inner_radius = 4.0
+outer_radius = 5.2
+rings = 32
+ring_segments = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_bg_loop_inner"]
+material = ExtResource("2_RockMat")
+top_radius = 4.0
+bottom_radius = 4.0
+height = 1.0
+radial_segments = 24
+
+[sub_resource type="QuadMesh" id="QuadMesh_mountain"]
+material = ExtResource("4_MountainMat")
+size = Vector2(3000, 120)
+
+[node name="Level01" type="Node3D"]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.5, 0)
+
+[node name="Level" type="Node3D" parent="."]
+
+[node name="TrackCSG" type="CSGCombiner3D" parent="Level"]
+use_collision = true
+
+[node name="MainGround" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, -0.5, 0)
+size = Vector3(2100, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="MainGroundRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, -6, 0)
+size = Vector3(2100, 11, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="SpawnPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, -0.5, 0)
+size = Vector3(46, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="SpawnSubRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, -3, 0)
+size = Vector3(46, 4, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="RampUp" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -1, 0)
+polygon = PackedVector2Array(0, 0, 10, 4, 10, -2, 0, -2)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+[node name="RampUpSubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -1, 0)
+polygon = PackedVector2Array(0, 0, 10, 4, 10, -2, 0, -2)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+[node name="HighPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, 1.5, 0)
+size = Vector3(20, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="HighSubRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, -1, 0)
+size = Vector3(20, 4, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="RampDown" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33, -1, 0)
+polygon = PackedVector2Array(0, 3, 8, 0, 8, -2, 0, -2)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+[node name="RampDownSubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33, -1, 0)
+polygon = PackedVector2Array(0, 3, 8, 0, 8, -2, 0, -2)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+[node name="WaterPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51, -2.5, 0)
+size = Vector3(12, 1, 4)
+material = ExtResource("2_RockMat")
+
+[node name="RightPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, -0.5, 0)
+size = Vector3(46, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="RightSubRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, -3, 0)
+size = Vector3(46, 4, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="LowPlatform1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 115, -4.5, 0)
+size = Vector3(8, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="LowPlatform1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 115, -6.5, 0)
+size = Vector3(8, 3, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="LowPlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, -3.5, 0)
+size = Vector3(8, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="LowPlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, -5.5, 0)
+size = Vector3(8, 3, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="LowPathMain" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, -1.5, 0)
+size = Vector3(80, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="LowPathMainRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, -4.5, 0)
+size = Vector3(80, 5, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="LowRampUp" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210, -1.0, 0)
+polygon = PackedVector2Array(0, 0, 10, 4, 10, -2, 0, -2)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+[node name="LowRampUpSub" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210, -1.0, 0)
+polygon = PackedVector2Array(0, 0, 10, 4, 10, -2, 0, -2)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+[node name="HighFloating1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120, 7.5, 0)
+size = Vector3(20, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="HighFloating1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120, 6.0, 0)
+size = Vector3(20, 2, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="HighFloating2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 9.5, 0)
+size = Vector3(20, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="HighFloating2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 8.0, 0)
+size = Vector3(20, 2, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="HighFloating3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 7.5, 0)
+size = Vector3(20, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="HighFloating3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 6.0, 0)
+size = Vector3(20, 2, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="JunctionPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 235, 3.0, 0)
+size = Vector3(30, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="JunctionSubRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 235, 0.5, 0)
+size = Vector3(30, 4, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="JunctionRampDown" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250, -1.0, 0)
+polygon = PackedVector2Array(0, 4, 15, 0, 15, -4, 0, -4)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+[node name="JunctionRampDownSub" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250, -1.0, 0)
+polygon = PackedVector2Array(0, 4, 15, 0, 15, -4, 0, -4)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+[node name="SpeedRunway" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, -1.0, 0)
+size = Vector3(70, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="SpeedSubRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, -3.5, 0)
+size = Vector3(70, 4, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="JumpRamp" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 325, -1.0, 0)
+polygon = PackedVector2Array(0, 0, 10, 3, 10, -2, 0, -2)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+[node name="JumpRampSub" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 325, -1.0, 0)
+polygon = PackedVector2Array(0, 0, 10, 3, 10, -2, 0, -2)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+[node name="BridgePlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 380, 2.0, 0)
+size = Vector3(30, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="BridgeSubRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 380, -0.5, 0)
+size = Vector3(30, 4, 3.8)
+material = ExtResource("2_RockMat")
+
+[node name="WaterPlane" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, -7.5, 0)
+mesh = SubResource("BoxMesh_water")
+
+[node name="BG_Loop" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 3.5, -2.5)
+mesh = SubResource("TorusMesh_bg_loop")
+
+[node name="BG_Loop_Inner" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 62, 3.5, -2.5)
+mesh = SubResource("CylinderMesh_bg_loop_inner")
+
+[node name="BG_Mountains" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, 15, -22)
+mesh = SubResource("QuadMesh_mountain")
+
+[node name="DistantRuin" type="CSGCombiner3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, 6, -6)
+
+[node name="PillarL" type="CSGCylinder3D" parent="Level/DistantRuin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, -1, 0)
+radius = 0.4
+height = 6.0
+material = ExtResource("2_RockMat")
+
+[node name="PillarR" type="CSGCylinder3D" parent="Level/DistantRuin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, -1, 0)
+radius = 0.4
+height = 6.0
+material = ExtResource("2_RockMat")
+
+[node name="Arch" type="CSGBox3D" parent="Level/DistantRuin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+size = Vector3(9.2, 0.6, 1.2)
+material = ExtResource("2_RockMat")
+
+[node name="GoalRuin" type="CSGCombiner3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2000, 12.5, -3)
+
+[node name="PillarL" type="CSGCylinder3D" parent="Level/GoalRuin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, -1, 0)
+radius = 0.4
+height = 6.0
+material = ExtResource("2_RockMat")
+
+[node name="PillarR" type="CSGCylinder3D" parent="Level/GoalRuin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -1, 0)
+radius = 0.4
+height = 6.0
+material = ExtResource("2_RockMat")
+
+[node name="Arch" type="CSGBox3D" parent="Level/GoalRuin"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+size = Vector3(7.2, 0.6, 1.2)
+material = ExtResource("2_RockMat")
+
+[node name="InteractiveObjects" type="Node3D" parent="."]
+
+[node name="DashPad" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 0)
+
+[node name="Rings" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Ring" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1.2, 0)
+
+[node name="Ring2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.2, 0)
+
+[node name="Ring3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.2, 0)
+
+[node name="Ring4" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 3.2, 0)
+
+[node name="Ring5" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 3.2, 0)
+
+[node name="Ring6" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 3.2, 0)
+
+[node name="Ring7" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 5.0, 0)
+
+[node name="Ring8" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65, 5.8, 0)
+
+[node name="Ring9" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 5.8, 0)
+
+[node name="Ring10" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71, 5.0, 0)
+
+[node name="Ring11" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 118, 9.2, 0)
+
+[node name="Ring12" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120, 9.2, 0)
+
+[node name="Ring13" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 122, 9.2, 0)
+
+[node name="Ring14" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 148, 11.2, 0)
+
+[node name="Ring15" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 11.5, 0)
+
+[node name="Ring16" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 152, 11.2, 0)
+
+[node name="Ring17" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 113, 1.2, 0)
+
+[node name="Ring18" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 115, 1.2, 0)
+
+[node name="Ring19" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 117, 1.2, 0)
+
+[node name="Ring20" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 230, 4.5, 0)
+
+[node name="Ring21" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 232, 4.5, 0)
+
+[node name="Ring22" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 234, 4.5, 0)
+
+[node name="Ring23" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 236, 4.5, 0)
+
+[node name="Ring24" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 238, 4.5, 0)
+
+[node name="Ring25" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 285, 1.2, 0)
+
+[node name="Ring26" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 288, 1.2, 0)
+
+[node name="Ring27" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 291, 1.2, 0)
+
+[node name="Ring28" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 294, 1.2, 0)
+
+[node name="Ring29" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 297, 1.2, 0)
+
+[node name="Ring30" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 300, 1.2, 0)
+
+[node name="Ring31" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 375, 3.5, 0)
+
+[node name="Ring32" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 377, 3.5, 0)
+
+[node name="Ring33" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 379, 3.5, 0)
+
+[node name="SpringVert" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51, 0.0, 0)
+LaunchForce = 21.0
+
+[node name="SpringDiag" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, 56.5, 0, 0)
+LaunchForce = 26.0
+LaunchDirection = Vector3(1.2, 1.5, 0)
+ControlLockDuration = 0.6
+
+[node name="DashPad2" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47, 0, 0)
+
+[node name="SpringHighLauncher" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, 95, 0.5, 0)
+LaunchForce = 25.0
+LaunchDirection = Vector3(1.2, 1.5, 0)
+ControlLockDuration = 0.6
+
+[node name="SpringLow" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130, 0.0, 0)
+LaunchForce = 18.0
+
+[node name="SpringJunction" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210, 0.0, 0)
+LaunchForce = 22.0
+
+[node name="FinalPitSpring" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, 323, 0.0, 0)
+LaunchForce = 28.0
+LaunchDirection = Vector3(1.5, 1.2, 0)
+ControlLockDuration = 0.7
+
+[node name="DashPadHigh1" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 115, 8.0, 0)
+
+[node name="DashPadSpeed" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 280, 0.0, 0)
+
+[node name="Enemies" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Enemy" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 2.5, 0)
+Speed = 3.5
+
+[node name="Enemy2" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 0.5, 0)
+Speed = 4.0
+
+[node name="EnemyLow1" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 115, 0.5, 0)
+Speed = 2.0
+
+[node name="EnemyLow2" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160, 0.5, 0)
+Speed = 3.5
+
+[node name="EnemyLow3" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 195, 0.5, 0)
+Speed = 4.0
+
+[node name="EnemyHigh" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 8.5, 0)
+Speed = 3.0
+
+[node name="EnemyJunction" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 240, 4.0, 0)
+Speed = 3.5
+
+[node name="EnemyGoal" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1995, 9.0, 0)
+Speed = 2.5
+
+[node name="CactusSpawn" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.0, 0)
+Speed = 1.25
+
+[node name="CactusHigh" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, 2.0, 0)
+Speed = 1.25
+
+[node name="CactusRight" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.0, 0)
+Speed = 1.25
+
+[node name="SpringCaveUpperLauncher" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, 390.00, 2.50, 0)
+LaunchForce = 24.00
+LaunchDirection = Vector3(1.20, 1.50, 0)
+ControlLockDuration = 0.60
+
+
+[node name="UpperPlatform1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 420.00, 10.00, 0)
+size = Vector3(20.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="UpperPlatform1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 420.00, 7.50, 0)
+size = Vector3(20.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingUpper1_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 415.00, 11.20, 0)
+
+
+[node name="RingUpper1_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 420.00, 11.20, 0)
+
+
+[node name="RingUpper1_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 425.00, 11.20, 0)
+
+
+[node name="UpperPlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 460.00, 12.00, 0)
+size = Vector3(20.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="UpperPlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 460.00, 9.50, 0)
+size = Vector3(20.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingUpper2_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 435.00, 12.00, 0)
+
+
+[node name="RingUpper2_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440.00, 13.00, 0)
+
+
+[node name="RingUpper2_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 445.00, 12.50, 0)
+
+
+[node name="UpperPlatform3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 505.00, 14.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="UpperPlatform3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 505.00, 11.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadUpper1" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 495.00, 14.50, 0)
+
+
+[node name="RingUpper3_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 505.00, 15.20, 0)
+
+
+[node name="RingUpper3_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 510.00, 15.20, 0)
+
+
+[node name="RingUpper3_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 515.00, 15.20, 0)
+
+
+[node name="UpperPlatform4" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 550.00, 11.00, 0)
+size = Vector3(20.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="UpperPlatform4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 550.00, 8.50, 0)
+size = Vector3(20.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="UpperPlatform5" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600.00, 8.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="UpperPlatform5Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600.00, 5.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CactusUpper1" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600.00, 9.00, 0)
+Speed = 1.25
+
+
+[node name="UpperSlopeDown" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 620.00, 2.00, 0)
+polygon = PackedVector2Array(0, 6.00, 30.00, 0, 30.00, -5.00, 0, -5.00)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+
+[node name="UpperSlopeDownSubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 620.00, 2.00, 0)
+polygon = PackedVector2Array(0, 6.00, 30.00, 0, 30.00, -5.00, 0, -5.00)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+
+[node name="CavePlatform1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 430.00, -6.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CavePlatform1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 430.00, -8.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CactusCave1" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 430.00, -5.00, 0)
+Speed = 1.00
+
+
+[node name="RingCave1_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 420.00, -4.80, 0)
+
+
+[node name="RingCave1_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 425.00, -4.80, 0)
+
+
+[node name="SpikePlatform1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 448.00, -10.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SpikePlatform1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 448.00, -12.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpikesCave1" parent="InteractiveObjects" instance=ExtResource("10_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 448.00, -9.50, 0)
+
+
+[node name="CaveLowFloating1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 456.00, -8.00, 0)
+size = Vector3(8.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CaveLowFloating1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 456.00, -10.50, 0)
+size = Vector3(8.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpikePlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 464.00, -10.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SpikePlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 464.00, -12.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpikesCave2" parent="InteractiveObjects" instance=ExtResource("10_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 464.00, -9.50, 0)
+
+
+[node name="CavePlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 485.00, -7.00, 0)
+size = Vector3(25.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CavePlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 485.00, -9.50, 0)
+size = Vector3(25.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="EnemyCave1" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 485.00, -6.00, 0)
+Speed = 2.50
+
+
+[node name="CaveSpringPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 506.00, -9.00, 0)
+size = Vector3(6.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CaveSpringPlatformRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 506.00, -11.50, 0)
+size = Vector3(6.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpringCaveRecover" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 506.00, -8.50, 0)
+LaunchForce = 20.00
+
+
+[node name="CavePlatform3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 535.00, -6.00, 0)
+size = Vector3(35.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CavePlatform3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 535.00, -8.50, 0)
+size = Vector3(35.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingCave3_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 525.00, -4.80, 0)
+
+
+[node name="RingCave3_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 530.00, -4.80, 0)
+
+
+[node name="RingCave3_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 535.00, -4.80, 0)
+
+
+[node name="CaveFloat1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 560.00, -2.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CaveFloat1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 560.00, -4.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CaveFloat2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 575.00, 0.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CaveFloat2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 575.00, -2.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CavePlatform4" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600.00, -4.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CavePlatform4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 600.00, -6.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CavePlatform5" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 655.00, -2.00, 0)
+size = Vector3(50.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="CavePlatform5Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 655.00, -4.50, 0)
+size = Vector3(50.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CactusCave2" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 650.00, -1.00, 0)
+Speed = 1.25
+
+
+[node name="SpringCaveOut" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 675.00, -1.50, 0)
+LaunchForce = 24.00
+
+
+[node name="JunctionPlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 700.00, 2.00, 0)
+size = Vector3(60.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="JunctionPlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 700.00, -0.50, 0)
+size = Vector3(60.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpringSkyLauncher" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 720.00, 2.50, 0)
+LaunchForce = 26.00
+
+
+[node name="SkyPlatform1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 760.00, 16.00, 0)
+size = Vector3(25.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyPlatform1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 760.00, 13.50, 0)
+size = Vector3(25.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingSky1_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 755.00, 17.20, 0)
+
+
+[node name="RingSky1_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 760.00, 17.20, 0)
+
+
+[node name="RingSky1_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 765.00, 17.20, 0)
+
+
+[node name="SkyPlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 800.00, 18.00, 0)
+size = Vector3(25.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyPlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 800.00, 15.50, 0)
+size = Vector3(25.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CactusSky1" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 800.00, 19.00, 0)
+Speed = 1.25
+
+
+[node name="SkyPlatform3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 850.00, 17.00, 0)
+size = Vector3(35.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyPlatform3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 850.00, 14.50, 0)
+size = Vector3(35.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadSky1" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 840.00, 17.50, 0)
+
+
+[node name="SkyPlatform4" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 900.00, 19.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyPlatform4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 900.00, 16.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingSky4_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 895.00, 20.20, 0)
+
+
+[node name="RingSky4_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 900.00, 20.20, 0)
+
+
+[node name="RingSky4_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 905.00, 20.20, 0)
+
+
+[node name="SkyPlatform5" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 960.00, 16.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyPlatform5Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 960.00, 13.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CactusSky2" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 960.00, 17.00, 0)
+Speed = 1.25
+
+
+[node name="SkyPlatform6" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1025.00, 14.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyPlatform6Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1025.00, 11.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpringSkyOut" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, 1035.00, 14.50, 0)
+LaunchForce = 24.00
+LaunchDirection = Vector3(1.20, 1.50, 0)
+ControlLockDuration = 0.60
+
+
+[node name="MiddlePlatform1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 760.00, 2.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="MiddlePlatform1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 760.00, -0.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="EnemyMid1" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 760.00, 3.00, 0)
+Speed = 3.00
+
+
+[node name="MiddleRampUp" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 780.00, 2.00, 0)
+polygon = PackedVector2Array(0, 0, 20.00, 6.00, 20.00, -2.00, 0, -2.00)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+
+[node name="MiddleRampUpSubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 780.00, 2.00, 0)
+polygon = PackedVector2Array(0, 0, 20.00, 6.00, 20.00, -2.00, 0, -2.00)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+
+[node name="MiddlePlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 830.00, 8.00, 0)
+size = Vector3(60.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="MiddlePlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 830.00, 5.50, 0)
+size = Vector3(60.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadMid1" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 810.00, 8.50, 0)
+
+
+[node name="RingMid2_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 825.00, 9.20, 0)
+
+
+[node name="RingMid2_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 830.00, 9.20, 0)
+
+
+[node name="RingMid2_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 835.00, 9.20, 0)
+
+
+[node name="MiddleRampDown" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 860.00, 2.00, 0)
+polygon = PackedVector2Array(0, 6.00, 20.00, 0, 20.00, -5.00, 0, -5.00)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+
+[node name="MiddleRampDownSubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 860.00, 2.00, 0)
+polygon = PackedVector2Array(0, 6.00, 20.00, 0, 20.00, -5.00, 0, -5.00)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+
+[node name="MiddlePlatform3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 910.00, 2.00, 0)
+size = Vector3(50.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="MiddlePlatform3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 910.00, -0.50, 0)
+size = Vector3(50.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="EnemyMid2" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 910.00, 3.00, 0)
+Speed = 3.50
+
+
+[node name="MiddlePlatform4" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 980.00, 3.00, 0)
+size = Vector3(60.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="MiddlePlatform4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 980.00, 0.50, 0)
+size = Vector3(60.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingMid4_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 970.00, 4.20, 0)
+
+
+[node name="RingMid4_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 975.00, 4.20, 0)
+
+
+[node name="RingMid4_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 980.00, 4.20, 0)
+
+
+[node name="MiddlePlatform5" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1050.00, 2.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="MiddlePlatform5Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1050.00, -0.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="WaterPathPlatform1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 765.00, -4.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WaterPathPlatform1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 765.00, -6.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpikesWater1" parent="InteractiveObjects" instance=ExtResource("10_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 765.00, -3.50, 0)
+
+
+[node name="WaterPathPlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 815.00, -5.00, 0)
+size = Vector3(20.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WaterPathPlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 815.00, -7.50, 0)
+size = Vector3(20.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingWater2_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 810.00, -3.80, 0)
+
+
+[node name="RingWater2_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 815.00, -3.80, 0)
+
+
+[node name="RingWater2_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 820.00, -3.80, 0)
+
+
+[node name="WaterPathPlatform3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 865.00, -4.50, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WaterPathPlatform3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 865.00, -7.00, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="EnemyWater1" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 865.00, -3.50, 0)
+Speed = 2.00
+
+
+[node name="WaterPathPlatform4" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 925.00, -5.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WaterPathPlatform4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 925.00, -7.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpikesWater2" parent="InteractiveObjects" instance=ExtResource("10_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 925.00, -4.50, 0)
+
+
+[node name="WaterPathPlatform5" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 985.00, -3.00, 0)
+size = Vector3(50.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WaterPathPlatform5Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 985.00, -5.50, 0)
+size = Vector3(50.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CactusWater1" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 980.00, -2.00, 0)
+Speed = 1.25
+
+
+[node name="WaterPathPlatform6" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1045.00, -1.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WaterPathPlatform6Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1045.00, -3.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpringWaterOut" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1055.00, -0.50, 0)
+LaunchForce = 24.00
+
+
+[node name="WallClimbBase" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1085.00, 2.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WallClimbBaseRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1085.00, -0.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="VerticalWall" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1105.00, 10.00, 0)
+size = Vector3(10, 30, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="VerticalWallRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1105.00, 10.00, 0)
+size = Vector3(10, 30, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="WallSpringClimb1" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1085.00, 2.50, 0)
+LaunchForce = 22.00
+
+
+[node name="WallLedge1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1095.00, 12.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WallLedge1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1095.00, 9.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="WallSpringClimb2" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1095.00, 12.50, 0)
+LaunchForce = 22.00
+
+
+[node name="WallLedge2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1105.00, 20.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WallLedge2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1105.00, 17.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingWallLedge2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1105.00, 21.20, 0)
+
+
+[node name="WallTopPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1115.00, 25.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WallTopPlatformRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1115.00, 22.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="UnderpassPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1115.00, -4.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="UnderpassPlatformRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1115.00, -6.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="UnderpassCeiling" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1115.00, -0.50, 0)
+size = Vector3(40, 1, 4)
+material = ExtResource("1_GrassMat")
+
+[node name="UnderpassCeilingRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1115.00, -2.50, 0)
+size = Vector3(40, 4, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadUnderpass" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1090.00, 2.50, 0)
+
+
+[node name="RingTunnel1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1100.00, -2.80, 0)
+
+
+[node name="RingTunnel2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1110.00, -2.80, 0)
+
+
+[node name="RingTunnel3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1120.00, -2.80, 0)
+
+
+[node name="SpinDashRamp" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1055.00, 2.00, 0)
+polygon = PackedVector2Array(0, 0, 15.00, 10.00, 15.00, -2.00, 0, -2.00)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+
+[node name="SpinDashRampSubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1055.00, 2.00, 0)
+polygon = PackedVector2Array(0, 0, 15.00, 10.00, 15.00, -2.00, 0, -2.00)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+
+[node name="WallTopRampPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1075.00, 12.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="WallTopRampPlatformRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1075.00, 9.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadWallTop" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1075.00, 12.50, 0)
+
+
+[node name="PostWallPlatform" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1160.00, 6.00, 0)
+size = Vector3(60.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="PostWallPlatformRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1160.00, 3.50, 0)
+size = Vector3(60.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="FloatStep1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1210.00, 9.00, 0)
+size = Vector3(8.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="FloatStep1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1210.00, 6.50, 0)
+size = Vector3(8.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="FloatStep2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1230.00, 12.00, 0)
+size = Vector3(8.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="FloatStep2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1230.00, 9.50, 0)
+size = Vector3(8.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="FloatStep3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1250.00, 15.00, 0)
+size = Vector3(8.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="FloatStep3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1250.00, 12.50, 0)
+size = Vector3(8.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="FloatStep4" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1275.00, 14.00, 0)
+size = Vector3(12.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="FloatStep4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1275.00, 11.50, 0)
+size = Vector3(12.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingFloatStep4" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1275.00, 15.20, 0)
+
+
+[node name="LowerSpeedRunway" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1240.00, 2.00, 0)
+size = Vector3(100.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="LowerSpeedRunwayRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1240.00, -0.50, 0)
+size = Vector3(100.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadLowerSpeed" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1210.00, 2.50, 0)
+
+
+[node name="EnemyLowerSpeed" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1250.00, 3.00, 0)
+Speed = 3.00
+
+
+[node name="DangerRunway" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1350.00, 1.00, 0)
+size = Vector3(120.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="DangerRunwayRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1350.00, -1.50, 0)
+size = Vector3(120.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpikesDanger1" parent="InteractiveObjects" instance=ExtResource("10_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1320.00, 1.50, 0)
+
+
+[node name="SpikesDanger2" parent="InteractiveObjects" instance=ExtResource("10_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1360.00, 1.50, 0)
+
+
+[node name="CactusDanger1" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1340.00, 2.00, 0)
+Speed = 1.25
+
+
+[node name="EnemyDanger1" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1380.00, 2.00, 0)
+Speed = 3.00
+
+
+[node name="DangerPlatform2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1480.00, 3.00, 0)
+size = Vector3(100.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="DangerPlatform2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1480.00, 0.50, 0)
+size = Vector3(100.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="SpikesDanger3" parent="InteractiveObjects" instance=ExtResource("10_SpikesScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1460.00, 3.50, 0)
+
+
+[node name="DangerPlatform3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1610.00, 4.00, 0)
+size = Vector3(120.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="DangerPlatform3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1610.00, 1.50, 0)
+size = Vector3(120.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CactusDanger2" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1600.00, 5.00, 0)
+Speed = 1.25
+
+
+[node name="SkyBridge1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1340.00, 18.00, 0)
+size = Vector3(60.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyBridge1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1340.00, 15.50, 0)
+size = Vector3(60.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingSkyBridge1_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1330.00, 19.20, 0)
+
+
+[node name="RingSkyBridge1_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1340.00, 19.20, 0)
+
+
+[node name="RingSkyBridge1_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1350.00, 19.20, 0)
+
+
+[node name="SkyBridge2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1430.00, 20.00, 0)
+size = Vector3(80.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyBridge2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1430.00, 17.50, 0)
+size = Vector3(80.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadSkyBridge2" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1410.00, 20.50, 0)
+
+
+[node name="CactusSkyBridge1" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1450.00, 21.00, 0)
+Speed = 1.25
+
+
+[node name="SkyBridge3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1550.00, 17.00, 0)
+size = Vector3(100.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyBridge3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1550.00, 14.50, 0)
+size = Vector3(100.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="RingSkyBridge3_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1540.00, 18.20, 0)
+
+
+[node name="RingSkyBridge3_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1550.00, 18.20, 0)
+
+
+[node name="RingSkyBridge3_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1560.00, 18.20, 0)
+
+
+[node name="SkyBridge4" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1680.00, 15.00, 0)
+size = Vector3(100.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="SkyBridge4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1680.00, 12.50, 0)
+size = Vector3(100.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="CactusSkyBridge2" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1680.00, 16.00, 0)
+Speed = 1.25
+
+
+[node name="FinalJunction" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1780.00, 4.00, 0)
+size = Vector3(80.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="FinalJunctionRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1780.00, 1.50, 0)
+size = Vector3(80.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadFinal1" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1760.00, 4.50, 0)
+
+
+[node name="DashPadFinal2" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1800.00, 4.50, 0)
+
+
+[node name="FinalRunway" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1890.00, 4.00, 0)
+size = Vector3(140.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="FinalRunwayRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1890.00, 1.50, 0)
+size = Vector3(140.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="DashPadFinal3" parent="InteractiveObjects" instance=ExtResource("7_DashPadScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1850.00, 4.50, 0)
+
+
+[node name="RingFinalRunway_0" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1870.00, 5.20, 0)
+
+
+[node name="RingFinalRunway_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1880.00, 5.20, 0)
+
+
+[node name="RingFinalRunway_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1890.00, 5.20, 0)
+
+
+[node name="RingFinalRunway_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1900.00, 5.20, 0)
+
+
+[node name="RingFinalRunway_4" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1910.00, 5.20, 0)
+
+
+[node name="RingFinalRunway_5" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1920.00, 5.20, 0)
+
+
+[node name="FinalJumpRamp" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1940.00, 4.00, 0)
+polygon = PackedVector2Array(0, 0, 20.00, 6.00, 20.00, -2.00, 0, -2.00)
+depth = 4.0
+material = ExtResource("1_GrassMat")
+
+
+[node name="FinalJumpRampSubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1940.00, 4.00, 0)
+polygon = PackedVector2Array(0, 0, 20.00, 6.00, 20.00, -2.00, 0, -2.00)
+depth = 3.8
+material = ExtResource("2_RockMat")
+
+
+[node name="VictoryRing1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1965.00, 13.50, 0)
+
+
+[node name="VictoryRing2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1970.00, 14.50, 0)
+
+
+[node name="VictoryRing3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1975.00, 14.50, 0)
+
+
+[node name="VictoryRing4" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1980.00, 13.50, 0)
+
+
+[node name="GoalPlatformNew" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2005.00, 8.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="GoalPlatformNewRock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2005.00, 5.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="LevelGoal" parent="InteractiveObjects" instance=ExtResource("11_GoalScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2005.00, 8.50, 0)

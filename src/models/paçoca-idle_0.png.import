@@ -2,14 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bm4uxff5ol5g6"
+uid="uid://dae44g0yf7wo2"
 path.s3tc="res://.godot/imported/paçoca-idle_0.png-01f863a37bf64daa5a8e62a036065756.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
-}
-generator_parameters={
-"md5": "04575645697631752ca0eab02a4dcbd2"
 }
 
 [deps]

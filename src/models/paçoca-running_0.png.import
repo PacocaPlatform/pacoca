@@ -2,14 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2xv7gdykk5pw"
+uid="uid://d33wi7mlay1w1"
 path.s3tc="res://.godot/imported/paçoca-running_0.png-dad83555b20c44066b0a5f8471292dd6.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
-}
-generator_parameters={
-"md5": "04575645697631752ca0eab02a4dcbd2"
 }
 
 [deps]
