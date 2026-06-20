@@ -14,6 +14,10 @@ public partial class Player : CharacterBody3D
     [Export] public float JumpVelocity = 21.0f;
     [Export] public float AirControl = 0.7f;
     [Export] public float SlopeAccelerationMultiplier = 15.0f;
+
+    // Air dash (second jump) parameters
+    [Export] public float AirDashSpeed = 18.0f;            // upward launch of the second jump
+    [Export] public float AirDashHorizontalSpeed = 6.0f;   // sideways nudge when a direction is held
     
     // Spin Dash parameters
     [Export] public float SpinDashMinCharge = 18.0f;
@@ -44,6 +48,16 @@ public partial class Player : CharacterBody3D
     private float _airDashGravityDelay = 0.0f;
     private bool _wasOnFloor = true;
     private CameraController? _camera;
+
+    // Live telemetry to the map editor (enabled only when launched with --telemetry=<url>,
+    // which the editor's "Test Level" button passes). Throttled so HTTP never stalls physics.
+    private bool _telemetryEnabled = false;
+    private string _telemetryUrl = "";
+    private string _telemetryLevel = "";
+    private float _telemetryTimer = 0.0f;
+    private const float TelemetryInterval = 0.06f; // ~15 Hz
+    private static readonly System.Net.Http.HttpClient _telemetryHttp =
+        new System.Net.Http.HttpClient { Timeout = TimeSpan.FromMilliseconds(500) };
 
     // Node references
     private Node3D _visualsNode = null!;
@@ -117,13 +131,79 @@ public partial class Player : CharacterBody3D
         _audioPlayer.Play();
         _audioPlayback = _audioPlayer.GetStreamPlayback() as AudioStreamGeneratorPlayback;
         
+        ConfigureTelemetry();
+
         EmitStats();
+    }
+
+    // Reads --telemetry=<baseurl> / --level=<id> from the cmdline user args (passed by the
+    // map editor). When present, the player streams its position to the editor for the live map.
+    private void ConfigureTelemetry()
+    {
+        foreach (string arg in OS.GetCmdlineUserArgs())
+        {
+            if (arg.StartsWith("--telemetry="))
+            {
+                _telemetryUrl = arg.Substring("--telemetry=".Length).Trim().TrimEnd('/') + "/api/telemetry";
+                _telemetryEnabled = !string.IsNullOrEmpty(_telemetryUrl);
+            }
+            else if (arg == "--telemetry")
+            {
+                _telemetryUrl = "http://127.0.0.1:8000/api/telemetry";
+                _telemetryEnabled = true;
+            }
+            else if (arg.StartsWith("--level="))
+            {
+                _telemetryLevel = arg.Substring("--level=".Length).Trim();
+            }
+        }
+        if (_telemetryEnabled)
+        {
+            GD.Print($"Player.cs: live telemetry -> {_telemetryUrl}");
+        }
+    }
+
+    private void SendTelemetry()
+    {
+        try
+        {
+            var ci = System.Globalization.CultureInfo.InvariantCulture;
+            Vector3 p = GlobalPosition;
+            string json =
+                "{" +
+                $"\"level\":\"{_telemetryLevel}\"," +
+                $"\"x\":{p.X.ToString("0.###", ci)}," +
+                $"\"y\":{p.Y.ToString("0.###", ci)}," +
+                $"\"on_floor\":{(IsOnFloor() ? "true" : "false")}," +
+                $"\"speed\":{Velocity.Length().ToString("0.###", ci)}" +
+                "}";
+            var content = new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            // Fire-and-forget; observe the task so a network failure never surfaces as an
+            // unobserved exception, and never let telemetry interfere with gameplay.
+            _ = _telemetryHttp.PostAsync(_telemetryUrl, content).ContinueWith(
+                t => { _ = t.Exception; },
+                System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
+        }
+        catch
+        {
+            // Swallow: telemetry must never break the game.
+        }
     }
 
     public override void _PhysicsProcess(double delta)
     {
         float fDelta = (float)delta;
-        
+
+        if (_telemetryEnabled)
+        {
+            _telemetryTimer -= fDelta;
+            if (_telemetryTimer <= 0.0f)
+            {
+                _telemetryTimer = TelemetryInterval;
+                SendTelemetry();
+            }
+        }
+
         if (IsLevelFinished)
         {
             Velocity = Vector3.Zero;
@@ -228,8 +308,24 @@ public partial class Player : CharacterBody3D
         }
 
         // Apply velocities
+        bool wasAirborneBeforeMove = !IsOnFloor();
+        float preMoveVelX = vel.X;
         Velocity = vel;
         MoveAndSlide();
+
+        // Prevent wall/corner collisions from injecting extra horizontal speed while airborne.
+        // The spherical collider can roll over a wall's top edge during the air dash, where the
+        // diagonal corner normal makes MoveAndSlide convert the (gravity-suspended) upward launch
+        // into an uncontrollable horizontal fling. A collision must never speed us up sideways.
+        if (wasAirborneBeforeMove && !IsOnFloor())
+        {
+            Vector3 slidVel = Velocity;
+            if (Mathf.Abs(slidVel.X) > Mathf.Abs(preMoveVelX) + 0.01f)
+            {
+                slidVel.X = Mathf.Sign(slidVel.X) * Mathf.Abs(preMoveVelX);
+                Velocity = slidVel;
+            }
+        }
 
         // Landing logic: reset rolling state on landing to restore full ground control / braking
         bool onFloor = IsOnFloor();
@@ -388,27 +484,15 @@ public partial class Player : CharacterBody3D
                 _hasAirDashed = true;
                 
                 float moveInputX = Input.GetAxis("move_left", "move_right");
-                Vector3 dashDir;
-                
-                if (moveInputX > 0.1f)
-                {
-                    // Diagonal Up-Right (45 degrees)
-                    dashDir = new Vector3(0.707107f, 0.707107f, 0.0f);
-                }
-                else if (moveInputX < -0.1f)
-                {
-                    // Diagonal Up-Left (135 degrees)
-                    dashDir = new Vector3(-0.707107f, 0.707107f, 0.0f);
-                }
-                else
-                {
-                    // Straight Up
-                    dashDir = new Vector3(0.0f, 1.0f, 0.0f);
-                }
-                
-                // Jump speed: snappy upward launch
-                float jumpSpeed = 18.0f;
-                vel = dashDir * jumpSpeed;
+
+                // The second jump is primarily a vertical launch. Holding a direction adds only a
+                // modest sideways nudge (AirDashHorizontalSpeed) instead of a full 45 degree dash,
+                // so dashing toward a side no longer flings the player with uncontrollable speed.
+                float horizontal = 0.0f;
+                if (moveInputX > 0.1f) horizontal = AirDashHorizontalSpeed;
+                else if (moveInputX < -0.1f) horizontal = -AirDashHorizontalSpeed;
+
+                vel = new Vector3(horizontal, AirDashSpeed, 0.0f);
                 
                 // State updates
                 IsRolling = true;

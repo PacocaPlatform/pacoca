@@ -25,6 +25,8 @@ import json
 import os
 import subprocess
 import sys
+import threading
+import time
 import urllib.parse
 
 # --------------------------------------------------------------------------- #
@@ -176,10 +178,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         route = self.path.split("?", 1)[0]
         if route == "/api/config":
             self._handle_get_config()
+        elif route == "/api/status":
+            self._handle_status()
         elif route == "/api/maps":
             self._handle_list_maps()
         elif route == "/api/maps/item":
             self._handle_get_map()
+        elif route == "/api/telemetry":
+            self._handle_get_telemetry()
         else:
             super().do_GET()
 
@@ -188,14 +194,75 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._handle_compile()
         elif self.path == "/api/run":
             self._handle_run()
+        elif self.path == "/api/stop":
+            self._handle_stop()
         elif self.path == "/api/config":
             self._handle_set_config()
         elif self.path == "/api/maps":
             self._handle_save_map()
         elif self.path == "/api/maps/delete":
             self._handle_delete_map()
+        elif self.path == "/api/telemetry":
+            self._handle_post_telemetry()
         else:
             self._json(404, {"ok": False, "error": "route not found"})
+
+    # -- live telemetry (game -> editor bridge) ----------------------------- #
+    # The running game POSTs the player's position here (~15 Hz). The browser
+    # polls GET to draw a live marker over the map. State is the latest sample
+    # only, kept in memory on the server with a lock (ThreadingHTTPServer).
+    def _handle_post_telemetry(self):
+        try:
+            payload = self._read_json_body()
+            if payload.get("exit") or payload.get("exited"):
+                with self.server._telemetry_lock:
+                    self.server._telemetry = {
+                        "exited": True,
+                        "ts": time.time()
+                    }
+                self._json(200, {"ok": True, "status": "exited"})
+                return
+
+            data = {
+                "level": str(payload.get("level", "")),
+                "x": float(payload.get("x", 0.0)),
+                "y": float(payload.get("y", 0.0)),
+                "on_floor": bool(payload.get("on_floor", False)),
+                "speed": float(payload.get("speed", 0.0)),
+                "ts": time.time(),
+            }
+        except (ValueError, TypeError, json.JSONDecodeError):
+            self._json(400, {"ok": False, "error": "invalid telemetry body"})
+            return
+        with self.server._telemetry_lock:
+            self.server._telemetry = data
+        self._json(200, {"ok": True})
+
+    def _handle_get_telemetry(self):
+        with self.server._telemetry_lock:
+            data = self.server._telemetry
+        if not data:
+            self._json(200, {"ok": True, "connected": False})
+            return
+        age = time.time() - data["ts"]
+        if data.get("exited"):
+            self._json(200, {
+                "ok": True,
+                "connected": False,
+                "exited": age < 2.0,  # report exited: True only for the first 2 seconds
+                "age": round(age, 3),
+            })
+            return
+        self._json(200, {
+            "ok": True,
+            "connected": age < 1.0,  # treat samples older than 1s as disconnected
+            "level": data["level"],
+            "x": data["x"],
+            "y": data["y"],
+            "on_floor": data["on_floor"],
+            "speed": data["speed"],
+            "age": round(age, 3),
+        })
 
     # -- saved maps endpoints ----------------------------------------------- #
     def _read_json_body(self) -> dict:
@@ -322,6 +389,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     # -- run endpoint ------------------------------------------------------- #
     def _handle_run(self):
+        # Clear telemetry cache on new run
+        with self.server._telemetry_lock:
+            self.server._telemetry = None
+
         # Optional body: { "level": "04" } -> launches straight into that level.
         level = None
         try:
@@ -358,7 +429,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 build_warning = "dotnet not found: if the level does not open, compile C# once in the Godot editor."
 
             # Run main.tscn directly and pass the level as a user arg (after --).
-            cmd = [godot_bin, "--path", GODOT_ROOT, "res://scenes/main.tscn", "--", f"--level={safe_level}"]
+            # Also tell the game where to POST live telemetry so the editor can
+            # follow the player (the URL carries this server's actual port).
+            port = self.server.server_address[1]
+            cmd = [
+                godot_bin, "--path", GODOT_ROOT, "res://scenes/main.tscn", "--",
+                f"--level={safe_level}",
+                f"--telemetry=http://127.0.0.1:{port}",
+            ]
         else:
             # No level: run the project (no -e) -> plays the game's main scene (menu).
             cmd = [godot_bin, "--path", GODOT_ROOT]
@@ -370,7 +448,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             CREATE_NEW_PROCESS_GROUP = 0x00000200
             kwargs["creationflags"] = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
         try:
-            subprocess.Popen(cmd, **kwargs)
+            proc = subprocess.Popen(cmd, **kwargs)
+            lock = getattr(self.server, "_process_lock", None)
+            if lock:
+                with lock:
+                    old_proc = getattr(self.server, "_game_process", None)
+                    if old_proc and old_proc.poll() is None:
+                        try:
+                            old_proc.terminate()
+                            old_proc.wait(timeout=0.5)
+                        except Exception:
+                            pass
+                    self.server._game_process = proc
         except Exception as exc:  # pragma: no cover - environment failure
             self._json(500, {"ok": False, "error": f"failed to launch Godot: {exc}"})
             return
@@ -381,6 +470,45 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if build_warning:
             resp["build_warning"] = build_warning
         self._json(200, resp)
+
+    def _handle_status(self):
+        running = False
+        lock = getattr(self.server, "_process_lock", None)
+        if lock:
+            with lock:
+                proc = getattr(self.server, "_game_process", None)
+                if proc and proc.poll() is None:
+                    running = True
+        self._json(200, {"ok": True, "running": running})
+
+    def _handle_stop(self):
+        proc = None
+        lock = getattr(self.server, "_process_lock", None)
+        if lock:
+            with lock:
+                proc = getattr(self.server, "_game_process", None)
+                if hasattr(self.server, "_game_process"):
+                    self.server._game_process = None
+
+        if proc:
+            if proc.poll() is None:
+                try:
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=1.0)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                    self._json(200, {"ok": True, "status": "stopped"})
+                    return
+                except Exception as exc:
+                    self._json(500, {"ok": False, "error": f"failed to stop game: {exc}"})
+                    return
+            else:
+                self._json(200, {"ok": True, "status": "already_stopped"})
+                return
+        else:
+            self._json(200, {"ok": True, "status": "no_process"})
+            return
 
     def _dotnet_build(self):
         """Incremental `dotnet build` of the Godot C# project. Best-effort.
@@ -471,6 +599,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 def main() -> int:
     port = int(os.environ.get("PORT", "8000"))
     httpd = http.server.ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    # Latest player telemetry sample shared across request threads (see /api/telemetry).
+    httpd._telemetry = None
+    httpd._telemetry_lock = threading.Lock()
+    httpd._game_process = None
+    httpd._process_lock = threading.Lock()
     print("Paçoca Map Editor")
     print(f"  Editor:    http://127.0.0.1:{port}")
     print(f"  Serving:   {EDITOR_DIR}")

@@ -139,15 +139,17 @@ def parse_ascii_grid(lines: list[str]) -> dict:
     # Pad all lines to same width
     padded_grid = [line.ljust(W) for line in grid_lines]
     
-    # Read ystep setting. Default is the canonical 3.0 used by the visual editor,
-    # so a headerless map compiles at the same vertical scale the editor draws at.
-    # Existing maps may pin a different value via the `ystep:` header (e.g. level_01).
+    # Read ystep and xstep settings. Defaults are the canonical 3.0 and 2.0.
     DEFAULT_YSTEP = 3.0
     ystep_val = settings.get("ystep") or settings.get("y_step")
     Y_STEP = float(ystep_val) if ystep_val is not None else DEFAULT_YSTEP
     
+    DEFAULT_XSTEP = 2.0
+    xstep_val = settings.get("xstep") or settings.get("x_step")
+    X_STEP = float(xstep_val) if xstep_val is not None else DEFAULT_XSTEP
+    
     # We will build structures by scanning the grid cells
-    # Column width: 2.0 (X)
+    # Column width: X_STEP (X)
     # Row height: Y_STEP (Y)
     
     platforms = []
@@ -187,8 +189,8 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 c_end = c - 1
                 
                 # Compute coordinates
-                width = (c_end - c_start + 1) * 2.0
-                x = ((c_start + c_end) / 2.0) * 2.0
+                width = (c_end - c_start + 1) * X_STEP
+                x = ((c_start + c_end) / 2.0) * X_STEP
                 y = r * Y_STEP
                 
                 # Detect if floating (r > 0 and no solid block '#' or '/' or '\' directly below it)
@@ -221,9 +223,9 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 c_start, r_start = chain[0]
                 c_end, r_end = chain[-1]
                 
-                width = (c_end - c_start + 1) * 2.0
+                width = (c_end - c_start + 1) * X_STEP
                 height = (r_end - r_start + 1) * Y_STEP
-                start_x = c_start * 2.0 - 1.0
+                start_x = c_start * X_STEP - (X_STEP / 2.0)
                 start_y = (r_start - 1) * Y_STEP + 0.5
                 ramps_up.append({"x": start_x, "y": start_y, "width": width, "height": height})
  
@@ -244,9 +246,9 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 c_start, r_start = chain[0]
                 c_end, r_end = chain[-1]
                 
-                width = (c_end - c_start + 1) * 2.0
+                width = (c_end - c_start + 1) * X_STEP
                 height = (r_start - r_end + 1) * Y_STEP
-                start_x = c_start * 2.0 - 1.0
+                start_x = c_start * X_STEP - (X_STEP / 2.0)
                 start_y = r_start * Y_STEP + 0.5
                 ramps_down.append({"x": start_x, "y": start_y, "width": width, "height": height})
  
@@ -254,7 +256,7 @@ def parse_ascii_grid(lines: list[str]) -> dict:
     for r in range(H):
         for c in range(W):
             char = get_char(c, r)
-            x = c * 2.0
+            x = c * X_STEP
             
             if char == 'o': # Ring
                 rings.append([x, (r - 1) * Y_STEP + 1.2])

@@ -1,4 +1,4 @@
-"""Generated level definition for level 04 ("Ruínas Celestes").
+"""Generated level definition for level 04 ("Sky Ruins").
 Generated automatically from level_04_map.txt. Do not edit directly if you want to keep changes synced!
 """
 
@@ -16,10 +16,4 @@ def base_edits(content: str) -> str:
     return content
 
 def build(b: NodeBuilder) -> None:
-    b.add_platform("Platform_0", 20.00, 0.00, width=42.00)
-    b.add_ring("Ring_0", 8.00, 1.20)
-    b.add_ring("Ring_1", 10.00, 1.20)
-    b.add_ring("Ring_2", 12.00, 1.20)
-    b.add_ring("Ring_3", 14.00, 1.20)
-    b.add_ring("Ring_4", 16.00, 1.20)
-    b.add_level_finish("Goal_0", 36.00, 8.00)
+    b.add_platform("Platform_0", 9.00, 0.00, width=20.00)

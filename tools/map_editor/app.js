@@ -1,5 +1,6 @@
 // --- Application State ---
-const Y_STEP = 3.0;
+let Y_STEP = 3.0;
+let X_STEP = 2.0;
 let levelId = "04";
 let levelName = "Sky Ruins";
 let gridWidth = 100;
@@ -11,6 +12,11 @@ let isDrawing = false;
 let zoomLevel = 1.0;
 let showGridlines = true;
 let activeTab = "tab-ascii";
+
+// --- Live View (sync with the running game) ---
+let liveActive = false;
+let liveInterval = null;
+let liveMarker = null;
 
 // --- Elements Catalog ---
 const ELEMENTS = [
@@ -30,6 +36,7 @@ const ELEMENTS = [
 
 // --- Initialization ---
 document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
     initPalette();
     initGrid(gridWidth, gridHeight);
     
@@ -47,12 +54,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("grid-width").addEventListener("change", (e) => {
         let val = parseInt(e.target.value);
-        if (val >= 10 && val <= 1000) gridWidth = val;
+        if (!isNaN(val)) {
+            e.target.value = Math.max(10, Math.min(1000, val));
+        }
     });
 
     document.getElementById("grid-height").addEventListener("change", (e) => {
         let val = parseInt(e.target.value);
-        if (val >= 5 && val <= 100) gridHeight = val;
+        if (!isNaN(val)) {
+            e.target.value = Math.max(5, Math.min(100, val));
+        }
+    });
+
+    document.getElementById("x-step").addEventListener("change", (e) => {
+        let val = parseFloat(e.target.value);
+        if (val >= 0.5 && val <= 5.0) {
+            X_STEP = val;
+            generateExports();
+        }
+    });
+
+    document.getElementById("y-step").addEventListener("change", (e) => {
+        let val = parseFloat(e.target.value);
+        if (val >= 0.5 && val <= 5.0) {
+            Y_STEP = val;
+            generateExports();
+        }
     });
 
     // Mouse up handler to stop painting
@@ -105,6 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
     updateDynamicTexts();
     generateExports();
     loadGodotConfig();
+    checkGameStatus();
+    setInterval(checkGameStatus, 2000);
 });
 
 // --- UI Construction ---
@@ -297,13 +326,24 @@ function changeGridSize(type, delta) {
 
 function rebuildGrid() {
     // Rebuild grid keeping existing content if possible
-    const oldWidth = gridWidth;
-    const oldHeight = gridHeight;
+    const oldWidth = grid.length;
+    const oldHeight = grid[0] ? grid[0].length : 0;
     const oldGrid = JSON.parse(JSON.stringify(grid));
     
     // Read current inputs
-    gridWidth = parseInt(document.getElementById("grid-width").value) || 100;
-    gridHeight = parseInt(document.getElementById("grid-height").value) || 15;
+    let targetWidth = parseInt(document.getElementById("grid-width").value) || 100;
+    let targetHeight = parseInt(document.getElementById("grid-height").value) || 15;
+    
+    // Clamp to allowed range
+    targetWidth = Math.max(10, Math.min(1000, targetWidth));
+    targetHeight = Math.max(5, Math.min(100, targetHeight));
+    
+    // Update inputs to clamped values
+    document.getElementById("grid-width").value = targetWidth;
+    document.getElementById("grid-height").value = targetHeight;
+    
+    gridWidth = targetWidth;
+    gridHeight = targetHeight;
     
     // Initialize new matrix
     grid = [];
@@ -349,7 +389,7 @@ function toggleGridlines() {
     showGridlines = !showGridlines;
     const mapGrid = document.getElementById("map-grid");
     const btn = document.getElementById("btn-toggle-grid");
-    
+
     if (showGridlines) {
         mapGrid.classList.remove("no-gridlines");
         btn.classList.add("active");
@@ -359,10 +399,48 @@ function toggleGridlines() {
     }
 }
 
+/* ===================== THEME (light / dark) ===================== */
+const THEME_KEY = "pacoca-map-editor-theme";
+
+function applyTheme(theme) {
+    const isLight = theme === "light";
+    document.documentElement.setAttribute("data-theme", isLight ? "light" : "dark");
+
+    const btn = document.getElementById("btn-toggle-theme");
+    if (btn) {
+        // Show the icon for the theme you'd switch TO. Rebuild the <i> because
+        // lucide.createIcons() replaces it with an <svg> after the first render.
+        btn.innerHTML = `<i data-lucide="${isLight ? "moon" : "sun"}"></i>`;
+        btn.title = isLight ? "Switch to dark theme" : "Switch to light theme";
+        if (window.lucide) lucide.createIcons();
+    }
+}
+
+function initTheme() {
+    let saved = "dark";
+    try {
+        saved = localStorage.getItem(THEME_KEY) || "dark";
+    } catch (e) {
+        console.warn("localStorage is not accessible:", e);
+    }
+    applyTheme(saved);
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    const next = current === "light" ? "dark" : "light";
+    try {
+        localStorage.setItem(THEME_KEY, next);
+    } catch (e) {
+        console.warn("localStorage is not accessible:", e);
+    }
+    applyTheme(next);
+}
+
 function updateCoordinatesDisplay(c, r) {
-    // Col c represents X coord: c * 2.0
+    // Col c represents X coord: c * X_STEP
     // Visual row r represents Y coord: (gridHeight - 1 - r) * Y_STEP
-    const xCoord = (c * 2.0).toFixed(1);
+    const xCoord = (c * X_STEP).toFixed(1);
     const yCoord = ((gridHeight - 1 - r) * Y_STEP).toFixed(1);
     
     document.getElementById("coord-display").innerText =
@@ -380,6 +458,7 @@ function generateASCIIExport() {
     let output = "";
     output += `level: ${levelId}\n`;
     output += `name: ${levelName}\n`;
+    output += `xstep: ${X_STEP.toFixed(1)}\n`;
     // Emit ystep so convert_map.py parses rows at the same scale the editor draws
     // them (Y_STEP). Without this, the converter falls back to its default and the
     // map comes out vertically compressed.
@@ -439,8 +518,8 @@ function generateJSONExport() {
                 }
                 let cEnd = c - 1;
                 
-                let width = (cEnd - cStart + 1) * 2.0;
-                let x = ((cStart + cEnd) / 2.0) * 2.0;
+                let width = (cEnd - cStart + 1) * X_STEP;
+                let x = ((cStart + cEnd) / 2.0) * X_STEP;
                 
                 // Detect if floating (r < gridHeight - 1 and no solid block below it visually)
                 // Note: visually, r = gridHeight - 1 is the bottom row.
@@ -488,9 +567,9 @@ function generateJSONExport() {
                 let [cStart, rStart] = chain[0]; // Bottom-left visually
                 let [cEnd, rEnd] = chain[chain.length - 1]; // Top-right visually
                 
-                let width = (cEnd - cStart + 1) * 2.0;
+                let width = (cEnd - cStart + 1) * X_STEP;
                 let height = (rStart - rEnd + 1) * Y_STEP;
-                let start_x = cStart * 2.0 - 1.0;
+                let start_x = cStart * X_STEP - (X_STEP / 2.0);
                 let start_y = (gridHeight - 1 - rStart) * Y_STEP - Y_STEP + 0.5;
                 
                 ramps_up.push({
@@ -523,9 +602,9 @@ function generateJSONExport() {
                 let [cStart, rStart] = chain[0]; // Top-left visually
                 let [cEnd, rEnd] = chain[chain.length - 1]; // Bottom-right visually
                 
-                let width = (cEnd - cStart + 1) * 2.0;
+                let width = (cEnd - cStart + 1) * X_STEP;
                 let height = (rEnd - rStart + 1) * Y_STEP;
-                let start_x = cStart * 2.0 - 1.0;
+                let start_x = cStart * X_STEP - (X_STEP / 2.0);
                 let start_y = (gridHeight - 1 - rStart) * Y_STEP + 0.5;
                 
                 ramps_down.push({
@@ -542,7 +621,7 @@ function generateJSONExport() {
     for (let r = 0; r < gridHeight; r++) {
         for (let c = 0; c < gridWidth; c++) {
             const char = grid[c][r];
-            const xCoord = c * 2.0;
+            const xCoord = c * X_STEP;
             
             if (char === "o") {
                 rings.push([parseFloat(xCoord.toFixed(2)), parseFloat(((gridHeight - 1 - r - 1) * Y_STEP + 1.2).toFixed(2))]);
@@ -576,6 +655,8 @@ function generateJSONExport() {
     const jsonObj = {
         level: levelId,
         name: levelName,
+        xstep: X_STEP,
+        ystep: Y_STEP,
         spawn: spawn,
         platforms: platforms,
         ramps_up: ramps_up,
@@ -638,14 +719,26 @@ function importJSON(data) {
     let maxY = 12; // default min height
     
     // Detect import Y_STEP automatically
-    let import_Y_STEP = 4.0;
-    if (data.level === "01" || (data.platforms && data.platforms.some(p => p.y % 4 !== 0))) {
-        import_Y_STEP = 1.0;
+    let import_Y_STEP = data.ystep || data.y_step;
+    if (!import_Y_STEP) {
+        import_Y_STEP = 4.0;
+        if (data.level === "01" || (data.platforms && data.platforms.some(p => p.y % 4 !== 0))) {
+            import_Y_STEP = 1.0;
+        }
     }
+    let import_X_STEP = data.xstep || data.x_step || 2.0;
+    
+    Y_STEP = import_Y_STEP;
+    X_STEP = import_X_STEP;
+    
+    const xStepInput = document.getElementById("x-step");
+    if (xStepInput) xStepInput.value = X_STEP.toFixed(1);
+    const yStepInput = document.getElementById("y-step");
+    if (yStepInput) yStepInput.value = Y_STEP.toFixed(1);
     
     // Scan coordinates to set grid size
     const checkCoords = (x, y) => {
-        const c = Math.round(x / 2.0);
+        const c = Math.round(x / import_X_STEP);
         const r = Math.round(y / import_Y_STEP);
         if (c > maxX) maxX = c;
         if (r > maxY) maxY = r;
@@ -655,8 +748,8 @@ function importJSON(data) {
     if (data.spawn) checkCoords(data.spawn[0], data.spawn[1]);
     if (data.platforms) {
         data.platforms.forEach(p => {
-            const colWidth = p.width / 2.0;
-            const colCenter = p.x / 2.0;
+            const colWidth = p.width / import_X_STEP;
+            const colCenter = p.x / import_X_STEP;
             const cEnd = Math.round(colCenter + colWidth / 2.0 - 0.5);
             if (cEnd > maxX) maxX = cEnd;
             checkCoords(p.x, p.y);
@@ -664,7 +757,7 @@ function importJSON(data) {
     }
     if (data.ramps_up) {
         data.ramps_up.forEach(r => {
-            const cEnd = Math.round((r.x + r.width) / 2.0);
+            const cEnd = Math.round((r.x + r.width) / import_X_STEP);
             if (cEnd > maxX) maxX = cEnd;
             checkCoords(r.x, r.y);
             checkCoords(r.x + r.width, r.y + r.height);
@@ -672,7 +765,7 @@ function importJSON(data) {
     }
     if (data.ramps_down) {
         data.ramps_down.forEach(r => {
-            const cEnd = Math.round((r.x + r.width) / 2.0);
+            const cEnd = Math.round((r.x + r.width) / import_X_STEP);
             if (cEnd > maxX) maxX = cEnd;
             checkCoords(r.x, r.y);
             checkCoords(r.x + r.width, r.y - r.height);
@@ -717,7 +810,7 @@ function importJSON(data) {
     
     // Helper to set element in grid: x -> col, r -> visual row index
     const setElementAt = (x, r, char) => {
-        const c = Math.round(x / 2.0);
+        const c = Math.round(x / import_X_STEP);
         const r_visual = gridHeight - 1 - r;
         if (c >= 0 && c < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
             grid[c][r_visual] = char;
@@ -727,8 +820,8 @@ function importJSON(data) {
     // Populate platforms
     if (data.platforms) {
         data.platforms.forEach(p => {
-            const colWidth = Math.round(p.width / 2.0);
-            const colCenter = p.x / 2.0;
+            const colWidth = Math.round(p.width / import_X_STEP);
+            const colCenter = p.x / import_X_STEP;
             const cStart = Math.round(colCenter - colWidth / 2.0);
             const cEnd = cStart + colWidth - 1;
             const r = Math.round(p.y / import_Y_STEP);
@@ -745,8 +838,8 @@ function importJSON(data) {
     // Populate ramps up
     if (data.ramps_up) {
         data.ramps_up.forEach(ramp => {
-            const colWidth = Math.round(ramp.width / 2.0);
-            const cStart = Math.round((ramp.x + 1.0) / 2.0);
+            const colWidth = Math.round(ramp.width / import_X_STEP);
+            const cStart = Math.round((ramp.x + (import_X_STEP / 2.0)) / import_X_STEP);
             const rStart = Math.round((ramp.y - 0.5) / import_Y_STEP) + 1;
             
             for (let i = 0; i < colWidth; i++) {
@@ -763,8 +856,8 @@ function importJSON(data) {
     // Populate ramps down
     if (data.ramps_down) {
         data.ramps_down.forEach(ramp => {
-            const colWidth = Math.round(ramp.width / 2.0);
-            const cStart = Math.round((ramp.x + 1.0) / 2.0);
+            const colWidth = Math.round(ramp.width / import_X_STEP);
+            const cStart = Math.round((ramp.x + (import_X_STEP / 2.0)) / import_X_STEP);
             const rStart = Math.round((ramp.y - 0.5) / import_Y_STEP);
             
             for (let i = 0; i < colWidth; i++) {
@@ -842,6 +935,10 @@ function importASCII(text) {
     let inGrid = false;
     let gridLines = [];
     
+    // Reset steps to standard defaults before parsing header
+    X_STEP = 2.0;
+    Y_STEP = 3.0;
+    
     lines.forEach(line => {
         const trimmed = line.trim();
         if (!trimmed) {
@@ -869,6 +966,10 @@ function importASCII(text) {
                 } else if (key === "name") {
                     levelName = val;
                     document.getElementById("level-name").value = val;
+                } else if (key === "ystep" || key === "y_step") {
+                    Y_STEP = parseFloat(val);
+                } else if (key === "xstep" || key === "x_step") {
+                    X_STEP = parseFloat(val);
                 }
             }
         }
@@ -907,6 +1008,11 @@ function importASCII(text) {
             grid[c][r] = char;
         }
     }
+    
+    const xStepInput = document.getElementById("x-step");
+    if (xStepInput) xStepInput.value = X_STEP.toFixed(1);
+    const yStepInput = document.getElementById("y-step");
+    if (yStepInput) yStepInput.value = Y_STEP.toFixed(1);
     
     renderGrid();
     updateDynamicTexts();
@@ -1243,6 +1349,9 @@ async function testLevel() {
         if (rData.ok) {
             showToast(`Testing level ${rData.level} in Godot!`, "check");
             if (rData.build_warning) showToast(rData.build_warning, "alert-triangle");
+            // Enter live view: follow the player on the map as soon as the game connects.
+            startLiveView();
+            setStopButtonState(true);
         } else {
             openDrawerTab("tab-instructions");
             resultBox.hidden = false;
@@ -1273,11 +1382,57 @@ async function runGame() {
         const data = await resp.json();
         if (data.ok) {
             showToast("Godot started!", "check");
+            setStopButtonState(true);
         } else {
             showToast(data.error || "Failed to start Godot", "alert-triangle");
         }
     } catch (err) {
         showToast("Local server not found", "alert-triangle");
+    }
+}
+
+async function stopGame() {
+    if (location.protocol === "file:") {
+        showToast("Requires local server", "alert-triangle");
+        return;
+    }
+    const btn = document.getElementById("btn-stop-game");
+    if (btn) btn.disabled = true;
+    showToast("Stopping game...", "hammer");
+    try {
+        const resp = await fetch("/api/stop", {
+            method: "POST"
+        });
+        const data = await resp.json();
+        if (data.ok) {
+            showToast("Game stopped!", "check");
+            setStopButtonState(false);
+            stopLiveView();
+        } else {
+            showToast(data.error || "Failed to stop game", "alert-triangle");
+            if (btn) btn.disabled = false;
+        }
+    } catch (err) {
+        showToast("Local server not found", "alert-triangle");
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function checkGameStatus() {
+    if (location.protocol === "file:") return;
+    try {
+        const resp = await fetch("/api/status");
+        const data = await resp.json();
+        setStopButtonState(data.ok && data.running);
+    } catch (err) {
+        setStopButtonState(false);
+    }
+}
+
+function setStopButtonState(running) {
+    const btn = document.getElementById("btn-stop-game");
+    if (btn) {
+        btn.disabled = !running;
     }
 }
 
@@ -1362,6 +1517,100 @@ function downloadFile(format) {
         document.body.removeChild(link);
         showToast(`Download of '${filename}' started!`, "download");
     }
+}
+
+// --- Live View: follow the running player on the drawn map ---------------- //
+// The game POSTs its position to /api/telemetry (~15 Hz); we poll it and draw a
+// marker over #map-grid using the same coordinate mapping the editor uses
+// (col = X / 2.0, visual row = (gridHeight - 1) - Y / Y_STEP).
+
+function getCellSize() {
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--grid-cell-size");
+    const n = parseFloat(v);
+    return isNaN(n) ? 38 : n;
+}
+
+// The marker lives inside #map-grid so it inherits the grid's zoom transform.
+// renderGrid() wipes the grid's children, so we (re)create it on demand.
+function ensureLiveMarker() {
+    const mapGrid = document.getElementById("map-grid");
+    if (!liveMarker || !liveMarker.isConnected) {
+        liveMarker = document.createElement("div");
+        liveMarker.className = "live-player";
+        liveMarker.innerHTML = '<span class="live-player-dot"></span><span class="live-player-label">P</span>';
+    }
+    if (liveMarker.parentElement !== mapGrid) mapGrid.appendChild(liveMarker);
+    return liveMarker;
+}
+
+async function pollTelemetry() {
+    const ind = document.getElementById("live-indicator");
+    try {
+        const resp = await fetch("/api/telemetry", { cache: "no-store" });
+        const data = await resp.json();
+
+        if (!data.connected) {
+            if (liveMarker) liveMarker.style.display = "none";
+            if (ind) ind.textContent = "● waiting for the game…";
+            if (data.exited) {
+                stopLiveView();
+            }
+            return;
+        }
+
+        const cell = getCellSize();
+        const c = data.x / X_STEP;
+        const r = (gridHeight - 1) - (data.y / Y_STEP);
+
+        const marker = ensureLiveMarker();
+        marker.style.display = "block";
+        marker.style.left = ((c + 0.5) * cell) + "px";
+        marker.style.top = ((r + 0.5) * cell) + "px";
+        marker.classList.toggle("airborne", !data.on_floor);
+
+        if (ind) {
+            ind.textContent =
+                `● live · X ${data.x.toFixed(1)}m  Y ${data.y.toFixed(1)}m · ${data.speed.toFixed(1)} m/s`;
+        }
+
+        // Auto-follow horizontally so the player stays centered in the viewport.
+        const container = document.getElementById("grid-container");
+        if (container) {
+            container.scrollLeft = (c + 0.5) * cell * zoomLevel - container.clientWidth / 2;
+        }
+    } catch (err) {
+        if (ind) ind.textContent = "● local server unreachable";
+    }
+}
+
+function startLiveView() {
+    if (liveActive) return;
+    liveActive = true;
+
+    const btn = document.getElementById("btn-live");
+    if (btn) btn.classList.add("active");
+    const ind = document.getElementById("live-indicator");
+    if (ind) { ind.hidden = false; ind.textContent = "● connecting…"; }
+
+    pollTelemetry();
+    liveInterval = setInterval(pollTelemetry, 100);
+}
+
+function stopLiveView() {
+    liveActive = false;
+    if (liveInterval) { clearInterval(liveInterval); liveInterval = null; }
+
+    const btn = document.getElementById("btn-live");
+    if (btn) btn.classList.remove("active");
+    const ind = document.getElementById("live-indicator");
+    if (ind) ind.hidden = true;
+    if (liveMarker) liveMarker.style.display = "none";
+    setStopButtonState(false);
+}
+
+function toggleLiveView() {
+    if (liveActive) stopLiveView();
+    else startLiveView();
 }
 
 function showToast(message, iconName = "info") {

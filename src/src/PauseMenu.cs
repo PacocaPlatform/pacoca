@@ -10,11 +10,17 @@ public partial class PauseMenu : Control
     // Procedural sound effects player
     private AudioStreamPlayer _audioPlayer = null!;
     private AudioStreamGeneratorPlayback? _audioPlayback;
+    private AudioStreamPlayer _sfxWavPlayer = null!;
 
     public override void _Ready()
     {
         // Set process mode to Always so this node runs even when the game is paused
         ProcessMode = ProcessModeEnum.Always;
+
+        // Setup WAV sound player
+        _sfxWavPlayer = new AudioStreamPlayer();
+        _sfxWavPlayer.Bus = "Master";
+        AddChild(_sfxWavPlayer);
 
         // Setup procedural audio player
         _audioPlayer = new AudioStreamPlayer();
@@ -39,8 +45,20 @@ public partial class PauseMenu : Control
         // Hide pause menu by default
         Visible = false;
 
+        // Translate pause menu dynamically
+        TranslateUI();
+
         // Connect procedural sound feedback recursively
         ConnectUIFeedback(this);
+    }
+
+    private void TranslateUI()
+    {
+        bool isPt = GameSettings.Language == "pt";
+        GetNode<Label>("MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Title").Text = isPt ? "JOGO PAUSADO" : "GAME PAUSED";
+        _resumeButton.Text = isPt ? "Continuar" : "Resume";
+        _mainMenuButton.Text = isPt ? "Menu Principal" : "Main Menu";
+        _exitButton.Text = isPt ? "Sair" : "Exit";
     }
 
     private void ConnectUIFeedback(Node node)
@@ -48,7 +66,7 @@ public partial class PauseMenu : Control
         if (node is Button btn)
         {
             // Play short tick when focused
-            btn.FocusEntered += () => PlaySound(880f, 0.03f, 0.1f);
+            btn.FocusEntered += () => PlayMenuSound("hover", 880f, 0.03f, 0.1f);
             
             // Hover automatically grabs focus
             btn.MouseEntered += () => {
@@ -90,7 +108,7 @@ public partial class PauseMenu : Control
         // Focus the resume button immediately for joystick/keyboard navigation
         _resumeButton.GrabFocus();
 
-        PlaySound(523.25f, 0.15f, 0.4f); // Pause chime (C5)
+        PlayMenuSound("pause", 523.25f, 0.15f, 0.4f); // Pause chime (C5)
     }
 
     private void OnResumePressed()
@@ -99,12 +117,12 @@ public partial class PauseMenu : Control
         GetTree().Paused = false;
         Visible = false;
 
-        PlaySound(783.99f, 0.1f, 0.4f); // Resume chime (G5)
+        PlayMenuSound("unpause", 783.99f, 0.1f, 0.4f); // Resume chime (G5)
     }
 
     private void OnMainMenuPressed()
     {
-        PlaySound(392.00f, 0.1f, 0.3f); // Back chime (G4)
+        PlayMenuSound("backward", 392.00f, 0.1f, 0.3f); // Back chime (G4)
         
         // CRITICAL: Unpause the tree before changing scene, or else the target scene will start paused!
         GetTree().Paused = false;
@@ -114,8 +132,32 @@ public partial class PauseMenu : Control
 
     private void OnExitPressed()
     {
-        PlaySound(261.63f, 0.2f, 0.3f); // Quit chime (C4)
+        PlayMenuSound("backward", 261.63f, 0.2f, 0.3f); // Quit chime (C4)
+        GameSettings.FinalizeTelemetry();
         GetTree().CreateTimer(0.25f).Timeout += () => GetTree().Quit();
+    }
+
+    // Plays a menu sound based on the selected audio theme
+    private void PlayMenuSound(string eventName, float fallbackFreq, float fallbackDuration, float fallbackVolume = 0.5f)
+    {
+        if (GameSettings.SoundTheme == "procedural" || string.IsNullOrEmpty(GameSettings.SoundTheme))
+        {
+            PlaySound(fallbackFreq, fallbackDuration, fallbackVolume);
+        }
+        else
+        {
+            string path = $"res://audio/effects/{GameSettings.SoundTheme}_{eventName.ToUpper()}.wav";
+            var stream = GameSettings.LoadSFX(path);
+            if (stream != null)
+            {
+                _sfxWavPlayer.Stream = stream;
+                _sfxWavPlayer.Play();
+            }
+            else
+            {
+                PlaySound(fallbackFreq, fallbackDuration, fallbackVolume);
+            }
+        }
     }
 
     // Procedural sound helper

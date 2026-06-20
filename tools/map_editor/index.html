@@ -11,6 +11,18 @@
     <!-- Lucide Icons for premium visual indicator icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="styles.css">
+    <!-- Apply saved theme before paint to avoid a flash of the wrong theme -->
+    <script>
+        (function () {
+            var t = "dark";
+            try {
+                t = localStorage.getItem("pacoca-map-editor-theme") || "dark";
+            } catch (e) {
+                console.warn("localStorage is blocked or not available:", e);
+            }
+            document.documentElement.setAttribute("data-theme", t);
+        })();
+    </script>
 </head>
 <body>
     <div class="app">
@@ -35,6 +47,13 @@
                 <button class="btn btn-secondary btn-sm" onclick="rebuildGrid()" title="Apply dimensions">Apply</button>
             </div>
 
+            <div class="topbar-field">
+                <label>Scale (X/Y)</label>
+                <input type="number" id="x-step" value="2.0" step="0.1" min="0.5" max="5.0" class="inp inp-num" title="Column Width (X step in meters)" style="width: 58px;">
+                <span class="x">/</span>
+                <input type="number" id="y-step" value="3.0" step="0.1" min="0.5" max="5.0" class="inp inp-num" title="Row Height (Y step in meters)" style="width: 58px;">
+            </div>
+
             <div class="topbar-spacer"></div>
 
             <div class="topbar-field view-controls">
@@ -43,6 +62,8 @@
                 <button class="icon-btn" onclick="adjustZoom(0.1)" title="Zoom In"><i data-lucide="zoom-in"></i></button>
                 <button class="icon-btn" onclick="adjustZoom(0, true)" title="Reset Zoom"><i data-lucide="maximize-2"></i></button>
                 <button class="icon-btn active" id="btn-toggle-grid" onclick="toggleGridlines()" title="Toggle gridlines"><i data-lucide="grid-3x3"></i></button>
+                <button class="icon-btn" id="btn-live" onclick="toggleLiveView()" title="Live view: follow the player from the running game"><i data-lucide="radio"></i></button>
+                <button class="icon-btn" id="btn-toggle-theme" onclick="toggleTheme()" title="Toggle light/dark theme"><i data-lucide="moon"></i></button>
             </div>
 
             <div class="topbar-actions">
@@ -63,6 +84,9 @@
                 </button>
                 <button class="btn btn-run" onclick="runGame()" title="Run game starting from menu">
                     <i data-lucide="gamepad-2"></i> Run
+                </button>
+                <button class="btn btn-stop" id="btn-stop-game" onclick="stopGame()" title="Stop the running game process" disabled>
+                    <i data-lucide="square"></i> Stop
                 </button>
             </div>
         </header>
@@ -100,6 +124,7 @@
 
                 <div class="statusbar">
                     <span class="coord-info" id="coord-display">X: 0, Y: 0 | Real: 0.0m, 0.0m</span>
+                    <span class="live-indicator" id="live-indicator" hidden></span>
                     <div class="quick-nav">
                         <i data-lucide="move-horizontal"></i>
                         <input type="range" id="scroll-slider" min="0" max="100" value="0" title="Horizontal navigation">
@@ -262,8 +287,10 @@
     <!-- Script loading -->
     <script src="app.js"></script>
     <script>
-        // Initialize lucide icons after page load
-        lucide.createIcons();
+        // Initialize lucide icons after page load if script loaded successfully
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     </script>
 </body>
 </html>

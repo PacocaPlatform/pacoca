@@ -26,13 +26,29 @@ public partial class Menu : Control
     private Button _level2Button = null!;
     private Button _level3Button = null!;
     private Button _level4Button = null!;
-    private Button _platformKitDemoButton = null!;
-    private Button _debugLevelButton = null!;
     private Button _levelBackButton = null!;
     
     private Button _creditsBackButton = null!;
     private Button _achievementsBackButton = null!;
 
+    // New theme panel and card buttons
+    private PanelContainer _themePanel = null!;
+    private Button _forestButton = null!;
+    private Button _glacialButton = null!;
+    private Button _cityButton = null!;
+    private Button _caveButton = null!;
+    private Button _themeBackButton = null!;
+
+    // Language selector nodes
+    private OptionButton _langOptionButton = null!;
+    private Label _langLabel = null!;
+
+    // Dynamic sound effects theme selector
+    private Label _sfxThemeLabel = null!;
+    private OptionButton _sfxThemeOptionButton = null!;
+    private AudioStreamPlayer _sfxWavPlayer = null!;
+
+    private string _selectedTheme = "forest";
     private bool _isMappingInput = false;
 
     // Procedural sound effects player
@@ -52,6 +68,11 @@ public partial class Menu : Control
 
     public override void _Ready()
     {
+        // Setup WAV sound player
+        _sfxWavPlayer = new AudioStreamPlayer();
+        _sfxWavPlayer.Bus = "Master";
+        AddChild(_sfxWavPlayer);
+
         // Setup procedural audio player
         _audioPlayer = new AudioStreamPlayer();
         AddChild(_audioPlayer);
@@ -99,13 +120,51 @@ public partial class Menu : Control
         _musicVolumeSlider.Value = GameSettings.MusicVolume;
         _musicVolumeSlider.ValueChanged += OnMusicVolumeChanged;
 
+        // Language Option references
+        _langOptionButton = GetNode<OptionButton>("ConfigPanel/MarginContainer/VBoxContainer/LangOptionButton");
+        _langLabel = GetNode<Label>("ConfigPanel/MarginContainer/VBoxContainer/LangLabel");
+
+        // Dynamically instantiate and style SFX theme selector nodes
+        var vbox = GetNode<VBoxContainer>("ConfigPanel/MarginContainer/VBoxContainer");
+        
+        _sfxThemeLabel = new Label();
+        _sfxThemeLabel.Name = "SfxThemeLabel";
+        _sfxThemeLabel.LabelSettings = _langLabel.LabelSettings;
+        
+        _sfxThemeOptionButton = new OptionButton();
+        _sfxThemeOptionButton.Name = "SfxThemeOptionButton";
+        _sfxThemeOptionButton.CustomMinimumSize = new Vector2(0, 44);
+        _sfxThemeOptionButton.Alignment = HorizontalAlignment.Center;
+        
+        _sfxThemeOptionButton.AddThemeFontOverride("font", _langOptionButton.GetThemeFont("font"));
+        _sfxThemeOptionButton.AddThemeFontSizeOverride("font_size", _langOptionButton.GetThemeFontSize("font_size"));
+        _sfxThemeOptionButton.AddThemeStyleboxOverride("normal", _langOptionButton.GetThemeStylebox("normal"));
+        _sfxThemeOptionButton.AddThemeStyleboxOverride("hover", _langOptionButton.GetThemeStylebox("hover"));
+        _sfxThemeOptionButton.AddThemeStyleboxOverride("pressed", _langOptionButton.GetThemeStylebox("pressed"));
+        _sfxThemeOptionButton.AddThemeStyleboxOverride("focus", _langOptionButton.GetThemeStylebox("focus"));
+
+        // Insert SFX theme options before LangLabel
+        int langLabelIndex = _langLabel.GetIndex();
+        vbox.AddChild(_sfxThemeLabel);
+        vbox.MoveChild(_sfxThemeLabel, langLabelIndex);
+        vbox.AddChild(_sfxThemeOptionButton);
+        vbox.MoveChild(_sfxThemeOptionButton, langLabelIndex + 1);
+
+        _sfxThemeOptionButton.ItemSelected += OnSfxThemeSelected;
+
+        // Theme Panel references
+        _themePanel = GetNode<PanelContainer>("ThemePanel");
+        _forestButton = GetNode<Button>("ThemePanel/MarginContainer/VBoxContainer/GridContainer/ForestButton");
+        _glacialButton = GetNode<Button>("ThemePanel/MarginContainer/VBoxContainer/GridContainer/GlacialButton");
+        _cityButton = GetNode<Button>("ThemePanel/MarginContainer/VBoxContainer/GridContainer/CityButton");
+        _caveButton = GetNode<Button>("ThemePanel/MarginContainer/VBoxContainer/GridContainer/CaveButton");
+        _themeBackButton = GetNode<Button>("ThemePanel/MarginContainer/VBoxContainer/ThemeBackButton");
+
         // Level Panel references
         _level1Button = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/Level1Button");
         _level2Button = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/Level2Button");
         _level3Button = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/Level3Button");
         _level4Button = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/Level4Button");
-        _platformKitDemoButton = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/PlatformKitDemoButton");
-        _debugLevelButton = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/DebugLevelButton");
         _levelBackButton = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/LevelBackButton");
         _levelPanel = GetNode<PanelContainer>("LevelPanel");
 
@@ -126,15 +185,19 @@ public partial class Menu : Control
         _animatedButtons.Add(_gearButton);
         _animatedButtons.Add(_backButton);
         _animatedButtons.Add(_mapButton);
+        _animatedButtons.Add(_forestButton);
+        _animatedButtons.Add(_glacialButton);
+        _animatedButtons.Add(_cityButton);
+        _animatedButtons.Add(_caveButton);
+        _animatedButtons.Add(_themeBackButton);
         _animatedButtons.Add(_level1Button);
         _animatedButtons.Add(_level2Button);
         _animatedButtons.Add(_level3Button);
         _animatedButtons.Add(_level4Button);
-        _animatedButtons.Add(_platformKitDemoButton);
-        _animatedButtons.Add(_debugLevelButton);
         _animatedButtons.Add(_levelBackButton);
         _animatedButtons.Add(_creditsBackButton);
         _animatedButtons.Add(_achievementsBackButton);
+        _animatedButtons.Add(_sfxThemeOptionButton);
 
         foreach (var btn in _animatedButtons)
         {
@@ -145,6 +208,7 @@ public partial class Menu : Control
         // Toggle initial panel visibility
         SetMainMenuVisible(true);
         _configPanel.Visible = false;
+        _themePanel.Visible = false;
         _levelPanel.Visible = false;
         _creditsPanel.Visible = false;
         _achievementsPanel.Visible = false;
@@ -166,22 +230,34 @@ public partial class Menu : Control
         _mapButton.Pressed += OnMapButtonPressed;
         _joyOptionButton.ItemSelected += OnJoypadSelected;
 
+        // Theme Selection Press handlers
+        _forestButton.Pressed += OnForestPressed;
+        _glacialButton.Pressed += OnGlacialPressed;
+        _cityButton.Pressed += OnCityPressed;
+        _caveButton.Pressed += OnCavePressed;
+        _themeBackButton.Pressed += OnThemeBackPressed;
+
         _level1Button.Pressed += OnLevel1Pressed;
         _level2Button.Pressed += OnLevel2Pressed;
         _level3Button.Pressed += OnLevel3Pressed;
         _level4Button.Pressed += OnLevel4Pressed;
-        _platformKitDemoButton.Pressed += OnPlatformKitDemoPressed;
-        _debugLevelButton.Pressed += OnDebugLevelPressed;
         _levelBackButton.Pressed += OnLevelBackPressed;
         
         _creditsBackButton.Pressed += OnCreditsBackPressed;
         _achievementsBackButton.Pressed += OnAchievementsBackPressed;
+
+        // Populate language dropdown
+        PopulateLanguage();
+        _langOptionButton.ItemSelected += OnLanguageSelected;
 
         // Populate joystick dropdown
         PopulateJoypads();
 
         // Connect Joypad connection events dynamically
         Input.Singleton.JoyConnectionChanged += OnJoyConnectionChanged;
+
+        // Translate UI initially
+        TranslateUI();
 
         // Connect procedural sound feedback recursively
         ConnectUIFeedback(this);
@@ -205,7 +281,7 @@ public partial class Menu : Control
         if (node is Button btn)
         {
             // Play short high-frequency tick when focused
-            btn.FocusEntered += () => PlaySound(880f, 0.03f, 0.1f);
+            btn.FocusEntered += () => PlayMenuSound("hover", 880f, 0.03f, 0.1f);
             
             // Hover automatically grabs focus for mouse navigation
             btn.MouseEntered += () => {
@@ -215,7 +291,7 @@ public partial class Menu : Control
         }
         else if (node is OptionButton optBtn)
         {
-            optBtn.FocusEntered += () => PlaySound(880f, 0.03f, 0.1f);
+            optBtn.FocusEntered += () => PlayMenuSound("hover", 880f, 0.03f, 0.1f);
             optBtn.MouseEntered += () => {
                 if (!_isMappingInput && !optBtn.Disabled && optBtn.Visible)
                     optBtn.GrabFocus();
@@ -243,6 +319,134 @@ public partial class Menu : Control
                 btn.Scale = Vector2.One;
             }
         }
+    }
+
+    private void PopulateLanguage()
+    {
+        _langOptionButton.Clear();
+        _langOptionButton.AddItem("Português");
+        _langOptionButton.SetItemMetadata(0, "pt");
+        _langOptionButton.AddItem("English");
+        _langOptionButton.SetItemMetadata(1, "en");
+
+        if (GameSettings.Language == "en")
+        {
+            _langOptionButton.Select(1);
+        }
+        else
+        {
+            _langOptionButton.Select(0);
+        }
+    }
+
+    private void PopulateSfxThemes()
+    {
+        _sfxThemeOptionButton.Clear();
+        var themes = GameSettings.GetAvailableSoundThemes();
+        bool isPt = GameSettings.Language == "pt";
+        
+        for (int i = 0; i < themes.Count; i++)
+        {
+            string theme = themes[i];
+            string displayName = GameSettings.GetThemeDisplayName(theme, isPt);
+            _sfxThemeOptionButton.AddItem(displayName);
+            _sfxThemeOptionButton.SetItemMetadata(i, theme);
+            
+            if (theme == GameSettings.SoundTheme)
+            {
+                _sfxThemeOptionButton.Select(i);
+            }
+        }
+    }
+
+    private void OnSfxThemeSelected(long index)
+    {
+        string theme = (string)_sfxThemeOptionButton.GetItemMetadata((int)index);
+        GameSettings.SoundTheme = theme;
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
+    }
+
+    private void OnLanguageSelected(long index)
+    {
+        string lang = (string)_langOptionButton.GetItemMetadata((int)index);
+        GameSettings.Language = lang;
+        TranslateUI();
+        PlayMenuSound("forward", 587.33f, 0.1f, 0.3f); // D5 note sound
+    }
+
+    private void TranslateUI()
+    {
+        bool isPt = GameSettings.Language == "pt";
+        
+        // Main Menu Buttons
+        _startButton.Text = isPt ? "JOGAR" : "PLAY";
+        _configButton.Text = isPt ? "OPÇÕES" : "OPTIONS";
+        _creditsButton.Text = isPt ? "CRÉDITOS" : "CREDITS";
+        _exitButton.Text = isPt ? "SAIR" : "EXIT";
+        
+        // Config Menu
+        GetNode<Label>("ConfigPanel/MarginContainer/VBoxContainer/Title").Text = isPt ? "CONFIGURAÇÕES" : "SETTINGS";
+        GetNode<Label>("ConfigPanel/MarginContainer/VBoxContainer/JoyLabel").Text = isPt ? "Selecione o Joystick:" : "Select Controller:";
+        GetNode<Label>("ConfigPanel/MarginContainer/VBoxContainer/MusicLabel").Text = isPt ? "Volume da Música:" : "Music Volume:";
+        _langLabel.Text = isPt ? "Idioma:" : "Language:";
+        _sfxThemeLabel.Text = isPt ? "Efeitos Sonoros:" : "Sound Effects:";
+        _mapButton.Text = isPt ? "Mapear Pulo/Ação" : "Map Jump/Action";
+        _backButton.Text = isPt ? "VOLTAR" : "BACK";
+
+        PopulateSfxThemes();
+        
+        // Map Instructions
+        if (_isMappingInput)
+        {
+            _mapInstructionsLabel.Text = isPt 
+                ? "Aperte qualquer botão no seu controle..." 
+                : "Press any button on your controller...";
+        }
+
+        // Corner / Back buttons
+        _creditsBackButton.Text = isPt ? "VOLTAR" : "BACK";
+        _achievementsBackButton.Text = isPt ? "VOLTAR" : "BACK";
+        _themeBackButton.Text = isPt ? "VOLTAR" : "BACK";
+        _levelBackButton.Text = isPt ? "VOLTAR" : "BACK";
+
+        // Credits Panel
+        GetNode<Label>("CreditsPanel/MarginContainer/VBoxContainer/Title").Text = isPt ? "CRÉDITOS" : "CREDITS";
+        GetNode<Label>("CreditsPanel/MarginContainer/VBoxContainer/CreditsText").Text = isPt 
+            ? "DESENVOLVIMENTO\nRicardo Borges\n\nDESIGN ARTÍSTICO\nPixel Art Engine\n\nMOTOR GRÁFICO\nGodot Engine 4.6 C#\n\nObrigado por jogar!"
+            : "DEVELOPMENT\nRicardo Borges\n\nART DESIGN\nPixel Art Engine\n\nGAME ENGINE\nGodot Engine 4.6 C#\n\nThanks for playing!";
+
+        // Achievements Panel
+        GetNode<Label>("AchievementsPanel/MarginContainer/VBoxContainer/Title").Text = isPt ? "CONQUISTAS" : "ACHIEVEMENTS";
+        GetNode<Label>("AchievementsPanel/MarginContainer/VBoxContainer/Ach1/AchTitle").Text = isPt ? "[x] Primeiros Passos" : "[x] First Steps";
+        GetNode<Label>("AchievementsPanel/MarginContainer/VBoxContainer/Ach1/AchDesc").Text = isPt ? "Conclua a primeira fase de Paçoca." : "Complete the first level of Paçoca.";
+        GetNode<Label>("AchievementsPanel/MarginContainer/VBoxContainer/Ach2/AchTitle").Text = isPt ? "[ ] Veloz e Furioso" : "[ ] Fast & Furious";
+        GetNode<Label>("AchievementsPanel/MarginContainer/VBoxContainer/Ach2/AchDesc").Text = isPt ? "Alcance uma velocidade de 50 km/h." : "Reach a speed of 50 km/h.";
+        GetNode<Label>("AchievementsPanel/MarginContainer/VBoxContainer/Ach3/AchTitle").Text = isPt ? "[x] Colecionador" : "[x] Collector";
+        GetNode<Label>("AchievementsPanel/MarginContainer/VBoxContainer/Ach3/AchDesc").Text = isPt ? "Colete um total de 100 moedas." : "Collect a total of 100 rings.";
+
+        // Theme Panel
+        GetNode<Label>("ThemePanel/MarginContainer/VBoxContainer/Title").Text = isPt ? "SELECIONAR TEMA" : "SELECT THEME";
+        _forestButton.GetNode<Label>("Label").Text = isPt ? "FLORESTA" : "FOREST";
+        _glacialButton.GetNode<Label>("Label").Text = isPt ? "GLACIAL" : "GLACIAL";
+        _cityButton.GetNode<Label>("Label").Text = isPt ? "CIDADE" : "CITY";
+        _caveButton.GetNode<Label>("Label").Text = isPt ? "CAVERNA" : "CAVE";
+
+        // Level Panel Dynamic Title & buttons
+        string themeName = _selectedTheme switch
+        {
+            "glacial" => isPt ? "GLACIAL" : "GLACIAL",
+            "city" => isPt ? "CIDADE" : "CITY",
+            "cave" => isPt ? "CAVERNA" : "CAVE",
+            _ => isPt ? "FLORESTA" : "FOREST"
+        };
+        GetNode<Label>("LevelPanel/MarginContainer/VBoxContainer/Title").Text = isPt 
+            ? $"TEMA: {themeName}" 
+            : $"THEME: {themeName}";
+
+        _level1Button.Text = isPt ? "FASE 1" : "LEVEL 1";
+        _level2Button.Text = isPt ? "FASE 2" : "LEVEL 2";
+        _level3Button.Text = isPt ? "FASE 3" : "LEVEL 3";
+        _level4Button.Text = isPt ? "FASE 4" : "LEVEL 4";
     }
 
     private void PopulateJoypads()
@@ -286,70 +490,136 @@ public partial class Menu : Control
         int joyId = (int)_joyOptionButton.GetItemMetadata((int)index);
         GameSettings.SelectedJoypadId = joyId;
         GameSettings.ApplyJoypadSettings();
-        PlaySound(587.33f, 0.1f, 0.3f); // D5 note sound
+        PlayMenuSound("forward", 587.33f, 0.1f, 0.3f); // D5 note sound
     }
 
     private void OnStartPressed()
     {
-        PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f); // C5 note sound
         SetMainMenuVisible(false);
+        _themePanel.Visible = true;
+        _forestButton.GrabFocus();
+    }
+
+    private void OnForestPressed()
+    {
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
+        _selectedTheme = "forest";
+        _themePanel.Visible = false;
         _levelPanel.Visible = true;
+        TranslateUI();
         _level1Button.GrabFocus();
+    }
+
+    private void OnGlacialPressed()
+    {
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
+        _selectedTheme = "glacial";
+        _themePanel.Visible = false;
+        _levelPanel.Visible = true;
+        TranslateUI();
+        _level1Button.GrabFocus();
+    }
+
+    private void OnCityPressed()
+    {
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
+        _selectedTheme = "city";
+        _themePanel.Visible = false;
+        _levelPanel.Visible = true;
+        TranslateUI();
+        _level1Button.GrabFocus();
+    }
+
+    private void OnCavePressed()
+    {
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
+        _selectedTheme = "cave";
+        _themePanel.Visible = false;
+        _levelPanel.Visible = true;
+        TranslateUI();
+        _level1Button.GrabFocus();
+    }
+
+    private void OnThemeBackPressed()
+    {
+        PlayMenuSound("backward", 392.00f, 0.1f, 0.3f); // G4 note back sound
+        SetMainMenuVisible(true);
+        _themePanel.Visible = false;
+        _startButton.GrabFocus();
+    }
+
+    private string GetLevelPath(int levelNum)
+    {
+        switch (_selectedTheme)
+        {
+            case "glacial":
+                return $"res://scenes/levels/level_glacial_{levelNum:00}.tscn";
+            case "city":
+                return $"res://scenes/levels/level_cidade_{levelNum:00}.tscn";
+            case "cave":
+                return $"res://scenes/levels/level_caverna_{levelNum:00}.tscn";
+            case "forest":
+            default:
+                return $"res://scenes/levels/level_{levelNum:00}.tscn";
+        }
     }
 
     private void OnLevel1Pressed()
     {
-        PlaySound(1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = "res://scenes/levels/level_01.tscn";
+        PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
+        GameSettings.LevelToLoad = GetLevelPath(1);
         ChangeSceneWithFade("res://scenes/main.tscn");
     }
 
     private void OnLevel2Pressed()
     {
-        PlaySound(1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = "res://scenes/levels/level_02.tscn";
+        PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
+        GameSettings.LevelToLoad = GetLevelPath(2);
         ChangeSceneWithFade("res://scenes/main.tscn");
     }
 
     private void OnLevel3Pressed()
     {
-        PlaySound(1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = "res://scenes/levels/level_03.tscn";
+        PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
+        GameSettings.LevelToLoad = GetLevelPath(3);
         ChangeSceneWithFade("res://scenes/main.tscn");
     }
 
     private void OnLevel4Pressed()
     {
-        PlaySound(1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = "res://scenes/levels/level_04.tscn";
-        ChangeSceneWithFade("res://scenes/main.tscn");
-    }
-
-    private void OnPlatformKitDemoPressed()
-    {
-        PlaySound(1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = "res://scenes/levels/platform_kit_demo.tscn";
-        ChangeSceneWithFade("res://scenes/main.tscn");
-    }
-
-    private void OnDebugLevelPressed()
-    {
-        PlaySound(1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = "res://scenes/levels/debug.tscn";
+        PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
+        GameSettings.LevelToLoad = GetLevelPath(4);
         ChangeSceneWithFade("res://scenes/main.tscn");
     }
 
     private void OnLevelBackPressed()
     {
-        PlaySound(392.00f, 0.1f, 0.3f); // G4 note back sound
-        SetMainMenuVisible(true);
+        PlayMenuSound("backward", 392.00f, 0.1f, 0.3f); // G4 note back sound
+        _themePanel.Visible = true;
         _levelPanel.Visible = false;
-        _startButton.GrabFocus();
+        
+        switch (_selectedTheme)
+        {
+            case "glacial":
+                _glacialButton.GrabFocus();
+                break;
+            case "city":
+                _cityButton.GrabFocus();
+                break;
+            case "cave":
+                _caveButton.GrabFocus();
+                break;
+            case "forest":
+            default:
+                _forestButton.GrabFocus();
+                break;
+        }
     }
 
     private void OnConfigPressed()
     {
-        PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f); // C5 note sound
         SetMainMenuVisible(false);
         _configPanel.Visible = true;
         _joyOptionButton.GrabFocus();
@@ -362,7 +632,7 @@ public partial class Menu : Control
 
     private void OnBackPressed()
     {
-        PlaySound(392.00f, 0.1f, 0.3f); // G4 note back sound
+        PlayMenuSound("backward", 392.00f, 0.1f, 0.3f); // G4 note back sound
         SetMainMenuVisible(true);
         _configPanel.Visible = false;
         _configButton.GrabFocus();
@@ -370,7 +640,7 @@ public partial class Menu : Control
 
     private void OnCreditsPressed()
     {
-        PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f); // C5 note sound
         SetMainMenuVisible(false);
         _creditsPanel.Visible = true;
         _creditsBackButton.GrabFocus();
@@ -378,7 +648,7 @@ public partial class Menu : Control
 
     private void OnCreditsBackPressed()
     {
-        PlaySound(392.00f, 0.1f, 0.3f); // G4 note back sound
+        PlayMenuSound("backward", 392.00f, 0.1f, 0.3f); // G4 note back sound
         SetMainMenuVisible(true);
         _creditsPanel.Visible = false;
         _creditsButton.GrabFocus();
@@ -386,7 +656,7 @@ public partial class Menu : Control
 
     private void OnTrophyPressed()
     {
-        PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f); // C5 note sound
         SetMainMenuVisible(false);
         _achievementsPanel.Visible = true;
         _achievementsBackButton.GrabFocus();
@@ -394,7 +664,7 @@ public partial class Menu : Control
 
     private void OnAchievementsBackPressed()
     {
-        PlaySound(392.00f, 0.1f, 0.3f); // G4 note back sound
+        PlayMenuSound("backward", 392.00f, 0.1f, 0.3f); // G4 note back sound
         SetMainMenuVisible(true);
         _achievementsPanel.Visible = false;
         _trophyButton.GrabFocus();
@@ -402,10 +672,10 @@ public partial class Menu : Control
 
     private void OnMapButtonPressed()
     {
-        PlaySound(523.25f, 0.1f, 0.3f); // C5 note sound
+        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f); // C5 note sound
         _isMappingInput = true;
         
-        _mapInstructionsLabel.Text = "Aperte qualquer botão no seu controle...";
+        TranslateUI();
         _mapInstructionsLabel.Visible = true;
 
         // Disable UI interactions during learning mode
@@ -437,8 +707,11 @@ public partial class Menu : Control
             GameSettings.ApplyJoypadSettings();
 
             // Success feedback
-            _mapInstructionsLabel.Text = $"Botão {buttonId} configurado para Ação/Pulo!";
-            PlaySound(880.0f, 0.25f, 0.4f); // High confirmation beep
+            bool isPt = GameSettings.Language == "pt";
+            _mapInstructionsLabel.Text = isPt 
+                ? $"Botão {buttonId} configurado para Ação/Pulo!" 
+                : $"Button {buttonId} bound to Action/Jump!";
+            PlayMenuSound("forward", 880.0f, 0.25f, 0.4f); // High confirmation beep
 
             // Wait 1.5 seconds and return UI control
             var timer = GetTree().CreateTimer(1.5f);
@@ -484,14 +757,20 @@ public partial class Menu : Control
         
         _backButton.Disabled = disabled;
         _joyOptionButton.Disabled = disabled;
+        _langOptionButton.Disabled = disabled;
+        _sfxThemeOptionButton.Disabled = disabled;
         _mapButton.Disabled = disabled;
+
+        _forestButton.Disabled = disabled;
+        _glacialButton.Disabled = disabled;
+        _cityButton.Disabled = disabled;
+        _caveButton.Disabled = disabled;
+        _themeBackButton.Disabled = disabled;
 
         _level1Button.Disabled = disabled;
         _level2Button.Disabled = disabled;
         _level3Button.Disabled = disabled;
         _level4Button.Disabled = disabled;
-        _platformKitDemoButton.Disabled = disabled;
-        _debugLevelButton.Disabled = disabled;
         _levelBackButton.Disabled = disabled;
         
         _creditsBackButton.Disabled = disabled;
@@ -500,7 +779,8 @@ public partial class Menu : Control
 
     private void OnExitPressed()
     {
-        PlaySound(261.63f, 0.2f, 0.3f); // C4 note quit sound
+        PlayMenuSound("backward", 261.63f, 0.2f, 0.3f); // C4 note quit sound
+        GameSettings.FinalizeTelemetry();
         GetTree().CreateTimer(0.25f).Timeout += () => GetTree().Quit();
     }
 
@@ -524,6 +804,29 @@ public partial class Menu : Control
         tween.TweenProperty(_musicPlayer, "volume_db", MusicSilentDb, 0.6f);
         await ToSignal(tween, Tween.SignalName.Finished);
         GetTree().ChangeSceneToFile(scenePath);
+    }
+
+    // Plays a menu sound based on the selected audio theme
+    private void PlayMenuSound(string eventName, float fallbackFreq, float fallbackDuration, float fallbackVolume = 0.5f)
+    {
+        if (GameSettings.SoundTheme == "procedural" || string.IsNullOrEmpty(GameSettings.SoundTheme))
+        {
+            PlaySound(fallbackFreq, fallbackDuration, fallbackVolume);
+        }
+        else
+        {
+            string path = $"res://audio/effects/{GameSettings.SoundTheme}_{eventName.ToUpper()}.wav";
+            var stream = GameSettings.LoadSFX(path);
+            if (stream != null)
+            {
+                _sfxWavPlayer.Stream = stream;
+                _sfxWavPlayer.Play();
+            }
+            else
+            {
+                PlaySound(fallbackFreq, fallbackDuration, fallbackVolume);
+            }
+        }
     }
 
     // Procedural sound helper

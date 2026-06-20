@@ -5,12 +5,18 @@ public partial class GameOver : Control
 {
     private AudioStreamPlayer _audioPlayer = null!;
     private AudioStreamGeneratorPlayback? _audioPlayback;
+    private AudioStreamPlayer _sfxWavPlayer = null!;
     private double _timer = 0.0;
     private const double TotalWaitTime = 4.5;
     private bool _transitioning = false;
 
     public override void _Ready()
     {
+        // Setup WAV sound player
+        _sfxWavPlayer = new AudioStreamPlayer();
+        _sfxWavPlayer.Bus = "Master";
+        AddChild(_sfxWavPlayer);
+
         // Setup procedural audio player for the Game Over sound
         _audioPlayer = new AudioStreamPlayer();
         AddChild(_audioPlayer);
@@ -23,6 +29,9 @@ public partial class GameOver : Control
 
         // Play the Game Over tune
         PlayGameOverTune();
+
+        // Translate UI
+        TranslateUI();
 
         // Connect theme/UI animations or elements
         var panel = GetNodeOrNull<PanelContainer>("MarginContainer/PanelContainer");
@@ -39,6 +48,17 @@ public partial class GameOver : Control
                  .SetEase(Tween.EaseType.Out);
             tween.TweenProperty(panel, "modulate", new Color(1, 1, 1, 1), 0.4);
         }
+    }
+
+    private void TranslateUI()
+    {
+        bool isPt = GameSettings.Language == "pt";
+        GetNode<Label>("MarginContainer/PanelContainer/MarginContainer/VBoxContainer/DescriptionLabel").Text = isPt 
+            ? "Suas vidas acabaram!" 
+            : "You ran out of lives!";
+        GetNode<Label>("MarginContainer/PanelContainer/MarginContainer/VBoxContainer/HintLabel").Text = isPt 
+            ? "Pressione qualquer botão para voltar ao menu" 
+            : "Press any button to return to the menu";
     }
 
     public override void _Process(double delta)
@@ -66,7 +86,7 @@ public partial class GameOver : Control
     {
         _transitioning = true;
         // Play simple click feedback
-        PlaySound(440.0f, 0.15f, 0.3f);
+        PlayMenuSound("forward", 440.0f, 0.15f, 0.3f);
         
         // Tween fade out before changing scene
         var panel = GetNodeOrNull<PanelContainer>("MarginContainer/PanelContainer");
@@ -97,6 +117,29 @@ public partial class GameOver : Control
             if (_transitioning) break;
             PlaySound(notes[i], durations[i], volumes[i]);
             await ToSignal(GetTree().CreateTimer(durations[i] * 0.9f), SceneTreeTimer.SignalName.Timeout);
+        }
+    }
+
+    // Plays a menu sound based on the selected audio theme
+    private void PlayMenuSound(string eventName, float fallbackFreq, float fallbackDuration, float fallbackVolume = 0.5f)
+    {
+        if (GameSettings.SoundTheme == "procedural" || string.IsNullOrEmpty(GameSettings.SoundTheme))
+        {
+            PlaySound(fallbackFreq, fallbackDuration, fallbackVolume);
+        }
+        else
+        {
+            string path = $"res://audio/effects/{GameSettings.SoundTheme}_{eventName.ToUpper()}.wav";
+            var stream = GameSettings.LoadSFX(path);
+            if (stream != null)
+            {
+                _sfxWavPlayer.Stream = stream;
+                _sfxWavPlayer.Play();
+            }
+            else
+            {
+                PlaySound(fallbackFreq, fallbackDuration, fallbackVolume);
+            }
         }
     }
 

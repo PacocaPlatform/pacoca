@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://c33r1q6joc2l04"]
+[gd_scene format=3]
 
 [ext_resource type="Material" uid="uid://dbuyyv4i7g0p7" path="res://materials/grass.tres" id="1_GrassMat"]
 [ext_resource type="Material" uid="uid://clhv3grjlph27" path="res://materials/rock.tres" id="2_RockMat"]
@@ -45,12 +45,36 @@ mesh = SubResource("QuadMesh_mountain")
 [node name="Enemies" type="Node3D" parent="InteractiveObjects"]
 
 [node name="Platform_0" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.00, 0.00, 0)
-size = Vector3(20.00, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.00, 0.00, 0)
+size = Vector3(42.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_0Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.00, -2.50, 0)
-size = Vector3(20.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.00, -2.50, 0)
+size = Vector3(42.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
+
+
+[node name="Ring_0" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.00, 1.20, 0)
+
+
+[node name="Ring_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.00, 1.20, 0)
+
+
+[node name="Ring_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.00, 1.20, 0)
+
+
+[node name="Ring_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.00, 1.20, 0)
+
+
+[node name="Ring_4" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.00, 1.20, 0)
+
+
+[node name="Goal_0" parent="InteractiveObjects" instance=ExtResource("11_LevelFinishScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.00, 8.00, 0)

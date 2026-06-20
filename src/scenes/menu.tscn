@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="Script" path="res://src/Menu.cs" id="1_MenuScript"]
 [ext_resource type="Texture2D" path="res://images/main.png" id="2_Background"]
@@ -14,6 +14,10 @@
 [ext_resource type="Texture2D" path="res://textures/ui/btn_square_pressed.png" id="12_BtnSquarePressed"]
 [ext_resource type="Texture2D" path="res://textures/ui/icon_trophy.png" id="13_IconTrophy"]
 [ext_resource type="Texture2D" path="res://textures/ui/icon_gear.png" id="14_IconGear"]
+[ext_resource type="Texture2D" path="res://images/themes/forest_card.png" id="15_ForestCard"]
+[ext_resource type="Texture2D" path="res://images/themes/glacial_card.png" id="16_GlacialCard"]
+[ext_resource type="Texture2D" path="res://images/themes/city_card.png" id="17_CityCard"]
+[ext_resource type="Texture2D" path="res://images/themes/cave_card.png" id="18_CaveCard"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_green_normal"]
 texture = ExtResource("4_BtnGreenNormal")
@@ -117,6 +121,30 @@ font_size = 9
 font_color = Color(0.85, 0.85, 0.85, 1)
 outline_size = 4
 outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card_focus"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(1, 0.85, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_card_forest"]
+texture = ExtResource("15_ForestCard")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_card_glacial"]
+texture = ExtResource("16_GlacialCard")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_card_city"]
+texture = ExtResource("17_CityCard")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_card_cave"]
+texture = ExtResource("18_CaveCard")
 
 [node name="Menu" type="Control"]
 texture_filter = 1
@@ -248,7 +276,7 @@ text = "SAIR"
 
 [node name="ConfigPanel" type="PanelContainer" parent="."]
 visible = false
-custom_minimum_size = Vector2(400, 420)
+custom_minimum_size = Vector2(400, 500)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -256,9 +284,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -200.0
-offset_top = -210.0
+offset_top = -250.0
 offset_right = 200.0
-offset_top = 210.0
+offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -272,7 +300,7 @@ theme_override_constants/margin_bottom = 30
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ConfigPanel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="Title" type="Label" parent="ConfigPanel/MarginContainer/VBoxContainer"]
@@ -313,6 +341,22 @@ max_value = 1.0
 step = 0.05
 value = 0.6
 
+[node name="LangLabel" type="Label" parent="ConfigPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Idioma:"
+label_settings = SubResource("LabelSettings_body")
+
+[node name="LangOptionButton" type="OptionButton" parent="ConfigPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_green_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
+alignment = 1
+
 [node name="MapButton" type="Button" parent="ConfigPanel/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
@@ -347,6 +391,152 @@ theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
 theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
 text = "VOLTAR"
 
+[node name="ThemePanel" type="PanelContainer" parent="."]
+visible = false
+custom_minimum_size = Vector2(480, 440)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -220.0
+offset_right = 240.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="ThemePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ThemePanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Title" type="Label" parent="ThemePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "SELECIONAR TEMA"
+label_settings = SubResource("LabelSettings_sub_title")
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="ThemePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="ThemePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/horizontal_separation = 16
+theme_override_constants/vertical_separation = 16
+columns = 2
+
+[node name="ForestButton" type="Button" parent="ThemePanel/MarginContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(190, 120)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_card_forest")
+theme_override_styles/hover = SubResource("StyleBoxFlat_card_focus")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_card_forest")
+theme_override_styles/focus = SubResource("StyleBoxFlat_card_focus")
+
+[node name="Label" type="Label" parent="ThemePanel/MarginContainer/VBoxContainer/GridContainer/ForestButton"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "FLORESTA"
+label_settings = SubResource("LabelSettings_ach_title")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="GlacialButton" type="Button" parent="ThemePanel/MarginContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(190, 120)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_card_glacial")
+theme_override_styles/hover = SubResource("StyleBoxFlat_card_focus")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_card_glacial")
+theme_override_styles/focus = SubResource("StyleBoxFlat_card_focus")
+
+[node name="Label" type="Label" parent="ThemePanel/MarginContainer/VBoxContainer/GridContainer/GlacialButton"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "GLACIAL"
+label_settings = SubResource("LabelSettings_ach_title")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="CityButton" type="Button" parent="ThemePanel/MarginContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(190, 120)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_card_city")
+theme_override_styles/hover = SubResource("StyleBoxFlat_card_focus")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_card_city")
+theme_override_styles/focus = SubResource("StyleBoxFlat_card_focus")
+
+[node name="Label" type="Label" parent="ThemePanel/MarginContainer/VBoxContainer/GridContainer/CityButton"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "CIDADE"
+label_settings = SubResource("LabelSettings_ach_title")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="CaveButton" type="Button" parent="ThemePanel/MarginContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(190, 120)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_card_cave")
+theme_override_styles/hover = SubResource("StyleBoxFlat_card_focus")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_card_cave")
+theme_override_styles/focus = SubResource("StyleBoxFlat_card_focus")
+
+[node name="Label" type="Label" parent="ThemePanel/MarginContainer/VBoxContainer/GridContainer/CaveButton"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "CAVERNA"
+label_settings = SubResource("LabelSettings_ach_title")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="ThemeBackButton" type="Button" parent="ThemePanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_Font")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 5
+theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_green_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
+text = "VOLTAR"
+
 [node name="LevelPanel" type="PanelContainer" parent="."]
 visible = false
 custom_minimum_size = Vector2(400, 420)
@@ -359,7 +549,7 @@ anchor_bottom = 0.5
 offset_left = -200.0
 offset_top = -210.0
 offset_right = 200.0
-offset_top = 210.0
+offset_bottom = 210.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -436,32 +626,6 @@ theme_override_styles/hover = SubResource("StyleBoxTexture_green_hover")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
 theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
 text = "FASE 4"
-
-[node name="PlatformKitDemoButton" type="Button" parent="LevelPanel/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("3_Font")
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_outline_color = Color(0.07, 0.13, 0.05, 1)
-theme_override_constants/outline_size = 5
-theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
-theme_override_styles/hover = SubResource("StyleBoxTexture_green_hover")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
-theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
-text = "FASE PLATFORM KIT"
-
-[node name="DebugLevelButton" type="Button" parent="LevelPanel/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 52)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("3_Font")
-theme_override_font_sizes/font_size = 12
-theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
-theme_override_constants/outline_size = 5
-theme_override_styles/normal = SubResource("StyleBoxTexture_brown_normal")
-theme_override_styles/hover = SubResource("StyleBoxTexture_green_hover")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_green_pressed")
-theme_override_styles/focus = SubResource("StyleBoxTexture_green_hover")
-text = "FASE DE TESTE"
 
 [node name="LevelBackButton" type="Button" parent="LevelPanel/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 52)

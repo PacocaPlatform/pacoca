@@ -71,7 +71,7 @@ public partial class HUD : Control
         // Sonic score uses 9 digits (e.g. 000000300)
         _scoreLabel.Text = $"{score:000000000}";
         _ringsLabel.Text = $"{rings:000}";
-        _livesLabel.Text = $"x {lives:02}";
+        _livesLabel.Text = $"x {lives:00}";
         
         // Speed in km/h
         float speedKmh = speed * 3.6f;
