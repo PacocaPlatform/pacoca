@@ -43,3 +43,6 @@ __pycache__/
 
 # Map editor local config (user's Godot path, etc.)
 tools/map_editor/editor_config.json
+
+# Level pipeline backups (generate_level.py writes a .bak before overwriting)
+*.tscn.bak

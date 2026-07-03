@@ -222,6 +222,7 @@ body {
 
 .inp-id { width: 52px; text-align: center; font-weight: 600; }
 .inp-name { width: 160px; }
+.inp-theme { width: 100px; }
 .inp-num { width: 64px; text-align: center; font-weight: 600; }
 
 .topbar-actions {
@@ -569,6 +570,22 @@ body {
     border-color: #ff3b6b;
 }
 
+/* Preview strip (level minimap) */
+.preview-strip {
+    height: 140px;
+    background: var(--bg-statusbar);
+    border-top: 1px solid var(--border-color);
+    position: relative;
+    flex-shrink: 0;
+}
+.preview-strip.hidden { display: none; }
+.preview-strip canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: pointer;
+}
+
 /* Status bar (coords + quick nav) */
 .statusbar {
     display: flex;
@@ -639,6 +656,20 @@ body {
 }
 
 .map-grid.no-gridlines .grid-cell { border-color: transparent; }
+
+/* Shape/paste ghost preview and selection highlight */
+.grid-cell.ghost {
+    outline: 2px dashed var(--accent);
+    outline-offset: -2px;
+    background-color: var(--accent-glow);
+    z-index: 5;
+}
+.grid-cell.sel {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    background-color: var(--accent-glow);
+    z-index: 5;
+}
 
 .grid-cell.empty { color: transparent; }
 

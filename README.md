@@ -6,12 +6,13 @@ The player controls Paçoca through fast-paced levels: running, jumping, rolling
 
 ## Features
 
-- **Sonic-style Physics**: acceleration/deceleration, friction, manual gravity, slope force, chargeable spin dash, diagonal air dash, and variable jump height.
+- **Sonic-style Physics**: acceleration/deceleration, friction, manual gravity, slope force, chargeable spin dash, diagonal air dash, variable jump height, coyote time, and jump buffering.
 - **3D Rendering on a 2D Plane (2.5D)**: the player is a `CharacterBody3D` locked to the XY plane, using animated 3D models.
-- **100% Procedural Audio**: all sound effects are generated in real-time as sine waves — there are no audio files.
+- **Procedural Sound Effects + Music**: SFX are generated in real-time as sine waves; background music tracks live in `src/audio/`.
 - **HUD**: score, time, rings, lives, and speed (km/h).
 - **Gamepad Support**: controller selection and automatic mapping for the most common buttons.
-- **Complete Menu**: play, options, credits, achievements, and stage select (including debug stage).
+- **Dynamic Stage Select**: the menu lists levels from `scenes/levels/levels.json` (written by the map pipeline) plus a directory scan — levels you create in the map editor appear automatically.
+- **Level Themes**: forest, glacial, city, and cave terrain materials, chosen per map (`theme:` header).
 
 ## Controls
 
@@ -54,9 +55,10 @@ Paçoca/
     ├── project.godot
     ├── Paçoca.csproj
     ├── scenes/             # Scenes: menu, main, hud, player, enemies, levels...
-    │   └── levels/         # level_01.tscn, debug.tscn
+    │   └── levels/         # Generated level_XX.tscn + levels.json manifest
     ├── scripts/            # Level pipeline (convert_map.py, generate_level.py)
-    │   └── levels/         # Source maps (.txt/.json) and generated modules
+    │   ├── levels/         # Generated per-level modules (level_XX.py)
+    │   └── tests/          # Converter unit tests (python3 -m unittest discover -s scripts/tests)
     ├── models/             # Animated FBX models (Mixamo)
     ├── materials/
     ├── textures/
@@ -79,12 +81,16 @@ Levels are drawn as **maps** (ASCII grid or JSON) and converted into Godot scene
 python tools/map_editor/server.py     # open http://localhost:8000
 ```
 
-- **Palette Dock** (platforms, ramps, rings, springs, enemies, spikes, spawn, level finish) + paint/erase tools.
-- **Compile** — generates the level `.tscn` from the drawing.
-- **Test Level** (`F5`) — compiles the current level and opens Godot **directly in it**.
+- **Palette Dock** (platforms, ramps, rings, springs, enemies, spikes, spawn, level finish).
+- **Tools**: paint, erase, line, rectangle, fill bucket, and select (with copy/cut/paste), plus full undo/redo.
+- **Preview minimap** — a live render of the whole level under the canvas; click it to navigate.
+- **Theme selector** — forest / glacial / city / cave terrain materials per level.
+- **Compile** — generates the level `.tscn` from the drawing, with validation warnings (missing spawn/goal, buried objects).
+- **Test Level** (`F5`) — compiles the current level and opens Godot **directly in it**, with live player tracking on the map.
 - **Run** — opens the game starting from the main menu.
 - **Settings Gear** — configures the Godot executable path (automatically detected in PATH; specify manually if not found).
-- Shortcuts: `B` paint · `E` erase · `F5` test · `Esc` close.
+- Shortcuts: `B` paint · `E` erase · `L` line · `R` rectangle · `G` fill · `M` select · `Ctrl+Z/Y` undo/redo · `Ctrl+C/X/V` copy/cut/paste · `F5` test · `Esc` close.
+- Source maps are saved under `tools/map_editor/levels/` (single canonical folder).
 
 > The editor also works when opened directly (`file://`) to draw and export, but buttons that run Godot/compile require the local server.
 
@@ -92,11 +98,11 @@ python tools/map_editor/server.py     # open http://localhost:8000
 
 From `src/` (Godot project root):
 
-```powershell
-python scripts/convert_map.py --input scripts/levels/level_04_map.txt --level 04
+```bash
+python scripts/convert_map.py --input ../tools/map_editor/levels/level_04_map.txt --level 04
 ```
 
-This generates/updates `src/scenes/levels/level_04.tscn`, ready to open in Godot.
+This generates/updates `src/scenes/levels/level_04.tscn` (ready to open in Godot) and registers the level in `scenes/levels/levels.json`, which the in-game stage select reads.
 
 ### Quick Syntax
 

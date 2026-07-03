@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c33r1q6joc2l41"]
 
-[ext_resource type="Material" uid="uid://dbuyyv4i7g0p7" path="res://materials/grass.tres" id="1_GrassMat"]
-[ext_resource type="Material" uid="uid://clhv3grjlph27" path="res://materials/rock.tres" id="2_RockMat"]
+[ext_resource type="Material" path="res://materials/grass.tres" id="1_GrassMat"]
+[ext_resource type="Material" path="res://materials/rock.tres" id="2_RockMat"]
 [ext_resource type="Material" path="res://materials/water.tres" id="3_WaterMat"]
 [ext_resource type="Material" path="res://materials/mountain_bg.tres" id="4_MountainMat"]
 [ext_resource type="PackedScene" path="res://scenes/ring.tscn" id="5_RingScene"]
@@ -45,840 +45,984 @@ mesh = SubResource("QuadMesh_mountain")
 [node name="Enemies" type="Node3D" parent="InteractiveObjects"]
 
 [node name="Platform_0" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.00, 0.00, 0)
-size = Vector3(48.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 0.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_0Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.00, -2.50, 0)
-size = Vector3(48.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, -2.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_1" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.00, 0.00, 0)
-size = Vector3(28.00, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.00, 0.00, 0)
+size = Vector3(46.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 81.00, -2.50, 0)
-size = Vector3(28.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.00, -2.50, 0)
+size = Vector3(46.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_2" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 3.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 0.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 0.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, -2.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_3" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 3.00, 0)
-size = Vector3(2.00, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 0.00, 0)
+size = Vector3(18.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 0.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, -2.50, 0)
+size = Vector3(18.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_4" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.00, 3.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.00, 0.00, 0)
 size = Vector3(4.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.00, 0.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.00, -2.50, 0)
 size = Vector3(4.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_5" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 6.00, 0)
-size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_5Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 3.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_6" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.00, 6.00, 0)
-size = Vector3(38.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_6Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.00, 5.00, 0)
-size = Vector3(38.00, 1.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_7" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.00, 6.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.00, 0.00, 0)
 size = Vector3(4.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
+[node name="Platform_5Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.00, -2.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_6" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_6Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_7" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
 [node name="Platform_7Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.00, 5.00, 0)
-size = Vector3(4.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_8" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 6.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.00, 3.00, 0)
 size = Vector3(2.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_8Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 3.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.00, 0.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_9" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.00, 6.00, 0)
-size = Vector3(6.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_9Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.00, 3.50, 0)
-size = Vector3(6.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_10" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 9.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 6.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_10Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 6.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 3.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_11" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 9.00, 0)
-size = Vector3(2.00, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.00, 6.00, 0)
+size = Vector3(36.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_11Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 6.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.00, 5.00, 0)
+size = Vector3(36.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_12" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 9.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 6.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_12Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 6.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 5.00, 0)
+size = Vector3(2.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_13" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 9.00, 0)
-size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_13Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 8.00, 0)
-size = Vector3(14.00, 1.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_14" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.00, 9.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.00, 6.00, 0)
 size = Vector3(4.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
+[node name="Platform_13Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.00, 5.00, 0)
+size = Vector3(4.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_14" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 6.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
 [node name="Platform_14Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.00, 6.50, 0)
-size = Vector3(4.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 3.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_15" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 12.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 6.00, 0)
 size = Vector3(2.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_15Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 9.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 3.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_16" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.00, 12.00, 0)
-size = Vector3(18.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.00, 6.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_16Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.00, 11.00, 0)
-size = Vector3(18.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.00, 5.00, 0)
+size = Vector3(4.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_17" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 12.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 9.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_17Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 9.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 6.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_18" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 12.00, 0)
-size = Vector3(6.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 9.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_18Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 11.00, 0)
-size = Vector3(6.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 6.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_19" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 12.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 9.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_19Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 9.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 6.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_20" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 12.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 9.00, 0)
 size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_20Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 9.50, 0)
-size = Vector3(14.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 8.00, 0)
+size = Vector3(14.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_21" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.00, 12.00, 0)
-size = Vector3(4.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_21Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.00, 9.50, 0)
-size = Vector3(4.00, 4.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_22" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 15.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.00, 9.00, 0)
 size = Vector3(2.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
+[node name="Platform_21Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.00, 6.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_22" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 94.00, 9.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
 [node name="Platform_22Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 12.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 94.00, 6.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_23" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.00, 15.00, 0)
-size = Vector3(4.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 12.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_23Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.00, 14.00, 0)
-size = Vector3(4.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 9.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_24" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 15.00, 0)
-size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_24Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 12.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_25" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 15.00, 0)
-size = Vector3(4.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_25Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 14.00, 0)
-size = Vector3(4.00, 1.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_26" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 15.00, 0)
-size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_26Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 12.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_27" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 15.00, 0)
-size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_27Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 12.50, 0)
-size = Vector3(14.00, 4.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_28" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 97.00, 15.00, 0)
-size = Vector3(4.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_28Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 97.00, 12.50, 0)
-size = Vector3(4.00, 4.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_29" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.00, 18.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.00, 12.00, 0)
 size = Vector3(18.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
-[node name="Platform_29Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.00, 15.50, 0)
-size = Vector3(18.00, 4.00, 3.8)
+[node name="Platform_24Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.00, 11.00, 0)
+size = Vector3(18.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_30" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 18.00, 0)
+[node name="Platform_25" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 12.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
-[node name="Platform_30Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 15.50, 0)
+[node name="Platform_25Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 9.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_31" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 18.00, 0)
+[node name="Platform_26" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 12.00, 0)
+size = Vector3(6.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_26Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 11.00, 0)
+size = Vector3(6.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_27" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 12.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_27Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 9.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_28" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 12.00, 0)
+size = Vector3(14.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_28Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 9.50, 0)
+size = Vector3(14.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_29" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 94.00, 12.00, 0)
 size = Vector3(2.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
+[node name="Platform_29Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 94.00, 9.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_30" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 12.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_30Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 11.00, 0)
+size = Vector3(2.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_31" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 15.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
 [node name="Platform_31Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 15.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 12.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_32" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 18.00, 0)
-size = Vector3(14.00, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.00, 15.00, 0)
+size = Vector3(4.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_32Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 15.50, 0)
-size = Vector3(14.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.00, 14.00, 0)
+size = Vector3(4.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_33" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100.00, 18.00, 0)
-size = Vector3(6.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_33Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100.00, 15.50, 0)
-size = Vector3(6.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 15.00, 0)
+size = Vector3(2.00, 1, 4)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_34" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 21.00, 0)
-size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_34Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 18.50, 0)
+[node name="Platform_33Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 12.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_35" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 21.00, 0)
-size = Vector3(2.00, 1, 4)
+[node name="Platform_34" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 15.00, 0)
+size = Vector3(4.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
+[node name="Platform_34Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 14.00, 0)
+size = Vector3(4.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_35" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 15.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
 [node name="Platform_35Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 18.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 12.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_36" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 21.00, 0)
-size = Vector3(6.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 15.00, 0)
+size = Vector3(14.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_36Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 20.00, 0)
-size = Vector3(6.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 12.50, 0)
+size = Vector3(14.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_37" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 21.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 15.00, 0)
 size = Vector3(2.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_37Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 18.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 12.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_38" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 21.00, 0)
-size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.00, 15.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_38Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 18.50, 0)
-size = Vector3(14.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.00, 14.00, 0)
+size = Vector3(2.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_39" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 21.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 18.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_39Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 18.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 15.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_40" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 24.00, 0)
-size = Vector3(2.00, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.00, 18.00, 0)
+size = Vector3(16.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_40Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 21.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.00, 17.00, 0)
+size = Vector3(16.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_41" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 24.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 18.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_41Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 21.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 15.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_42" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 24.00, 0)
-size = Vector3(4.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 18.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_42Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 23.00, 0)
-size = Vector3(4.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 15.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_43" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 24.00, 0)
-size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_43Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 21.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 18.00, 0)
+size = Vector3(14.00, 1, 4)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_44" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 24.00, 0)
-size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_44Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 21.50, 0)
+[node name="Platform_43Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 15.50, 0)
 size = Vector3(14.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_45" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 27.00, 0)
-size = Vector3(2.00, 1, 4)
+[node name="Platform_44" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.00, 18.00, 0)
+size = Vector3(4.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
+[node name="Platform_44Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.00, 15.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_45" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 18.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
 [node name="Platform_45Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 24.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 17.00, 0)
+size = Vector3(2.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_46" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 27.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 21.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_46Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 24.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 18.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_47" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 27.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 21.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_47Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 26.00, 0)
-size = Vector3(2.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 18.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_48" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 27.00, 0)
-size = Vector3(2.00, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 21.00, 0)
+size = Vector3(6.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_48Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 24.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 20.00, 0)
+size = Vector3(6.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_49" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 27.00, 0)
-size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_49Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 24.50, 0)
-size = Vector3(14.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 21.00, 0)
+size = Vector3(2.00, 1, 4)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_50" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 30.00, 0)
-size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_50Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 27.50, 0)
+[node name="Platform_49Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 18.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
+[node name="Platform_50" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 21.00, 0)
+size = Vector3(14.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_50Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 18.50, 0)
+size = Vector3(14.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
 [node name="Platform_51" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 30.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 21.00, 0)
 size = Vector3(2.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_51Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 27.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 18.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_52" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.00, 30.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 24.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_52Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.00, 29.00, 0)
-size = Vector3(2.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 21.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_53" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 30.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 24.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_53Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 27.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 21.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_54" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 30.00, 0)
-size = Vector3(14.00, 1, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 24.00, 0)
+size = Vector3(4.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_54Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 27.50, 0)
-size = Vector3(14.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 23.00, 0)
+size = Vector3(4.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_55" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 33.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 24.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_55Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 30.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 21.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_56" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 33.00, 0)
-size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 24.00, 0)
+size = Vector3(14.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_56Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 30.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 21.50, 0)
+size = Vector3(14.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_57" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 33.00, 0)
-size = Vector3(4.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 27.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_57Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 32.00, 0)
-size = Vector3(4.00, 1.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 24.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_58" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 33.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 27.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_58Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 30.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 24.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_59" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 33.00, 0)
-size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_59Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 30.50, 0)
-size = Vector3(14.00, 4.00, 3.8)
-material = ExtResource("2_RockMat")
-
-
-[node name="Platform_60" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 36.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 27.00, 0)
 size = Vector3(2.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
+[node name="Platform_59Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 26.00, 0)
+size = Vector3(2.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_60" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 27.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
 [node name="Platform_60Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 33.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 24.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_61" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 36.00, 0)
-size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 27.00, 0)
+size = Vector3(14.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_61Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 33.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 24.50, 0)
+size = Vector3(14.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_62" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 36.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 30.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_62Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 33.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 27.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_63" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 36.00, 0)
-size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 30.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_63Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 33.50, 0)
-size = Vector3(14.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 27.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_64" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 39.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.00, 30.00, 0)
 size = Vector3(2.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
 [node name="Platform_64Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 36.50, 0)
-size = Vector3(2.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.00, 29.00, 0)
+size = Vector3(2.00, 1.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_65" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 39.00, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 30.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_65Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 36.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 27.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_66" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.00, 39.00, 0)
-size = Vector3(18.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_66Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.00, 36.50, 0)
-size = Vector3(18.00, 4.00, 3.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 30.00, 0)
+size = Vector3(14.00, 1, 4)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_67" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 39.00, 0)
-size = Vector3(14.00, 1, 4)
-material = ExtResource("1_GrassMat")
-
-
-[node name="Platform_67Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 36.50, 0)
+[node name="Platform_66Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 27.50, 0)
 size = Vector3(14.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
-[node name="Platform_68" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 42.00, 0)
+[node name="Platform_67" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 33.00, 0)
 size = Vector3(2.00, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_67Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 30.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_68" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 33.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
 
 
 [node name="Platform_68Rock" type="CSGBox3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 39.50, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 30.50, 0)
 size = Vector3(2.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")
 
 
 [node name="Platform_69" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 33.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_69Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.00, 32.00, 0)
+size = Vector3(4.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_70" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 33.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_70Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 30.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_71" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 33.00, 0)
+size = Vector3(14.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_71Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 30.50, 0)
+size = Vector3(14.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_72" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 36.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_72Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 33.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_73" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 36.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_73Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 33.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_74" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 36.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_74Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.00, 33.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_75" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 36.00, 0)
+size = Vector3(14.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_75Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 33.50, 0)
+size = Vector3(14.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_76" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 39.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_76Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00, 36.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_77" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 39.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_77Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 36.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_78" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.00, 39.00, 0)
+size = Vector3(18.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_78Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.00, 36.50, 0)
+size = Vector3(18.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_79" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 39.00, 0)
+size = Vector3(14.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_79Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 36.50, 0)
+size = Vector3(14.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_80" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 42.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_80Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 39.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_81" type="CSGBox3D" parent="Level/TrackCSG"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 42.00, 0)
 size = Vector3(14.00, 1, 4)
 material = ExtResource("1_GrassMat")
 
 
-[node name="Platform_69Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+[node name="Platform_81Rock" type="CSGBox3D" parent="Level/TrackCSG"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78.00, 39.50, 0)
 size = Vector3(14.00, 4.00, 3.8)
 material = ExtResource("2_RockMat")

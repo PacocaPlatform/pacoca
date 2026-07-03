@@ -12,15 +12,18 @@ python tools/map_editor/server.py
 
 Then open **http://localhost:8000** in your browser.
 
-- Draw the stage on the grid.
+- Draw the stage on the grid with the paint, line, rectangle, fill, and select tools (full undo/redo).
+- **Preview minimap** — live render of the whole level below the canvas; click it to navigate.
+- **Theme** — choose forest / glacial / city / cave terrain materials (saved as `theme:` in the map header).
 - **Maps** — saves the current map to disk (`tools/map_editor/levels/level_<id>_map.txt`), lists created custom levels, and allows **opening them for editing** or **deleting**.
-- **Compile** — generates `src/scenes/levels/level_<id>.tscn` from the map.
+- **Compile** — generates `src/scenes/levels/level_<id>.tscn` from the map, prints validation warnings, and registers the level in `src/scenes/levels/levels.json` (the game menu reads it, so the level shows up in the stage select).
 - **Test Level** (**F5**) — compiles the current level and opens Godot **directly in it**.
 - **Run** — opens the game starting from the main menu.
 
 ### Shortcuts
 
-- **B** = paint · **E** = erase · **F5** = test stage · **Esc** = close the code drawer.
+- **B** = paint · **E** = erase · **L** = line · **R** = rectangle · **G** = fill · **M** = select · **F5** = test stage · **Esc** = cancel selection/paste or close the code drawer.
+- **Ctrl/Cmd+Z** undo · **Ctrl/Cmd+Shift+Z** / **Ctrl+Y** redo · with a selection: **Ctrl/Cmd+C/X** copy/cut, **Del** clear, **Ctrl/Cmd+V** then click to paste.
 
 ### Godot Path
 

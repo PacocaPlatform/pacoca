@@ -3,13 +3,27 @@ let Y_STEP = 3.0;
 let X_STEP = 2.0;
 let levelId = "04";
 let levelName = "Sky Ruins";
+let levelTheme = "forest"; // forest | glacial | cidade | caverna
 let gridWidth = 100;
 let gridHeight = 15;
 let grid = []; // 2D array: grid[c][r] where c is column (X), r is visual row (Y-inverted)
-let currentTool = "paint"; // "paint" | "erase"
+let currentTool = "paint"; // paint | erase | line | rect | fill | select
 let selectedElement = "#"; // Current painting character symbol
 let isDrawing = false;
 let zoomLevel = 1.0;
+
+// --- Shape tools / selection / clipboard ---
+let dragStart = null;       // {c, r} where the current drag began
+let lastHover = null;       // {c, r} last hovered cell
+let ghostKeys = [];         // "c,r" keys currently rendered as shape/paste ghost
+let selection = null;       // {c0, r0, c1, r1} normalized selection rect
+let clipboard = null;       // 2D array [rows][cols] of chars copied from a selection
+let pasteMode = false;      // true = next click stamps the clipboard
+
+// --- Undo / Redo history (snapshots of the grid matrix) ---
+const MAX_HISTORY = 100;
+let undoStack = [];
+let redoStack = [];
 let showGridlines = true;
 let activeTab = "tab-ascii";
 
@@ -52,6 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
         generateExports();
     });
 
+    document.getElementById("level-theme").addEventListener("change", (e) => {
+        levelTheme = e.target.value;
+        generateExports();
+    });
+
     document.getElementById("grid-width").addEventListener("change", (e) => {
         let val = parseInt(e.target.value);
         if (!isNaN(val)) {
@@ -82,12 +101,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Mouse up handler to stop painting
+    // Mouse up handler: finish strokes and commit shape drags
     window.addEventListener("mouseup", () => {
-        if (isDrawing) {
-            isDrawing = false;
-            generateExports();
+        if (!isDrawing) return;
+        isDrawing = false;
+        if ((currentTool === "line" || currentTool === "rect") && dragStart && lastHover) {
+            commitShape();
         }
+        dragStart = null;
+        generateExports();
     });
 
     // Connect horizontal navigation slider
@@ -99,7 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (maxScroll > 0) {
             slider.value = (container.scrollLeft / maxScroll) * 100;
         }
+        renderPreview(); // keep the minimap viewport indicator in sync
     });
+
+    document.getElementById("preview-strip").addEventListener("click", onPreviewClick);
+    window.addEventListener("resize", renderPreview);
 
     slider.addEventListener("input", (e) => {
         const maxScroll = container.scrollWidth - container.clientWidth;
@@ -113,7 +139,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") {
             const settings = document.getElementById("settings-modal");
             const maps = document.getElementById("maps-modal");
-            if (settings && !settings.hidden) closeSettings();
+            if (pasteMode) cancelPaste();
+            else if (selection) clearSelection();
+            else if (settings && !settings.hidden) closeSettings();
             else if (maps && !maps.hidden) closeMaps();
             else setDrawer(false);
             return;
@@ -124,8 +152,42 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         if (typing) return;
+        if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+            e.preventDefault();
+            if (e.shiftKey) redo(); else undo();
+            return;
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.key === "y" || e.key === "Y")) {
+            e.preventDefault();
+            redo();
+            return;
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.key === "c" || e.key === "C") && selection) {
+            e.preventDefault();
+            copySelection();
+            return;
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.key === "x" || e.key === "X") && selection) {
+            e.preventDefault();
+            cutSelection();
+            return;
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.key === "v" || e.key === "V") && clipboard) {
+            e.preventDefault();
+            startPaste();
+            return;
+        }
+        if ((e.key === "Delete" || e.key === "Backspace") && selection) {
+            e.preventDefault();
+            deleteSelection();
+            return;
+        }
         if (e.key === "b" || e.key === "B") setToolMode("paint");
         else if (e.key === "e" || e.key === "E") setToolMode("erase");
+        else if (e.key === "l" || e.key === "L") setToolMode("line");
+        else if (e.key === "r" || e.key === "R") setToolMode("rect");
+        else if (e.key === "g" || e.key === "G") setToolMode("fill");
+        else if (e.key === "m" || e.key === "M") setToolMode("select");
     });
 
     // Initial setups
@@ -210,15 +272,11 @@ function renderGrid() {
             // Grid interaction events
             cell.addEventListener("mousedown", (e) => {
                 e.preventDefault();
-                isDrawing = true;
-                applyTool(c, r);
+                onCellDown(c, r);
             });
-            
+
             cell.addEventListener("mouseenter", () => {
-                updateCoordinatesDisplay(c, r);
-                if (isDrawing) {
-                    applyTool(c, r);
-                }
+                onCellEnter(c, r);
             });
             
             mapGrid.appendChild(cell);
@@ -235,68 +293,355 @@ function getCellClass(char) {
     return found ? found.class : "empty";
 }
 
+// --- Undo / Redo ---
+
+function snapshotGrid() {
+    return grid.map(col => col.slice());
+}
+
+// Push the CURRENT state before a mutation (stroke start, clear, resize, import).
+function pushHistory() {
+    undoStack.push(snapshotGrid());
+    if (undoStack.length > MAX_HISTORY) undoStack.shift();
+    redoStack = [];
+}
+
+function restoreSnapshot(snapshot) {
+    grid = snapshot;
+    gridWidth = grid.length;
+    gridHeight = grid[0] ? grid[0].length : 0;
+    document.getElementById("grid-width").value = gridWidth;
+    document.getElementById("grid-height").value = gridHeight;
+    renderGrid();
+    generateExports();
+}
+
+function undo() {
+    if (!undoStack.length) { showToast("Nothing to undo", "undo-2"); return; }
+    redoStack.push(snapshotGrid());
+    restoreSnapshot(undoStack.pop());
+}
+
+function redo() {
+    if (!redoStack.length) { showToast("Nothing to redo", "redo-2"); return; }
+    undoStack.push(snapshotGrid());
+    restoreSnapshot(redoStack.pop());
+}
+
 // --- Grid Interactions ---
 
-function applyTool(c, r) {
+// Writes one cell to both the state matrix and the DOM.
+function setCellChar(c, r, char) {
+    if (c < 0 || c >= gridWidth || r < 0 || r >= gridHeight) return;
+    grid[c][r] = char;
     const cell = document.querySelector(`.grid-cell[data-col="${c}"][data-row="${r}"]`);
-    if (!cell) return;
-    
+    if (cell) {
+        cell.className = "grid-cell " + getCellClass(char);
+        const hideText = char === " " || char === "#" || char === "/" || char === "\\";
+        cell.innerText = hideText ? "" : char;
+    }
+}
+
+// Removes every existing spawn point (only one P is allowed).
+function clearSpawns() {
+    for (let tc = 0; tc < gridWidth; tc++) {
+        for (let tr = 0; tr < gridHeight; tr++) {
+            if (grid[tc][tr] === "P") setCellChar(tc, tr, " ");
+        }
+    }
+}
+
+function onCellDown(c, r) {
+    if (pasteMode && clipboard) {
+        commitPaste(c, r);
+        return;
+    }
+    lastHover = { c, r };
+    switch (currentTool) {
+        case "paint":
+        case "erase":
+            pushHistory(); // one undo step per stroke
+            isDrawing = true;
+            applyTool(c, r);
+            break;
+        case "line":
+        case "rect":
+            isDrawing = true;
+            dragStart = { c, r };
+            updateGhost(c, r);
+            break;
+        case "fill":
+            floodFill(c, r);
+            break;
+        case "select":
+            isDrawing = true;
+            dragStart = { c, r };
+            setSelection(c, r, c, r);
+            break;
+    }
+}
+
+function onCellEnter(c, r) {
+    updateCoordinatesDisplay(c, r);
+    lastHover = { c, r };
+    if (pasteMode && clipboard) {
+        showPasteGhost(c, r);
+        return;
+    }
+    if (!isDrawing) return;
+    switch (currentTool) {
+        case "paint":
+        case "erase":
+            applyTool(c, r);
+            break;
+        case "line":
+        case "rect":
+            updateGhost(c, r);
+            break;
+        case "select":
+            if (dragStart) setSelection(dragStart.c, dragStart.r, c, r);
+            break;
+    }
+}
+
+function applyTool(c, r) {
     if (currentTool === "paint") {
-        // Enforce single spawn point restriction if P is painted
-        if (selectedElement === "P") {
-            // Remove previous spawn point
-            for (let tc = 0; tc < gridWidth; tc++) {
-                for (let tr = 0; tr < gridHeight; tr++) {
-                    if (grid[tc][tr] === "P") {
-                        grid[tc][tr] = " ";
-                        const prevCell = document.querySelector(`.grid-cell[data-col="${tc}"][data-row="${tr}"]`);
-                        if (prevCell) {
-                            prevCell.className = "grid-cell empty";
-                            prevCell.innerText = "";
-                        }
-                    }
-                }
+        if (selectedElement === "P") clearSpawns();
+        setCellChar(c, r, selectedElement);
+    } else if (currentTool === "erase") {
+        setCellChar(c, r, " ");
+    }
+}
+
+// --- Shape tools (line / rectangle) ---
+
+// Cells covered by the current shape drag from dragStart to (c, r).
+function shapeCells(c, r) {
+    const cells = [];
+    const a = dragStart;
+    if (!a) return cells;
+    if (currentTool === "rect") {
+        const cMin = Math.min(a.c, c), cMax = Math.max(a.c, c);
+        const rMin = Math.min(a.r, r), rMax = Math.max(a.r, r);
+        for (let cc = cMin; cc <= cMax; cc++) {
+            for (let rr = rMin; rr <= rMax; rr++) cells.push([cc, rr]);
+        }
+    } else {
+        // Bresenham line from a to (c, r)
+        let x0 = a.c, y0 = a.r;
+        const dx = Math.abs(c - x0), sx = x0 < c ? 1 : -1;
+        const dy = -Math.abs(r - y0), sy = y0 < r ? 1 : -1;
+        let err = dx + dy;
+        for (;;) {
+            cells.push([x0, y0]);
+            if (x0 === c && y0 === r) break;
+            const e2 = 2 * err;
+            if (e2 >= dy) { err += dy; x0 += sx; }
+            if (e2 <= dx) { err += dx; y0 += sy; }
+        }
+    }
+    return cells;
+}
+
+function clearGhost() {
+    ghostKeys.forEach(key => {
+        const [c, r] = key.split(",").map(Number);
+        const cell = document.querySelector(`.grid-cell[data-col="${c}"][data-row="${r}"]`);
+        if (cell) cell.classList.remove("ghost");
+    });
+    ghostKeys = [];
+}
+
+function setGhost(cells) {
+    clearGhost();
+    cells.forEach(([c, r]) => {
+        const cell = document.querySelector(`.grid-cell[data-col="${c}"][data-row="${r}"]`);
+        if (cell) {
+            cell.classList.add("ghost");
+            ghostKeys.push(`${c},${r}`);
+        }
+    });
+}
+
+function updateGhost(c, r) {
+    setGhost(shapeCells(c, r));
+}
+
+function commitShape() {
+    const cells = shapeCells(lastHover.c, lastHover.r);
+    clearGhost();
+    if (!cells.length) return;
+    pushHistory();
+    if (selectedElement === "P") clearSpawns();
+    cells.forEach(([c, r]) => setCellChar(c, r, selectedElement));
+    if (selectedElement === "P" && cells.length > 1) {
+        // A shape can only carry one spawn: keep the last cell drawn
+        cells.slice(0, -1).forEach(([c, r]) => setCellChar(c, r, " "));
+    }
+}
+
+// --- Fill bucket ---
+
+function floodFill(c, r) {
+    const target = grid[c][r];
+    if (target === selectedElement) return;
+    pushHistory();
+    if (selectedElement === "P") clearSpawns();
+    const stack = [[c, r]];
+    const seen = new Set([`${c},${r}`]);
+    let filled = 0;
+    while (stack.length) {
+        const [cc, rr] = stack.pop();
+        if (grid[cc][rr] !== target) continue;
+        grid[cc][rr] = selectedElement;
+        filled++;
+        [[cc + 1, rr], [cc - 1, rr], [cc, rr + 1], [cc, rr - 1]].forEach(([nc, nr]) => {
+            const key = `${nc},${nr}`;
+            if (nc >= 0 && nc < gridWidth && nr >= 0 && nr < gridHeight &&
+                !seen.has(key) && grid[nc][nr] === target) {
+                seen.add(key);
+                stack.push([nc, nr]);
+            }
+        });
+    }
+    if (selectedElement === "P" && filled > 1) {
+        // Only one spawn allowed; a bucket fill with P keeps just the clicked cell
+        for (let tc = 0; tc < gridWidth; tc++) {
+            for (let tr = 0; tr < gridHeight; tr++) {
+                if (grid[tc][tr] === "P" && !(tc === c && tr === r)) grid[tc][tr] = " ";
             }
         }
-        
-        grid[c][r] = selectedElement;
-        cell.className = "grid-cell " + getCellClass(selectedElement);
-        cell.innerText = (selectedElement === "#" || selectedElement === "/" || selectedElement === "\\" ? "" : selectedElement);
-    } else if (currentTool === "erase") {
-        grid[c][r] = " ";
-        cell.className = "grid-cell empty";
-        cell.innerText = "";
     }
+    renderGrid();
+    generateExports();
+}
+
+// --- Selection / clipboard ---
+
+function setSelection(c0, r0, c1, r1) {
+    clearSelectionHighlight();
+    selection = {
+        c0: Math.min(c0, c1), r0: Math.min(r0, r1),
+        c1: Math.max(c0, c1), r1: Math.max(r0, r1),
+    };
+    for (let c = selection.c0; c <= selection.c1; c++) {
+        for (let r = selection.r0; r <= selection.r1; r++) {
+            const cell = document.querySelector(`.grid-cell[data-col="${c}"][data-row="${r}"]`);
+            if (cell) cell.classList.add("sel");
+        }
+    }
+}
+
+function clearSelectionHighlight() {
+    document.querySelectorAll(".grid-cell.sel").forEach(cell => cell.classList.remove("sel"));
+}
+
+function clearSelection() {
+    clearSelectionHighlight();
+    selection = null;
+}
+
+function copySelection() {
+    if (!selection) { showToast("Nothing selected (use the Select tool)", "box-select"); return false; }
+    clipboard = [];
+    for (let r = selection.r0; r <= selection.r1; r++) {
+        const row = [];
+        for (let c = selection.c0; c <= selection.c1; c++) {
+            row.push(grid[c][r]);
+        }
+        clipboard.push(row);
+    }
+    showToast(`Copied ${clipboard[0].length}×${clipboard.length} cells — Ctrl+V then click to place`, "copy");
+    return true;
+}
+
+function deleteSelection() {
+    if (!selection) return;
+    pushHistory();
+    for (let c = selection.c0; c <= selection.c1; c++) {
+        for (let r = selection.r0; r <= selection.r1; r++) {
+            setCellChar(c, r, " ");
+        }
+    }
+    generateExports();
+}
+
+function cutSelection() {
+    if (copySelection()) deleteSelection();
+}
+
+function startPaste() {
+    if (!clipboard) { showToast("Clipboard empty — select and Ctrl+C first", "clipboard"); return; }
+    pasteMode = true;
+    clearSelection();
+    showToast("Click on the grid to place the copied block (Esc cancels)", "clipboard-paste");
+    if (lastHover) showPasteGhost(lastHover.c, lastHover.r);
+}
+
+function cancelPaste() {
+    pasteMode = false;
+    clearGhost();
+}
+
+function showPasteGhost(c, r) {
+    const cells = [];
+    for (let dr = 0; dr < clipboard.length; dr++) {
+        for (let dc = 0; dc < clipboard[dr].length; dc++) {
+            if (clipboard[dr][dc] !== " ") cells.push([c + dc, r + dr]);
+        }
+    }
+    setGhost(cells);
+}
+
+function commitPaste(c, r) {
+    pushHistory();
+    clearGhost();
+    let pastedSpawn = false;
+    for (let dr = 0; dr < clipboard.length; dr++) {
+        for (let dc = 0; dc < clipboard[dr].length; dc++) {
+            const char = clipboard[dr][dc];
+            if (char === " ") continue; // transparent paste: don't blank surroundings
+            if (char === "P") {
+                if (pastedSpawn) continue;
+                clearSpawns();
+                pastedSpawn = true;
+            }
+            setCellChar(c + dc, r + dr, char);
+        }
+    }
+    pasteMode = false;
+    generateExports();
+    showToast("Block pasted", "check");
 }
 
 // Selects active palette element
 function selectElement(symbol, elementBtn) {
     selectedElement = symbol;
-    currentTool = "paint";
-    
+    // Shape tools keep working with the newly picked element; only the
+    // non-painting tools (erase/select) switch back to the brush.
+    if (!["paint", "line", "rect", "fill"].includes(currentTool)) {
+        setToolMode("paint");
+    }
+
     // Update active UI classes
     document.querySelectorAll(".palette-chip").forEach(item => item.classList.remove("active"));
     if (elementBtn) {
         elementBtn.classList.add("active");
     }
-    
-    document.querySelectorAll(".tool-btn").forEach(btn => btn.classList.remove("active"));
-    document.getElementById("tool-paint").classList.add("active");
 }
 
 function setToolMode(mode) {
     currentTool = mode;
+    if (mode !== "select") clearSelection();
+    cancelPaste();
     document.querySelectorAll(".tool-btn").forEach(btn => btn.classList.remove("active"));
-    
-    if (mode === "paint") {
-        document.getElementById("tool-paint").classList.add("active");
-    } else if (mode === "erase") {
-        document.getElementById("tool-erase").classList.add("active");
-    }
+    const btn = document.getElementById("tool-" + mode);
+    if (btn) btn.classList.add("active");
 }
 
 function clearGrid() {
     if (confirm("Are you sure you want to clear the entire grid? All unsaved data will be lost.")) {
+        pushHistory();
         for (let c = 0; c < gridWidth; c++) {
             for (let r = 0; r < gridHeight; r++) {
                 grid[c][r] = " ";
@@ -325,6 +670,7 @@ function changeGridSize(type, delta) {
 }
 
 function rebuildGrid() {
+    pushHistory();
     // Rebuild grid keeping existing content if possible
     const oldWidth = grid.length;
     const oldHeight = grid[0] ? grid[0].length : 0;
@@ -452,12 +798,14 @@ function updateCoordinatesDisplay(c, r) {
 function generateExports() {
     generateASCIIExport();
     generateJSONExport();
+    renderPreview();
 }
 
 function generateASCIIExport() {
     let output = "";
     output += `level: ${levelId}\n`;
     output += `name: ${levelName}\n`;
+    output += `theme: ${levelTheme}\n`;
     output += `xstep: ${X_STEP.toFixed(1)}\n`;
     // Emit ystep so convert_map.py parses rows at the same scale the editor draws
     // them (Y_STEP). Without this, the converter falls back to its default and the
@@ -506,6 +854,9 @@ function generateJSONExport() {
     }
     
     // 1. Merge Platforms '#'
+    // Runs are split by "exposure": cells with another '#' directly above them
+    // (visual row r - 1) are interior wall blocks and export grass: false, so
+    // the converter renders them as solid rock instead of grass-capped slabs.
     for (let r = 0; r < gridHeight; r++) {
         const yCoord = (gridHeight - 1 - r) * Y_STEP;
         let c = 0;
@@ -517,61 +868,76 @@ function generateJSONExport() {
                     c++;
                 }
                 let cEnd = c - 1;
-                
-                let width = (cEnd - cStart + 1) * X_STEP;
-                let x = ((cStart + cEnd) / 2.0) * X_STEP;
-                
-                // Detect if floating (r < gridHeight - 1 and no solid block below it visually)
-                // Note: visually, r = gridHeight - 1 is the bottom row.
-                // Visually, the row below r is r + 1.
-                let isFloating = r < gridHeight - 1;
-                if (isFloating) {
-                    for (let col = cStart; col <= cEnd; col++) {
-                        let charBelow = getCell(col, r + 1);
-                        if (charBelow === "#" || charBelow === "/" || charBelow === "\\") {
-                            isFloating = false;
-                            break;
+
+                // Split the run into segments with uniform exposure
+                let segStart = cStart;
+                while (segStart <= cEnd) {
+                    const exposed = getCell(segStart, r - 1) !== "#";
+                    let segEnd = segStart;
+                    while (segEnd + 1 <= cEnd && (getCell(segEnd + 1, r - 1) !== "#") === exposed) {
+                        segEnd++;
+                    }
+
+                    let width = (segEnd - segStart + 1) * X_STEP;
+                    let x = ((segStart + segEnd) / 2.0) * X_STEP;
+
+                    // Detect if floating (visually, the row below r is r + 1;
+                    // r = gridHeight - 1 is the bottom row).
+                    let isFloating = r < gridHeight - 1;
+                    if (isFloating) {
+                        for (let col = segStart; col <= segEnd; col++) {
+                            let charBelow = getCell(col, r + 1);
+                            if (charBelow === "#" || charBelow === "/" || charBelow === "\\") {
+                                isFloating = false;
+                                break;
+                            }
                         }
                     }
+
+                    const plat = {
+                        x: parseFloat(x.toFixed(2)),
+                        y: parseFloat(yCoord.toFixed(2)),
+                        width: parseFloat(width.toFixed(2)),
+                        rock_height: isFloating ? 1.0 : 4.0
+                    };
+                    if (!exposed) plat.grass = false;
+                    platforms.push(plat);
+                    segStart = segEnd + 1;
                 }
-                
-                platforms.push({
-                    x: parseFloat(x.toFixed(2)),
-                    y: parseFloat(yCoord.toFixed(2)),
-                    width: parseFloat(width.toFixed(2)),
-                    rock_height: isFloating ? 1.0 : 4.0
-                });
             } else {
                 c++;
             }
         }
     }
     
-    // 2. Merge Ramps Up '/' (visually moving up-right diagonal chain: col index increases, visual row index decreases)
+    // 2. Merge Ramps Up '/'
+    // Diagonal chains (c+1, visual r-1) make steep ramps (Y_STEP per column);
+    // horizontal runs ("///") make ONE gentle ramp rising a single row over the
+    // whole run — the recommended walkable slope at the default scale.
     for (let r = 0; r < gridHeight; r++) {
         for (let c = 0; c < gridWidth; c++) {
             if (getCell(c, r) === "/" && !visitedRampsUp.has(`${c},${r}`)) {
                 let chain = [[c, r]];
-                visitedRampsUp.add(`${c},${r}`);
                 let currC = c;
                 let currR = r;
-                
+
                 // Visual diagonal up-right: c+1, r-1
                 while (getCell(currC + 1, currR - 1) === "/") {
                     currC++;
                     currR--;
                     chain.push([currC, currR]);
-                    visitedRampsUp.add(`${currC},${currR}`);
                 }
-                
+                if (chain.length < 2) continue; // lone '/': horizontal pass below
+                chain.forEach(([cc, rr]) => visitedRampsUp.add(`${cc},${rr}`));
+
                 let [cStart, rStart] = chain[0]; // Bottom-left visually
                 let [cEnd, rEnd] = chain[chain.length - 1]; // Top-right visually
-                
+
                 let width = (cEnd - cStart + 1) * X_STEP;
                 let height = (rStart - rEnd + 1) * Y_STEP;
                 let start_x = cStart * X_STEP - (X_STEP / 2.0);
                 let start_y = (gridHeight - 1 - rStart) * Y_STEP - Y_STEP + 0.5;
-                
+
                 ramps_up.push({
                     x: parseFloat(start_x.toFixed(2)),
                     y: parseFloat(start_y.toFixed(2)),
@@ -582,37 +948,89 @@ function generateJSONExport() {
         }
     }
 
-    // 3. Merge Ramps Down '\' (visually moving down-right diagonal chain: col index increases, visual row index increases)
+    // 2b. Horizontal runs of remaining '/': one ramp rising one row over the run
+    for (let r = 0; r < gridHeight; r++) {
+        let c = 0;
+        while (c < gridWidth) {
+            if (getCell(c, r) === "/" && !visitedRampsUp.has(`${c},${r}`)) {
+                let cStart = c;
+                while (c < gridWidth && getCell(c, r) === "/" && !visitedRampsUp.has(`${c},${r}`)) {
+                    visitedRampsUp.add(`${c},${r}`);
+                    c++;
+                }
+                let cEnd = c - 1;
+                let width = (cEnd - cStart + 1) * X_STEP;
+                let start_x = cStart * X_STEP - (X_STEP / 2.0);
+                let start_y = (gridHeight - 1 - r) * Y_STEP - Y_STEP + 0.5;
+                ramps_up.push({
+                    x: parseFloat(start_x.toFixed(2)),
+                    y: parseFloat(start_y.toFixed(2)),
+                    width: parseFloat(width.toFixed(2)),
+                    height: parseFloat(Y_STEP.toFixed(2))
+                });
+            } else {
+                c++;
+            }
+        }
+    }
+
+    // 3. Merge Ramps Down '\' (diagonal chains: c+1, visual r+1; then horizontal runs)
     for (let r = gridHeight - 1; r >= 0; r--) {
         for (let c = 0; c < gridWidth; c++) {
             if (getCell(c, r) === "\\" && !visitedRampsDown.has(`${c},${r}`)) {
                 let chain = [[c, r]];
-                visitedRampsDown.add(`${c},${r}`);
                 let currC = c;
                 let currR = r;
-                
+
                 // Visual diagonal down-right: c+1, r+1
                 while (getCell(currC + 1, currR + 1) === "\\") {
                     currC++;
                     currR++;
                     chain.push([currC, currR]);
-                    visitedRampsDown.add(`${currC},${currR}`);
                 }
-                
+                if (chain.length < 2) continue; // lone '\': horizontal pass below
+                chain.forEach(([cc, rr]) => visitedRampsDown.add(`${cc},${rr}`));
+
                 let [cStart, rStart] = chain[0]; // Top-left visually
                 let [cEnd, rEnd] = chain[chain.length - 1]; // Bottom-right visually
-                
+
                 let width = (cEnd - cStart + 1) * X_STEP;
                 let height = (rEnd - rStart + 1) * Y_STEP;
                 let start_x = cStart * X_STEP - (X_STEP / 2.0);
                 let start_y = (gridHeight - 1 - rStart) * Y_STEP + 0.5;
-                
+
                 ramps_down.push({
                     x: parseFloat(start_x.toFixed(2)),
                     y: parseFloat(start_y.toFixed(2)),
                     width: parseFloat(width.toFixed(2)),
                     height: parseFloat(height.toFixed(2))
                 });
+            }
+        }
+    }
+
+    // 3b. Horizontal runs of remaining '\': one ramp falling one row over the run
+    for (let r = 0; r < gridHeight; r++) {
+        let c = 0;
+        while (c < gridWidth) {
+            if (getCell(c, r) === "\\" && !visitedRampsDown.has(`${c},${r}`)) {
+                let cStart = c;
+                while (c < gridWidth && getCell(c, r) === "\\" && !visitedRampsDown.has(`${c},${r}`)) {
+                    visitedRampsDown.add(`${c},${r}`);
+                    c++;
+                }
+                let cEnd = c - 1;
+                let width = (cEnd - cStart + 1) * X_STEP;
+                let start_x = cStart * X_STEP - (X_STEP / 2.0);
+                let start_y = (gridHeight - 1 - r) * Y_STEP + 0.5;
+                ramps_down.push({
+                    x: parseFloat(start_x.toFixed(2)),
+                    y: parseFloat(start_y.toFixed(2)),
+                    width: parseFloat(width.toFixed(2)),
+                    height: parseFloat(Y_STEP.toFixed(2))
+                });
+            } else {
+                c++;
             }
         }
     }
@@ -655,6 +1073,7 @@ function generateJSONExport() {
     const jsonObj = {
         level: levelId,
         name: levelName,
+        theme: levelTheme,
         xstep: X_STEP,
         ystep: Y_STEP,
         spawn: spawn,
@@ -708,9 +1127,11 @@ function importMap() {
 }
 
 function importJSON(data) {
+    if (grid.length) pushHistory();
     levelId = data.level || "03";
     levelName = data.name || "Imported Level";
-    
+    setLevelTheme(data.theme || "forest");
+
     document.getElementById("level-id").value = levelId;
     document.getElementById("level-name").value = levelName;
     
@@ -931,14 +1352,16 @@ function importJSON(data) {
 }
 
 function importASCII(text) {
+    if (grid.length) pushHistory();
     const lines = text.split(/\r?\n/);
     let inGrid = false;
     let gridLines = [];
     
-    // Reset steps to standard defaults before parsing header
+    // Reset steps/theme to standard defaults before parsing header
     X_STEP = 2.0;
     Y_STEP = 3.0;
-    
+    setLevelTheme("forest");
+
     lines.forEach(line => {
         const trimmed = line.trim();
         if (!trimmed) {
@@ -966,6 +1389,8 @@ function importASCII(text) {
                 } else if (key === "name") {
                     levelName = val;
                     document.getElementById("level-name").value = val;
+                } else if (key === "theme") {
+                    setLevelTheme(val.toLowerCase());
                 } else if (key === "ystep" || key === "y_step") {
                     Y_STEP = parseFloat(val);
                 } else if (key === "xstep" || key === "x_step") {
@@ -1517,6 +1942,137 @@ function downloadFile(format) {
         document.body.removeChild(link);
         showToast(`Download of '${filename}' started!`, "download");
     }
+}
+
+// --- Level theme ----------------------------------------------------------- //
+
+const LEVEL_THEMES = ["forest", "glacial", "cidade", "caverna"];
+
+function setLevelTheme(theme) {
+    levelTheme = LEVEL_THEMES.includes(theme) ? theme : "forest";
+    const sel = document.getElementById("level-theme");
+    if (sel) sel.value = levelTheme;
+}
+
+// --- Preview minimap ------------------------------------------------------- //
+// Renders the whole level scaled to fit under the canvas: terrain with the
+// theme colors, objects as dots, plus a rectangle showing the visible portion
+// of the editing grid. Clicking navigates the grid horizontally.
+
+const THEME_PREVIEW_COLORS = {
+    forest: { top: "#4ade80", body: "#8b5e3c" },
+    glacial: { top: "#eef4ff", body: "#93bfe3" },
+    cidade: { top: "#4b4e55", body: "#909298" },
+    caverna: { top: "#7a8a63", body: "#5d5049" },
+};
+
+const OBJECT_PREVIEW_COLORS = {
+    "o": "#fbbf24", "V": "#ef4444", "F": "#f97316", "D": "#06b6d4",
+    "E": "#a855f7", "C": "#22c55e", "S": "#94a3b8", "P": "#3b82f6", "G": "#facc15",
+};
+
+function togglePreview() {
+    const strip = document.getElementById("preview-strip");
+    const btn = document.getElementById("btn-toggle-preview");
+    strip.classList.toggle("hidden");
+    const visible = !strip.classList.contains("hidden");
+    if (btn) btn.classList.toggle("active", visible);
+    if (visible) renderPreview();
+}
+
+function previewMetrics(strip) {
+    const pad = 6;
+    const w = strip.clientWidth, h = strip.clientHeight;
+    const s = Math.min((w - pad * 2) / gridWidth, (h - pad * 2) / gridHeight);
+    return { w, h, s, ox: pad, oy: h - pad - s * gridHeight };
+}
+
+function renderPreview() {
+    const strip = document.getElementById("preview-strip");
+    const canvas = document.getElementById("preview-canvas");
+    if (!strip || !canvas || strip.classList.contains("hidden")) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const { w, h, s, ox, oy } = previewMetrics(strip);
+    canvas.width = Math.max(1, Math.round(w * dpr));
+    canvas.height = Math.max(1, Math.round(h * dpr));
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const bg = getComputedStyle(document.documentElement)
+        .getPropertyValue("--bg-statusbar").trim() || "#0b1020";
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    const theme = THEME_PREVIEW_COLORS[levelTheme] || THEME_PREVIEW_COLORS.forest;
+
+    for (let c = 0; c < gridWidth; c++) {
+        for (let r = 0; r < gridHeight; r++) {
+            const char = grid[c][r];
+            if (char === " ") continue;
+            const x = ox + c * s, y = oy + r * s;
+
+            if (char === "#") {
+                ctx.fillStyle = theme.body;
+                ctx.fillRect(x, y, s, s);
+                const exposed = r === 0 || grid[c][r - 1] !== "#";
+                if (exposed) {
+                    ctx.fillStyle = theme.top;
+                    ctx.fillRect(x, y, s, Math.max(1, s * 0.35));
+                }
+            } else if (char === "/") {
+                ctx.fillStyle = theme.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y + s);
+                ctx.lineTo(x + s, y);
+                ctx.lineTo(x + s, y + s);
+                ctx.closePath();
+                ctx.fill();
+            } else if (char === "\\") {
+                ctx.fillStyle = theme.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + s, y + s);
+                ctx.lineTo(x, y + s);
+                ctx.closePath();
+                ctx.fill();
+            } else if (OBJECT_PREVIEW_COLORS[char]) {
+                ctx.fillStyle = OBJECT_PREVIEW_COLORS[char];
+                const radius = Math.max(1.2, s * (char === "G" || char === "P" ? 0.5 : 0.35));
+                ctx.beginPath();
+                ctx.arc(x + s / 2, y + s / 2, radius, 0, Math.PI * 2);
+                ctx.fill();
+                if (char === "G" || char === "P") {
+                    ctx.strokeStyle = "#ffffff";
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    // Visible-viewport indicator
+    const container = document.getElementById("grid-container");
+    if (container) {
+        const cellPx = getCellSize() * zoomLevel;
+        const viewC0 = container.scrollLeft / cellPx;
+        const viewCols = container.clientWidth / cellPx;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.65)";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(ox + viewC0 * s, oy, Math.min(viewCols, gridWidth) * s, gridHeight * s);
+    }
+}
+
+function onPreviewClick(e) {
+    const strip = document.getElementById("preview-strip");
+    const container = document.getElementById("grid-container");
+    if (!strip || !container) return;
+    const { s, ox } = previewMetrics(strip);
+    const rect = strip.getBoundingClientRect();
+    const c = (e.clientX - rect.left - ox) / s;
+    const cellPx = getCellSize() * zoomLevel;
+    container.scrollLeft = c * cellPx - container.clientWidth / 2;
+    renderPreview();
 }
 
 // --- Live View: follow the running player on the drawn map ---------------- //

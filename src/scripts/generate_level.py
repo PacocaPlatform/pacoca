@@ -25,12 +25,12 @@ Examples::
 from __future__ import annotations
 
 import argparse
-import importlib
 import logging
 import os
 import shutil
 import sys
 import tempfile
+import types
 
 LOG = logging.getLogger("generate_level")
 
@@ -52,13 +52,15 @@ class NodeBuilder:
         self.nodes.append(snippet)
 
     # -- terrain ------------------------------------------------------------ #
-    def add_platform(self, name, x, y, width, rock_height=4.0):
-        # Grass platform
+    def add_platform(self, name, x, y, width, rock_height=4.0, grass=True):
+        # Top slab: grass for exposed (walkable) surfaces, rock for interior
+        # wall blocks so stacked columns read as one solid wall.
+        top_material = "1_GrassMat" if grass else "2_RockMat"
         self.nodes.append(f"""
 [node name="{name}" type="CSGBox3D" parent="Level/TrackCSG"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {x:.2f}, {y:.2f}, 0)
 size = Vector3({width:.2f}, 1, 4)
-material = ExtResource("1_GrassMat")
+material = ExtResource("{top_material}")
 """)
         # Sub rock structure
         rock_y = y - 0.5 - (rock_height / 2.0)
@@ -210,13 +212,24 @@ def scene_path_for(level: str) -> str:
 
 
 def load_level_module(level: str):
+    """Load levels/level_<id>.py by executing its source directly.
+
+    A normal import would go through the bytecode cache (__pycache__), whose
+    mtime check has 1-second granularity — when the editor recompiles quickly,
+    the freshly rewritten module would silently run stale code.
+    """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if script_dir not in sys.path:
-        sys.path.insert(0, script_dir)
-    try:
-        return importlib.import_module(f"levels.level_{level}")
-    except ModuleNotFoundError as exc:
-        raise ValueError(f"no level definition module for level '{level}'") from exc
+        sys.path.insert(0, script_dir)  # for `from generate_level import ...`
+    path = os.path.join(script_dir, "levels", f"level_{level}.py")
+    if not os.path.exists(path):
+        raise ValueError(f"no level definition module for level '{level}'")
+    module = types.ModuleType(f"levels.level_{level}")
+    module.__file__ = path
+    with open(path, "r", encoding="utf-8") as f:
+        source = f.read()
+    exec(compile(source, path, "exec"), module.__dict__)
+    return module
 
 
 def build_scene(content: str, module) -> str:

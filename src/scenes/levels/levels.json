@@ -1,0 +1,106 @@
+{
+  "levels": [
+    {
+      "id": "01",
+      "name": "Nível 01",
+      "theme": "forest",
+      "scene": "res://scenes/levels/level_01.tscn"
+    },
+    {
+      "id": "02",
+      "name": "Nível 02",
+      "theme": "forest",
+      "scene": "res://scenes/levels/level_02.tscn"
+    },
+    {
+      "id": "03",
+      "name": "Ruínas Celestes",
+      "theme": "forest",
+      "scene": "res://scenes/levels/level_03.tscn"
+    },
+    {
+      "id": "04",
+      "name": "Sky Ruins",
+      "theme": "forest",
+      "scene": "res://scenes/levels/level_04.tscn"
+    },
+    {
+      "id": "41",
+      "name": "Sky Ruins 2",
+      "theme": "forest",
+      "scene": "res://scenes/levels/level_41.tscn"
+    },
+    {
+      "id": "caverna_01",
+      "name": "Caverna 1",
+      "theme": "caverna",
+      "scene": "res://scenes/levels/level_caverna_01.tscn"
+    },
+    {
+      "id": "caverna_02",
+      "name": "Caverna 2",
+      "theme": "caverna",
+      "scene": "res://scenes/levels/level_caverna_02.tscn"
+    },
+    {
+      "id": "caverna_03",
+      "name": "Caverna 3",
+      "theme": "caverna",
+      "scene": "res://scenes/levels/level_caverna_03.tscn"
+    },
+    {
+      "id": "caverna_04",
+      "name": "Caverna 4",
+      "theme": "caverna",
+      "scene": "res://scenes/levels/level_caverna_04.tscn"
+    },
+    {
+      "id": "cidade_01",
+      "name": "Cidade 1",
+      "theme": "cidade",
+      "scene": "res://scenes/levels/level_cidade_01.tscn"
+    },
+    {
+      "id": "cidade_02",
+      "name": "Cidade 2",
+      "theme": "cidade",
+      "scene": "res://scenes/levels/level_cidade_02.tscn"
+    },
+    {
+      "id": "cidade_03",
+      "name": "Cidade 3",
+      "theme": "cidade",
+      "scene": "res://scenes/levels/level_cidade_03.tscn"
+    },
+    {
+      "id": "cidade_04",
+      "name": "Cidade 4",
+      "theme": "cidade",
+      "scene": "res://scenes/levels/level_cidade_04.tscn"
+    },
+    {
+      "id": "glacial_01",
+      "name": "Glacial 1",
+      "theme": "glacial",
+      "scene": "res://scenes/levels/level_glacial_01.tscn"
+    },
+    {
+      "id": "glacial_02",
+      "name": "Glacial 2",
+      "theme": "glacial",
+      "scene": "res://scenes/levels/level_glacial_02.tscn"
+    },
+    {
+      "id": "glacial_03",
+      "name": "Glacial 3",
+      "theme": "glacial",
+      "scene": "res://scenes/levels/level_glacial_03.tscn"
+    },
+    {
+      "id": "glacial_04",
+      "name": "Glacial 4",
+      "theme": "glacial",
+      "scene": "res://scenes/levels/level_glacial_04.tscn"
+    }
+  ]
+}

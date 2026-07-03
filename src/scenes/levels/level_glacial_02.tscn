@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
-[ext_resource type="Material" uid="uid://dbuyyv4i7g0p7" path="res://materials/grass.tres" id="1_GrassMat"]
-[ext_resource type="Material" uid="uid://clhv3grjlph27" path="res://materials/rock.tres" id="2_RockMat"]
+[ext_resource type="Material" path="res://materials/glacial_top.tres" id="1_GrassMat"]
+[ext_resource type="Material" path="res://materials/glacial_rock.tres" id="2_RockMat"]
 [ext_resource type="Material" path="res://materials/water.tres" id="3_WaterMat"]
 [ext_resource type="Material" path="res://materials/mountain_bg.tres" id="4_MountainMat"]
 [ext_resource type="PackedScene" path="res://scenes/ring.tscn" id="5_RingScene"]

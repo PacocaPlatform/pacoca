@@ -45,13 +45,40 @@ MAPS_DIR = os.path.join(EDITOR_DIR, "levels")
 # Godot binary used by the "Test Level" / "Run" buttons.
 # Resolved at request time (see resolve_godot) so changes apply without a restart.
 CONFIG_PATH = os.path.join(EDITOR_DIR, "editor_config.json")
-DEFAULT_GODOT = r"D:\dev\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64.exe"
+
+# Per-OS fallback locations checked when nothing is saved/in PATH. macOS app
+# bundles are not found by shutil.which, so they must be probed explicitly.
+if sys.platform == "darwin":
+    DEFAULT_GODOT_CANDIDATES = [
+        "/Applications/Godot_mono.app/Contents/MacOS/Godot",
+        "/Applications/Godot.app/Contents/MacOS/Godot",
+        os.path.expanduser("~/Applications/Godot_mono.app/Contents/MacOS/Godot"),
+        os.path.expanduser("~/Applications/Godot.app/Contents/MacOS/Godot"),
+    ]
+elif os.name == "nt":
+    DEFAULT_GODOT_CANDIDATES = [
+        r"D:\dev\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64.exe",
+    ]
+else:
+    DEFAULT_GODOT_CANDIDATES = [
+        "/usr/local/bin/godot-mono",
+        "/usr/local/bin/godot",
+        "/usr/bin/godot",
+    ]
+
 # Candidate executable names to probe on the system PATH.
 GODOT_PATH_NAMES = [
     "godot", "godot4", "Godot", "godot-mono", "Godot_mono",
     "Godot_console", "godot4-mono",
     "Godot_v4.6.3-stable_mono_win64",
 ]
+
+
+def default_godot() -> str:
+    for candidate in DEFAULT_GODOT_CANDIDATES:
+        if os.path.exists(candidate):
+            return candidate
+    return DEFAULT_GODOT_CANDIDATES[0]
 
 
 def load_config() -> dict:
@@ -87,7 +114,7 @@ def resolve_godot() -> tuple[str, str]:
     on_path = detect_godot_on_path()
     if on_path:
         return on_path, "path"
-    return DEFAULT_GODOT, "default"
+    return default_godot(), "default"
 
 
 # --------------------------------------------------------------------------- #

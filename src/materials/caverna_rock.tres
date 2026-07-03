@@ -1,0 +1,24 @@
+[gd_resource type="StandardMaterial3D" load_steps=4 format=3]
+
+[ext_resource type="Texture2D" uid="uid://qya21qk7d3vv" path="res://textures/dirt_albedo.jpg" id="1_DirtAlbedo"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_caverock"]
+noise_type = 2
+frequency = 0.08
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_caverock"]
+noise = SubResource("FastNoiseLite_caverock")
+seamless = true
+as_normal_map = true
+bump_strength = 3.0
+
+[resource]
+albedo_color = Color(0.42, 0.38, 0.36, 1)
+albedo_texture = ExtResource("1_DirtAlbedo")
+roughness = 0.95
+normal_enabled = true
+normal_texture = SubResource("NoiseTexture2D_caverock")
+uv1_scale = Vector3(0.2, 0.2, 0.2)
+uv1_triplanar = true
+uv1_world_triplanar = true

@@ -106,9 +106,12 @@ In JSON, you can force this with the `rock_height` field on each platform.
 
 A header with `key: value` pairs, followed by a `[grid]` section containing the drawing.
 
+Header keys: `level`, `name`, `theme` (optional: `forest` default, `glacial`, `cidade`, `caverna` — selects the terrain materials), `xstep`/`ystep` (optional scale overrides).
+
 ```text
 level: 03
 name: Sky Ruins
+theme: forest
 
 [grid]
 
@@ -134,7 +137,15 @@ name: Sky Ruins
 - Blank lines at the top are preserved (adding height); blank lines at the end are discarded (the last non-empty line is `Y = 0`).
 - The final width is that of the longest line; shorter lines are padded with spaces to the right.
 - Adjacent `#` on a horizontal line are merged into a single collider.
-- `/` forms a diagonal chain rising to the right (column +1, row +1); `\` descends to the right (column +1, row -1). Draw adjacent steps diagonally so they merge into a single ramp.
+- **Walls**: `#` stacked vertically render as solid rock; the grass cap only appears on cells with nothing solid directly above (i.e., walkable surfaces).
+
+### Ramps: Gentle vs. Steep
+
+There are two ways to draw ramps, with very different slopes at the default scale (2 m columns × 3 m rows):
+
+- **Horizontal run (recommended)** — `///` on the **same row** produces ONE gentle ramp rising a single row (3 m) across the whole run. `///` = 6 m wide → **~27°**, comfortable to run up. The same applies to `\\\` for descents.
+- **Diagonal chain (steep)** — `/` cells stacked diagonally (column +1, row +1; `\` descends column +1, row -1) merge into a steep ramp rising 3 m per column: **~56°**. The player can traverse it (the game raises the floor limit to 60°), but slope physics will fight you — treat it as a "half-pipe wall", not a regular path.
+- A lone `/` or `\` counts as a horizontal run of one column (2 m wide × 3 m tall, still steep). For anything the player should casually run up, prefer runs of 2+ cells on the same row.
 
 ---
 
@@ -188,7 +199,7 @@ Ideal for exact decimal coordinates, custom parameters (enemy speed, spring forc
 | Key | Type | Fields |
 | :--- | :--- | :--- |
 | `spawn` | `[x, y]` | — |
-| `platforms` | objects | `x` (center), `y`, `width`, `rock_height?` |
+| `platforms` | objects | `x` (center), `y`, `width`, `rock_height?`, `grass?` (default `true`; `false` = rock top, used for interior wall blocks) |
 | `ramps_up` / `ramps_down` | objects | `x`, `y`, `width`, `height` |
 | `rings` | `[x, y]` | — |
 | `springs_vert` | objects | `x`, `y`, `force` |
@@ -214,10 +225,11 @@ python scripts/convert_map.py --input scripts/levels/level_04_map.json --level 0
 
 This command will:
 
-1. Parse the `.txt`/`.json` into level structures.
-2. Create `src/scenes/levels/level_04.tscn` (water, background mountains, SpawnPoint) **if it doesn't exist yet**.
+1. Parse the `.txt`/`.json` into level structures (printing `WARNING:` lines for common mistakes).
+2. Create `src/scenes/levels/level_04.tscn` (water, background mountains, SpawnPoint) **if it doesn't exist yet**, using the map's theme materials.
 3. Generate `src/scripts/levels/level_04.py` (data module with `build()`).
-4. Call `generate_level.py`, which compiles the geometry and distributes items/enemies in the scene.
+4. Call `generate_level.py`, which compiles the geometry and distributes items/enemies in the scene (retargeting theme materials on recompiles).
+5. Register the level in `src/scenes/levels/levels.json` — the game menu reads this manifest, so the level appears in the stage select automatically.
 
 Afterwards, open/reload the project in Godot 4.6 (Mono/.NET) to test.
 
@@ -252,9 +264,9 @@ python tools/map_editor/server.py   # then open http://localhost:8000
 Without the server (opening `index.html` via `file://`), the editor works for drawing and exporting, but process-executing buttons are disabled.
 
 **Interface**
-- **Sidebar** with tools (Paint / Erase / Clear) and the **icon palette** (tooltip on hover) showing the 12 elements.
-- **Top bar** with level ID/name, grid dimensions, zoom, and gridlines.
-- **Canvas** dominant; bottom bar with coordinates and horizontal navigation.
+- **Sidebar** with tools (Paint / Erase / Line / Rectangle / Fill / Select / Clear) and the **icon palette** (tooltip on hover) showing the 12 elements.
+- **Top bar** with level ID/name, **theme selector**, grid dimensions, zoom, gridlines, and preview toggle.
+- **Canvas** dominant; **preview minimap** strip below it (click to navigate); bottom bar with coordinates and horizontal navigation.
 - **Drawer** (button **Code**) with tabs **ASCII**, **JSON**, **Import**, and **Compile**.
 - Only **one** spawn `P` is allowed (painting another removes the previous one).
 - Exports `.txt` (`level_XX_map.txt`) and `.json` (`level_XX_map.json`).
@@ -265,7 +277,11 @@ Without the server (opening `index.html` via `file://`), the editor works for dr
 - **Run** — opens the game from the menu.
 
 **Keyboard Shortcuts**
-- **B** = paint · **E** = erase · **F5** = test stage · **Esc** = close the drawer.
+- **B** = paint · **E** = erase · **L** = line · **R** = rectangle · **G** = fill bucket · **M** = select · **F5** = test stage · **Esc** = cancel selection/paste or close the drawer.
+- **Ctrl/Cmd+Z** = undo · **Ctrl/Cmd+Shift+Z** or **Ctrl+Y** = redo (covers strokes, shapes, fills, clear, resize, imports, and pastes).
+- With a selection: **Ctrl/Cmd+C** copy · **Ctrl/Cmd+X** cut · **Del** clear · **Ctrl/Cmd+V** then click = paste (transparent: empty cells don't overwrite).
+
+**Map validation**: on compile, the converter prints `WARNING:` lines (shown in the editor's result box) for common mistakes — no `P` spawn, no `G` goal (level cannot be completed), objects drawn on the bottom row (they would spawn below `Y = 0`), or a map with no solid ground.
 
 > Godot Configuration: The server uses the `GODOT_BIN` environment variable (with a default path). E.g.: `GODOT_BIN="C:\...\Godot.exe" python tools/map_editor/server.py`.
 
@@ -277,6 +293,7 @@ Without the server (opening `index.html` via `file://`), the editor works for dr
 
 - **Block / Ramp:** 2 m wide per column.
 - **Grid Row:** 3 m high (default `ystep`).
+- **Max Walkable Slope:** 60° (`Player.FloorMaxAngleDegrees`). Horizontal ramp runs (`///`) are ~27°; diagonal chains are ~56° — steep but traversable.
 - **Jump:** ~4 m standing, up to ~15 m at maximum speed.
 - **Vertical Spring:** launches ~22 m high.
 - **Fatal Fall:** avoid reachable platforms below `Y < -15 m` (water/abyss).

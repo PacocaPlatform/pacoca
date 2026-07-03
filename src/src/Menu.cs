@@ -27,6 +27,21 @@ public partial class Menu : Control
     private Button _level3Button = null!;
     private Button _level4Button = null!;
     private Button _levelBackButton = null!;
+
+    // Dynamic level list, built from scenes/levels/levels.json (written by the
+    // map pipeline) plus a directory scan, so user-created levels show up in
+    // the menu without touching this code. _level1Button is kept invisible and
+    // used only as the style template for the generated buttons.
+    private sealed class LevelEntry
+    {
+        public string Id = "";
+        public string Name = "";
+        public string Theme = "forest";
+        public string Scene = "";
+    }
+    private readonly List<LevelEntry> _levels = new();
+    private readonly List<Button> _dynamicLevelButtons = new();
+    private VBoxContainer _levelListBox = null!;
     
     private Button _creditsBackButton = null!;
     private Button _achievementsBackButton = null!;
@@ -168,6 +183,27 @@ public partial class Menu : Control
         _levelBackButton = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/LevelBackButton");
         _levelPanel = GetNode<PanelContainer>("LevelPanel");
 
+        // Replace the four static level buttons with a scrollable dynamic list.
+        // The static buttons stay in the scene (hidden) as style templates.
+        var levelVBox = GetNode<VBoxContainer>("LevelPanel/MarginContainer/VBoxContainer");
+        _level1Button.Visible = false;
+        _level2Button.Visible = false;
+        _level3Button.Visible = false;
+        _level4Button.Visible = false;
+        var levelScroll = new ScrollContainer();
+        levelScroll.Name = "LevelScroll";
+        levelScroll.CustomMinimumSize = new Vector2(340, 290);
+        levelScroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+        levelScroll.FollowFocus = true;
+        _levelListBox = new VBoxContainer();
+        _levelListBox.Name = "LevelList";
+        _levelListBox.AddThemeConstantOverride("separation", 16);
+        _levelListBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        levelScroll.AddChild(_levelListBox);
+        levelVBox.AddChild(levelScroll);
+        levelVBox.MoveChild(levelScroll, _level1Button.GetIndex());
+        LoadLevelManifest();
+
         // Credits Panel references
         _creditsPanel = GetNode<PanelContainer>("CreditsPanel");
         _creditsBackButton = GetNode<Button>("CreditsPanel/MarginContainer/VBoxContainer/CreditsBackButton");
@@ -190,10 +226,6 @@ public partial class Menu : Control
         _animatedButtons.Add(_cityButton);
         _animatedButtons.Add(_caveButton);
         _animatedButtons.Add(_themeBackButton);
-        _animatedButtons.Add(_level1Button);
-        _animatedButtons.Add(_level2Button);
-        _animatedButtons.Add(_level3Button);
-        _animatedButtons.Add(_level4Button);
         _animatedButtons.Add(_levelBackButton);
         _animatedButtons.Add(_creditsBackButton);
         _animatedButtons.Add(_achievementsBackButton);
@@ -237,10 +269,6 @@ public partial class Menu : Control
         _caveButton.Pressed += OnCavePressed;
         _themeBackButton.Pressed += OnThemeBackPressed;
 
-        _level1Button.Pressed += OnLevel1Pressed;
-        _level2Button.Pressed += OnLevel2Pressed;
-        _level3Button.Pressed += OnLevel3Pressed;
-        _level4Button.Pressed += OnLevel4Pressed;
         _levelBackButton.Pressed += OnLevelBackPressed;
         
         _creditsBackButton.Pressed += OnCreditsBackPressed;
@@ -443,10 +471,11 @@ public partial class Menu : Control
             ? $"TEMA: {themeName}" 
             : $"THEME: {themeName}";
 
-        _level1Button.Text = isPt ? "FASE 1" : "LEVEL 1";
-        _level2Button.Text = isPt ? "FASE 2" : "LEVEL 2";
-        _level3Button.Text = isPt ? "FASE 3" : "LEVEL 3";
-        _level4Button.Text = isPt ? "FASE 4" : "LEVEL 4";
+        // Dynamic level buttons re-render their labels for the current language.
+        if (_dynamicLevelButtons.Count > 0 && _levelPanel.Visible)
+        {
+            PopulateLevelButtons();
+        }
     }
 
     private void PopulateJoypads()
@@ -501,44 +530,30 @@ public partial class Menu : Control
         _forestButton.GrabFocus();
     }
 
-    private void OnForestPressed()
-    {
-        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
-        _selectedTheme = "forest";
-        _themePanel.Visible = false;
-        _levelPanel.Visible = true;
-        TranslateUI();
-        _level1Button.GrabFocus();
-    }
+    private void OnForestPressed() => ShowLevelPanel("forest");
 
-    private void OnGlacialPressed()
-    {
-        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
-        _selectedTheme = "glacial";
-        _themePanel.Visible = false;
-        _levelPanel.Visible = true;
-        TranslateUI();
-        _level1Button.GrabFocus();
-    }
+    private void OnGlacialPressed() => ShowLevelPanel("glacial");
 
-    private void OnCityPressed()
-    {
-        PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
-        _selectedTheme = "city";
-        _themePanel.Visible = false;
-        _levelPanel.Visible = true;
-        TranslateUI();
-        _level1Button.GrabFocus();
-    }
+    private void OnCityPressed() => ShowLevelPanel("city");
 
-    private void OnCavePressed()
+    private void OnCavePressed() => ShowLevelPanel("cave");
+
+    private void ShowLevelPanel(string theme)
     {
         PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
-        _selectedTheme = "cave";
+        _selectedTheme = theme;
         _themePanel.Visible = false;
         _levelPanel.Visible = true;
         TranslateUI();
-        _level1Button.GrabFocus();
+        PopulateLevelButtons();
+        if (_dynamicLevelButtons.Count > 0)
+        {
+            _dynamicLevelButtons[0].GrabFocus();
+        }
+        else
+        {
+            _levelBackButton.GrabFocus();
+        }
     }
 
     private void OnThemeBackPressed()
@@ -549,47 +564,118 @@ public partial class Menu : Control
         _startButton.GrabFocus();
     }
 
-    private string GetLevelPath(int levelNum)
+    // Maps the theme panel's internal ids to the theme names used by the level
+    // manifest / map pipeline.
+    private static string ManifestTheme(string selectedTheme) => selectedTheme switch
     {
-        switch (_selectedTheme)
+        "city" => "cidade",
+        "cave" => "caverna",
+        _ => selectedTheme,
+    };
+
+    private void LoadLevelManifest()
+    {
+        _levels.Clear();
+        var seenScenes = new HashSet<string>();
+
+        // 1. Manifest written by the map pipeline (id, name, theme, scene).
+        const string manifestPath = "res://scenes/levels/levels.json";
+        if (Godot.FileAccess.FileExists(manifestPath))
         {
-            case "glacial":
-                return $"res://scenes/levels/level_glacial_{levelNum:00}.tscn";
-            case "city":
-                return $"res://scenes/levels/level_cidade_{levelNum:00}.tscn";
-            case "cave":
-                return $"res://scenes/levels/level_caverna_{levelNum:00}.tscn";
-            case "forest":
-            default:
-                return $"res://scenes/levels/level_{levelNum:00}.tscn";
+            using var file = Godot.FileAccess.Open(manifestPath, Godot.FileAccess.ModeFlags.Read);
+            var parsed = Json.ParseString(file.GetAsText());
+            if (parsed.VariantType == Variant.Type.Dictionary &&
+                parsed.AsGodotDictionary().TryGetValue("levels", out var levelsVar))
+            {
+                foreach (var item in levelsVar.AsGodotArray())
+                {
+                    var dict = item.AsGodotDictionary();
+                    var entry = new LevelEntry
+                    {
+                        Id = dict.TryGetValue("id", out var id) ? id.AsString() : "",
+                        Name = dict.TryGetValue("name", out var name) ? name.AsString() : "",
+                        Theme = dict.TryGetValue("theme", out var theme) ? theme.AsString() : "forest",
+                        Scene = dict.TryGetValue("scene", out var scene) ? scene.AsString() : "",
+                    };
+                    if (entry.Scene.Length == 0 || !ResourceLoader.Exists(entry.Scene)) continue;
+                    _levels.Add(entry);
+                    seenScenes.Add(entry.Scene);
+                }
+            }
+        }
+
+        // 2. Directory scan picks up levels missing from the manifest (e.g.
+        // hand-made scenes). In exported builds scene files are listed with a
+        // ".remap" suffix, so strip it before matching.
+        using var dir = DirAccess.Open("res://scenes/levels");
+        if (dir != null)
+        {
+            foreach (string fileName in dir.GetFiles())
+            {
+                string name = fileName.EndsWith(".remap") ? fileName[..^".remap".Length] : fileName;
+                if (!name.StartsWith("level_") || !name.EndsWith(".tscn")) continue;
+
+                string id = name["level_".Length..^".tscn".Length];
+                string scenePath = $"res://scenes/levels/{name}";
+                if (seenScenes.Contains(scenePath)) continue;
+
+                string theme = "forest";
+                foreach (string prefix in new[] { "glacial", "cidade", "caverna" })
+                {
+                    if (id.StartsWith(prefix + "_")) { theme = prefix; break; }
+                }
+                _levels.Add(new LevelEntry { Id = id, Name = "", Theme = theme, Scene = scenePath });
+                seenScenes.Add(scenePath);
+            }
+        }
+
+        _levels.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+    }
+
+    private string LevelButtonText(LevelEntry entry, bool isPt)
+    {
+        string label = (isPt ? "FASE " : "LEVEL ") + entry.Id.ToUpper();
+        if (entry.Name.Length > 0)
+        {
+            label += " · " + entry.Name;
+        }
+        return label;
+    }
+
+    private void PopulateLevelButtons()
+    {
+        foreach (var btn in _dynamicLevelButtons)
+        {
+            _animatedButtons.Remove(btn);
+            btn.QueueFree();
+        }
+        _dynamicLevelButtons.Clear();
+
+        bool isPt = GameSettings.Language == "pt";
+        string theme = ManifestTheme(_selectedTheme);
+        foreach (var entry in _levels)
+        {
+            if (entry.Theme != theme) continue;
+
+            var btn = (Button)_level1Button.Duplicate();
+            btn.Name = "Level_" + entry.Id;
+            btn.Visible = true;
+            btn.Text = LevelButtonText(entry, isPt);
+            btn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            btn.PivotOffset = btn.CustomMinimumSize / 2.0f;
+            string scenePath = entry.Scene;
+            btn.Pressed += () => OnDynamicLevelPressed(scenePath);
+            _levelListBox.AddChild(btn);
+            ConnectUIFeedback(btn);
+            _animatedButtons.Add(btn);
+            _dynamicLevelButtons.Add(btn);
         }
     }
 
-    private void OnLevel1Pressed()
+    private void OnDynamicLevelPressed(string scenePath)
     {
         PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = GetLevelPath(1);
-        ChangeSceneWithFade("res://scenes/main.tscn");
-    }
-
-    private void OnLevel2Pressed()
-    {
-        PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = GetLevelPath(2);
-        ChangeSceneWithFade("res://scenes/main.tscn");
-    }
-
-    private void OnLevel3Pressed()
-    {
-        PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = GetLevelPath(3);
-        ChangeSceneWithFade("res://scenes/main.tscn");
-    }
-
-    private void OnLevel4Pressed()
-    {
-        PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
-        GameSettings.LevelToLoad = GetLevelPath(4);
+        GameSettings.LevelToLoad = scenePath;
         ChangeSceneWithFade("res://scenes/main.tscn");
     }
 

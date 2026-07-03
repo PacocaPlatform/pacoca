@@ -14,6 +14,18 @@ public partial class Player : CharacterBody3D
     [Export] public float JumpVelocity = 21.0f;
     [Export] public float AirControl = 0.7f;
     [Export] public float SlopeAccelerationMultiplier = 15.0f;
+    // Steepest surface still treated as floor. Editor ramps drawn at the default
+    // grid scale (2m wide x 3m tall cells) are ~56.3 degrees, so this must stay
+    // above that or every generated ramp behaves as a wall (Godot default is 45).
+    [Export] public float FloorMaxAngleDegrees = 60.0f;
+    // Game-feel forgiveness windows: jump still works this long after running
+    // off a ledge (coyote), and a jump pressed this long before landing fires
+    // on touchdown (buffer).
+    [Export] public float CoyoteTime = 0.1f;
+    [Export] public float JumpBufferTime = 0.12f;
+    // Longer than Godot's 0.1 default so the sphere collider stays glued to
+    // ramps when running downhill at speed instead of skipping into the air.
+    [Export] public float FloorSnapLen = 0.5f;
 
     // Air dash (second jump) parameters
     [Export] public float AirDashSpeed = 18.0f;            // upward launch of the second jump
@@ -46,6 +58,8 @@ public partial class Player : CharacterBody3D
     private float _currentYRotation = Mathf.Pi / 2; // Default to facing right
     private bool _hasAirDashed = false;
     private float _airDashGravityDelay = 0.0f;
+    private float _coyoteTimer = 0.0f;
+    private float _jumpBufferTimer = 0.0f;
     private bool _wasOnFloor = true;
     private CameraController? _camera;
 
@@ -131,6 +145,9 @@ public partial class Player : CharacterBody3D
         _audioPlayer.Play();
         _audioPlayback = _audioPlayer.GetStreamPlayback() as AudioStreamGeneratorPlayback;
         
+        FloorMaxAngle = Mathf.DegToRad(FloorMaxAngleDegrees);
+        FloorSnapLength = FloorSnapLen;
+
         ConfigureTelemetry();
 
         EmitStats();
@@ -250,14 +267,25 @@ public partial class Player : CharacterBody3D
             _visualsNode.Visible = true;
         }
 
+        // Jump-buffer window: remember a jump press briefly so it fires on landing
+        if (Input.IsActionJustPressed("jump"))
+        {
+            _jumpBufferTimer = JumpBufferTime;
+        }
+        else if (_jumpBufferTimer > 0.0f)
+        {
+            _jumpBufferTimer -= fDelta;
+        }
+
         // Calculate custom gravity/physics
         Vector3 vel = Velocity;
-        
+
         // Ground detection and normal alignment
         if (IsOnFloor())
         {
             _hasAirDashed = false;
             _airDashGravityDelay = 0.0f;
+            _coyoteTimer = CoyoteTime;
             _groundNormal = GetFloorNormal();
             
             // Apply horizontal slope physics (gravity pulls you down slopes)
@@ -270,9 +298,14 @@ public partial class Player : CharacterBody3D
         }
         else
         {
+            if (_coyoteTimer > 0.0f)
+            {
+                _coyoteTimer -= fDelta;
+            }
+
             // Smoothly align back to upright in air
             _groundNormal = _groundNormal.Lerp(Vector3.Up, 10.0f * fDelta);
-            
+
             // Air gravity
             if (_airDashGravityDelay > 0.0f)
             {
@@ -426,6 +459,9 @@ public partial class Player : CharacterBody3D
                     vel.X = _facingDirection * (SpinDashMinCharge + SpinDashCharge);
                     PlaySound(600f, 0.25f, 0.6f); // Launch sound
                     _dustParticles.Restart();
+                    // Charging presses jump repeatedly; don't let the last press
+                    // buffer into an accidental hop right after launching.
+                    _jumpBufferTimer = 0.0f;
                 }
                 
                 // Standard movement
@@ -464,11 +500,13 @@ public partial class Player : CharacterBody3D
                     PlaySound(350f, 0.1f, 0.3f);
                 }
 
-                // Jump
-                if (isJumpPressed && !isDownPressed)
+                // Jump (a press buffered just before landing also fires here)
+                if ((isJumpPressed || _jumpBufferTimer > 0.0f) && !isDownPressed)
                 {
                     vel.Y = JumpVelocity;
                     IsRolling = true;
+                    _jumpBufferTimer = 0.0f;
+                    _coyoteTimer = 0.0f;
                     PlaySound(523.25f, 0.15f, 0.5f); // C5 note jump sound
                     _dustParticles.Restart();
                 }
@@ -478,10 +516,22 @@ public partial class Player : CharacterBody3D
         {
             // Air movement control
             _dustParticles.Emitting = false;
-            
-            if (isJumpPressed && !_hasAirDashed)
+
+            // Coyote jump: still allow a normal jump briefly after walking off a
+            // ledge (only while not ascending, so it never doubles a real jump).
+            if (isJumpPressed && _coyoteTimer > 0.0f && vel.Y <= 0.1f)
+            {
+                vel.Y = JumpVelocity;
+                IsRolling = true;
+                _coyoteTimer = 0.0f;
+                _jumpBufferTimer = 0.0f;
+                PlaySound(523.25f, 0.15f, 0.5f); // C5 note jump sound
+                _dustParticles.Restart();
+            }
+            else if (isJumpPressed && !_hasAirDashed)
             {
                 _hasAirDashed = true;
+                _jumpBufferTimer = 0.0f;
                 
                 float moveInputX = Input.GetAxis("move_left", "move_right");
 

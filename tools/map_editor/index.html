@@ -37,6 +37,12 @@
                 <label for="level-id">Level</label>
                 <input type="text" id="level-id" value="04" maxlength="3" class="inp inp-id" title="Level ID">
                 <input type="text" id="level-name" value="Sky Ruins" class="inp inp-name" title="Level Name" placeholder="Level Name">
+                <select id="level-theme" class="inp inp-theme" title="Level theme (terrain materials)">
+                    <option value="forest">Forest</option>
+                    <option value="glacial">Glacial</option>
+                    <option value="cidade">City</option>
+                    <option value="caverna">Cave</option>
+                </select>
             </div>
 
             <div class="topbar-field">
@@ -62,6 +68,7 @@
                 <button class="icon-btn" onclick="adjustZoom(0.1)" title="Zoom In"><i data-lucide="zoom-in"></i></button>
                 <button class="icon-btn" onclick="adjustZoom(0, true)" title="Reset Zoom"><i data-lucide="maximize-2"></i></button>
                 <button class="icon-btn active" id="btn-toggle-grid" onclick="toggleGridlines()" title="Toggle gridlines"><i data-lucide="grid-3x3"></i></button>
+                <button class="icon-btn active" id="btn-toggle-preview" onclick="togglePreview()" title="Toggle level preview (minimap)"><i data-lucide="map"></i></button>
                 <button class="icon-btn" id="btn-live" onclick="toggleLiveView()" title="Live view: follow the player from the running game"><i data-lucide="radio"></i></button>
                 <button class="icon-btn" id="btn-toggle-theme" onclick="toggleTheme()" title="Toggle light/dark theme"><i data-lucide="moon"></i></button>
             </div>
@@ -102,6 +109,18 @@
                     <button class="tool-btn" id="tool-erase" onclick="setToolMode('erase')" title="Eraser (E)">
                         <i data-lucide="eraser"></i>
                     </button>
+                    <button class="tool-btn" id="tool-line" onclick="setToolMode('line')" title="Line (L) — drag to draw a straight line">
+                        <i data-lucide="pen-line"></i>
+                    </button>
+                    <button class="tool-btn" id="tool-rect" onclick="setToolMode('rect')" title="Rectangle (R) — drag to fill a rectangle">
+                        <i data-lucide="square"></i>
+                    </button>
+                    <button class="tool-btn" id="tool-fill" onclick="setToolMode('fill')" title="Fill bucket (G) — fill a connected region">
+                        <i data-lucide="paint-bucket"></i>
+                    </button>
+                    <button class="tool-btn" id="tool-select" onclick="setToolMode('select')" title="Select (M) — drag to select; Ctrl+C/X/V, Del">
+                        <i data-lucide="box-select"></i>
+                    </button>
                     <button class="tool-btn tool-danger" onclick="clearGrid()" title="Clear all">
                         <i data-lucide="trash-2"></i>
                     </button>
@@ -120,6 +139,10 @@
                             <!-- Cells dynamically created by JS -->
                         </div>
                     </div>
+                </div>
+
+                <div class="preview-strip" id="preview-strip" title="Level preview — click to navigate">
+                    <canvas id="preview-canvas"></canvas>
                 </div>
 
                 <div class="statusbar">
