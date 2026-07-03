@@ -9,7 +9,7 @@
     },
     {
       "id": "02",
-      "name": "Nível 02",
+      "name": "Emerald Marathon",
       "theme": "forest",
       "scene": "res://scenes/levels/level_02.tscn",
       "builtin": true
@@ -37,7 +37,7 @@
     },
     {
       "id": "50",
-      "name": "Minha Fase",
+      "name": "Minha Fase Expandida",
       "theme": "forest",
       "scene": "res://scenes/levels/level_50.tscn",
       "builtin": false

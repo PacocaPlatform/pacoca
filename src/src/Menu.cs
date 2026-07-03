@@ -664,16 +664,22 @@ public partial class Menu : Control
         _ => isPt ? "Floresta" : "Forest",
     };
 
-    private string LevelButtonText(LevelEntry entry, bool isPt, bool showTheme)
+    private string LevelButtonText(LevelEntry entry, bool isPt, bool customMode)
     {
+        if (customMode)
+        {
+            // Custom levels are identified by name (the map editor derives the
+            // internal id from it); the id is only a fallback for unnamed maps.
+            string title = entry.Name.Length > 0
+                ? entry.Name.ToUpper()
+                : (isPt ? "FASE " : "LEVEL ") + entry.Id.ToUpper();
+            return $"{title} ({ThemeDisplayName(entry.Theme, isPt)})";
+        }
+
         string label = (isPt ? "FASE " : "LEVEL ") + entry.Id.ToUpper();
         if (entry.Name.Length > 0)
         {
             label += " · " + entry.Name;
-        }
-        if (showTheme)
-        {
-            label += $" ({ThemeDisplayName(entry.Theme, isPt)})";
         }
         return label;
     }

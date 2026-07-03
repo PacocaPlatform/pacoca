@@ -1,147 +1,120 @@
-"""Level 02 definition: "Templo nas Nuvens" (Sky Temple).
-
-A distinct, shorter and more vertical course than level 01:
-
-    Section 1  Trilha Inicial   (X  20-280)  ground warm-up, rings, a ramp.
-    Section 2  A Subida         (X 280-650)  spring-assisted vertical climb.
-    Section 3  Pontes Celestes  (X 650-1010) floating bridges with hazards.
-    Section 4  Descida & Meta   (X 1010-1290) fast descent runway to the goal.
-
-The base scene (``level_02.tscn``) is authored with the goal/water/mountain
-already in place, so no surgical ``base_edits`` are needed here.
+"""Generated level definition for level 02 ("Emerald Marathon").
+Generated automatically from level_02_map.txt. Do not edit directly if you want to keep changes synced!
 """
 
 from __future__ import annotations
-
+import re
 from generate_level import NodeBuilder, apply_modification
 
-# First node emitted by ``build`` -- the regeneration anchor.
-ANCHOR = '[node name="L2_Start1"'
-
+ANCHOR = '[node name="Platform_0"'
 
 def base_edits(content: str) -> str:
-    # Register level finish scene as external resource
-    finish_anchor = (
-        '[ext_resource type="PackedScene" path="res://scenes/spikes.tscn" '
-        'id="10_SpikesScene"]'
-    )
-    return apply_modification(
-        content,
-        finish_anchor,
-        finish_anchor
-        + '\n[ext_resource type="PackedScene" path="res://scenes/level_finish.tscn" '
-        'id="11_LevelFinishScene"]',
-        label="ext_resource level_finish",
-    )
-
+    # Safely position the SpawnPoint
+    spawn_pattern = r'(\[node name="SpawnPoint"[^\]]*\]\s*\ntransform = Transform3D\(1, 0, 0, 0, 1, 0, 0, 0, 1, )([^,]+), ([^,]+), ([^\)]+)'
+    spawn_replacement = rf'\g<1>4.00, 1.50, 0'
+    content = re.sub(spawn_pattern, spawn_replacement, content)
+    # Retarget the theme materials (idempotent; also updates scenes created
+    # before the theme changed).
+    content = re.sub(r'\[ext_resource type="Material"[^\]]*id="1_GrassMat"\]',
+                     '[ext_resource type="Material" path="res://materials/grass.tres" id="1_GrassMat"]', content)
+    content = re.sub(r'\[ext_resource type="Material"[^\]]*id="2_RockMat"\]',
+                     '[ext_resource type="Material" path="res://materials/rock.tres" id="2_RockMat"]', content)
+    content = re.sub(r'\[ext_resource type="Material"[^\]]*id="4_MountainMat"\]',
+                     '[ext_resource type="Material" path="res://materials/bg_forest.tres" id="4_MountainMat"]', content)
+    return content
 
 def build(b: NodeBuilder) -> None:
-    # SECTION 1 -- Trilha Inicial (X = 20 to 280)
-    b.add_platform("L2_Start1", 30.0, 0.0, width=40.0)
-    b.add_ring("L2_RingStart1_1", 25.0, 1.2)
-    b.add_ring("L2_RingStart1_2", 30.0, 1.2)
-    b.add_ring("L2_RingStart1_3", 35.0, 1.2)
-    b.add_enemy("L2_EnemyStart1", 35.0, 1.0, speed=3.0)
-
-    b.add_platform("L2_Start2", 85.0, 0.0, width=30.0)
-    b.add_cactus("L2_CactusStart1", 85.0, 1.0, speed=1.25)
-
-    b.add_ramp_up("L2_StartRamp", 105.0, 0.0, width=15.0, height=4.0, bottom=-2.0)
-
-    b.add_platform("L2_Start3", 140.0, 4.0, width=35.0)
-    b.add_dash_pad("L2_DashStart1", 128.0, 4.5)
-    b.add_ring("L2_RingStart3_1", 135.0, 5.2)
-    b.add_ring("L2_RingStart3_2", 140.0, 5.2)
-    b.add_ring("L2_RingStart3_3", 145.0, 5.2)
-
-    b.add_platform("L2_Start4", 195.0, 4.0, width=40.0)
-    b.add_enemy("L2_EnemyStart2", 195.0, 5.0, speed=3.5)
-
-    b.add_platform("L2_Start5", 250.0, 3.0, width=35.0)
-    b.add_ring("L2_RingStart5_1", 245.0, 4.2)
-    b.add_ring("L2_RingStart5_2", 250.0, 4.2)
-    b.add_ring("L2_RingStart5_3", 255.0, 4.2)
-    b.add_spring_vert("L2_ClimbLauncher", 262.0, 3.5, force=25.0)
-
-    # SECTION 2 -- A Subida (X = 280 to 650)
-    b.add_platform("L2_Climb1", 295.0, 11.0, width=18.0)
-    b.add_ring("L2_RingClimb1_1", 290.0, 12.2)
-    b.add_ring("L2_RingClimb1_2", 295.0, 12.2)
-    b.add_ring("L2_RingClimb1_3", 300.0, 12.2)
-    b.add_spring_vert("L2_ClimbSpring1", 295.0, 11.5, force=22.0)
-
-    b.add_platform("L2_Climb2", 325.0, 17.0, width=16.0)
-    b.add_cactus("L2_CactusClimb1", 325.0, 18.0, speed=1.25)
-    b.add_spring_diag("L2_ClimbDiag1", 330.0, 17.5, force=24.0, dx=1.2, dy=1.5, lock=0.6)
-
-    b.add_platform("L2_Climb3", 375.0, 21.0, width=20.0)
-    b.add_dash_pad("L2_DashClimb1", 365.0, 21.5)
-    b.add_ring("L2_RingClimb3_1", 370.0, 22.2)
-    b.add_ring("L2_RingClimb3_2", 375.0, 22.2)
-    b.add_ring("L2_RingClimb3_3", 380.0, 22.2)
-
-    b.add_platform("L2_Climb4", 425.0, 19.0, width=24.0)
-    b.add_enemy("L2_EnemyClimb1", 425.0, 20.0, speed=3.0)
-
-    b.add_platform("L2_Climb5", 485.0, 17.0, width=28.0)
-    b.add_ring("L2_RingClimb5_1", 480.0, 18.2)
-    b.add_ring("L2_RingClimb5_2", 485.0, 18.2)
-    b.add_ring("L2_RingClimb5_3", 490.0, 18.2)
-
-    b.add_platform("L2_Climb6", 545.0, 19.0, width=24.0)
-    b.add_cactus("L2_CactusClimb2", 545.0, 20.0, speed=1.25)
-
-    b.add_platform("L2_ClimbTop", 610.0, 16.0, width=40.0)
-    b.add_dash_pad("L2_DashClimbTop", 595.0, 16.5)
-    b.add_spring_diag("L2_SkyLauncher", 622.0, 16.5, force=25.0, dx=1.2, dy=1.5, lock=0.6)
-
-    # SECTION 3 -- Pontes Celestes (X = 650 to 1010)
-    b.add_platform("L2_Sky1", 685.0, 19.0, width=35.0)
-    b.add_enemy("L2_EnemySky1", 685.0, 20.0, speed=3.0)
-    b.add_ring("L2_RingSky1_1", 678.0, 20.2)
-    b.add_ring("L2_RingSky1_2", 685.0, 20.2)
-    b.add_ring("L2_RingSky1_3", 692.0, 20.2)
-
-    b.add_platform("L2_Sky2", 745.0, 21.0, width=30.0)
-    b.add_spikes("L2_SpikesSky1", 745.0, 21.5)
-
-    b.add_platform("L2_Sky3", 800.0, 20.0, width=35.0)
-    b.add_dash_pad("L2_DashSky1", 788.0, 20.5)
-    b.add_ring("L2_RingSky3_1", 795.0, 21.2)
-    b.add_ring("L2_RingSky3_2", 800.0, 21.2)
-    b.add_ring("L2_RingSky3_3", 805.0, 21.2)
-
-    b.add_platform("L2_SkyStep1", 850.0, 22.0, width=10.0)
-    b.add_platform("L2_SkyStep2", 878.0, 20.0, width=10.0)
-
-    b.add_platform("L2_Sky4", 920.0, 19.0, width=40.0)
-    b.add_cactus("L2_CactusSky1", 920.0, 20.0, speed=1.25)
-    b.add_spikes("L2_SpikesSky2", 935.0, 19.5)
-
-    b.add_platform("L2_Sky5", 985.0, 17.0, width=35.0)
-    b.add_ring("L2_RingSky5_1", 980.0, 18.2)
-    b.add_ring("L2_RingSky5_2", 985.0, 18.2)
-    b.add_ring("L2_RingSky5_3", 990.0, 18.2)
-
-    # SECTION 4 -- Descida & Meta (X = 1010 to 1290)
-    b.add_ramp_down("L2_DescentRamp", 1010.0, 16.0, width=30.0, height=12.0, bottom_y=-3.0)
-
-    b.add_platform("L2_Runway", 1100.0, 4.0, width=120.0)
-    b.add_dash_pad("L2_DashRunway", 1055.0, 4.5)
-    b.add_enemy("L2_EnemyRunway", 1090.0, 5.0, speed=3.5)
-    for i, ring_x in enumerate(range(1080, 1150, 10)):
-        b.add_ring(f"L2_RingRunway_{i}", ring_x, 5.2)
-    b.add_cactus("L2_CactusRunway", 1135.0, 5.0, speed=1.25)
-
-    b.add_ramp_up("L2_FinalRamp", 1175.0, 4.0, width=20.0, height=6.0, bottom=-2.0)
-
-    # Victory ring arc into the goal.
-    b.add_ring("L2_Victory1", 1205.0, 13.5)
-    b.add_ring("L2_Victory2", 1210.0, 14.5)
-    b.add_ring("L2_Victory3", 1215.0, 14.5)
-    b.add_ring("L2_Victory4", 1220.0, 13.5)
-
-    b.add_platform("L2_GoalArena", 1250.0, 8.0, width=40.0)
-
-    # Goal Coin
-    b.add_level_finish("L2_GoalFinish", 1250.0, 10.5)
+    b.add_platform("Platform_0", 34.00, 0.00, width=70.00)
+    b.add_platform("Platform_1", 70.00, 0.00, width=2.00, grass=False)
+    b.add_platform("Platform_2", 107.00, 0.00, width=72.00)
+    b.add_platform("Platform_3", 144.00, 0.00, width=2.00, grass=False)
+    b.add_platform("Platform_4", 182.00, 0.00, width=74.00)
+    b.add_platform("Platform_5", 220.00, 0.00, width=2.00, grass=False)
+    b.add_platform("Platform_6", 260.00, 0.00, width=78.00)
+    b.add_platform("Platform_7", 300.00, 0.00, width=2.00, grass=False)
+    b.add_platform("Platform_8", 340.00, 0.00, width=78.00)
+    b.add_platform("Platform_9", 380.00, 0.00, width=2.00, grass=False)
+    b.add_platform("Platform_10", 410.00, 0.00, width=58.00)
+    b.add_platform("Platform_11", 70.00, 3.00, width=2.00, grass=False)
+    b.add_platform("Platform_12", 144.00, 3.00, width=2.00, grass=False)
+    b.add_platform("Platform_13", 220.00, 3.00, width=2.00, grass=False)
+    b.add_platform("Platform_14", 300.00, 3.00, width=2.00, grass=False)
+    b.add_platform("Platform_15", 380.00, 3.00, width=2.00, grass=False)
+    b.add_platform("Platform_16", 70.00, 6.00, width=2.00, grass=False)
+    b.add_platform("Platform_17", 144.00, 6.00, width=2.00, grass=False)
+    b.add_platform("Platform_18", 220.00, 6.00, width=2.00, grass=False)
+    b.add_platform("Platform_19", 300.00, 6.00, width=2.00, grass=False)
+    b.add_platform("Platform_20", 380.00, 6.00, width=2.00, grass=False)
+    b.add_platform("Platform_21", 70.00, 9.00, width=2.00)
+    b.add_platform("Platform_22", 144.00, 9.00, width=2.00)
+    b.add_platform("Platform_23", 220.00, 9.00, width=2.00)
+    b.add_platform("Platform_24", 300.00, 9.00, width=2.00, grass=False)
+    b.add_platform("Platform_25", 380.00, 9.00, width=2.00)
+    b.add_platform("Platform_26", 59.00, 12.00, width=20.00, rock_height=1.00)
+    b.add_platform("Platform_27", 305.00, 12.00, width=32.00)
+    b.add_platform("Platform_28", 173.00, 15.00, width=28.00, rock_height=1.00)
+    b.add_platform("Platform_29", 413.00, 15.00, width=28.00, rock_height=1.00)
+    b.add_platform("Platform_30", 434.00, 15.00, width=2.00, rock_height=1.00)
+    b.add_platform("Platform_31", 107.00, 18.00, width=24.00, rock_height=1.00)
+    b.add_platform("Platform_32", 363.00, 18.00, width=24.00, rock_height=1.00)
+    b.add_platform("Platform_33", 245.00, 21.00, width=20.00, rock_height=1.00)
+    b.add_ramp_up("RampUp_0", 37.00, 0.50, width=6.00, height=3.00)
+    b.add_ramp_up("RampUp_1", 111.00, 0.50, width=6.00, height=3.00)
+    b.add_ramp_up("RampUp_2", 185.00, 0.50, width=6.00, height=3.00)
+    b.add_ramp_up("RampUp_3", 261.00, 0.50, width=6.00, height=3.00)
+    b.add_ramp_up("RampUp_4", 337.00, 0.50, width=6.00, height=3.00)
+    b.add_ring("Ring_0", 48.00, 7.20)
+    b.add_ring("Ring_1", 50.00, 7.20)
+    b.add_ring("Ring_2", 52.00, 7.20)
+    b.add_ring("Ring_3", 122.00, 7.20)
+    b.add_ring("Ring_4", 124.00, 7.20)
+    b.add_ring("Ring_5", 126.00, 7.20)
+    b.add_ring("Ring_6", 196.00, 7.20)
+    b.add_ring("Ring_7", 198.00, 7.20)
+    b.add_ring("Ring_8", 200.00, 7.20)
+    b.add_ring("Ring_9", 272.00, 7.20)
+    b.add_ring("Ring_10", 274.00, 7.20)
+    b.add_ring("Ring_11", 276.00, 7.20)
+    b.add_ring("Ring_12", 348.00, 7.20)
+    b.add_ring("Ring_13", 350.00, 7.20)
+    b.add_ring("Ring_14", 352.00, 7.20)
+    b.add_ring("Ring_15", 128.00, 10.20)
+    b.add_ring("Ring_16", 130.00, 10.20)
+    b.add_ring("Ring_17", 132.00, 10.20)
+    b.add_ring("Ring_18", 202.00, 10.20)
+    b.add_ring("Ring_19", 204.00, 10.20)
+    b.add_ring("Ring_20", 206.00, 10.20)
+    b.add_ring("Ring_21", 278.00, 10.20)
+    b.add_ring("Ring_22", 280.00, 10.20)
+    b.add_ring("Ring_23", 282.00, 10.20)
+    b.add_ring("Ring_24", 354.00, 10.20)
+    b.add_ring("Ring_25", 356.00, 10.20)
+    b.add_ring("Ring_26", 358.00, 10.20)
+    b.add_ring("Ring_27", 60.00, 13.20)
+    b.add_ring("Ring_28", 62.00, 13.20)
+    b.add_ring("Ring_29", 134.00, 13.20)
+    b.add_ring("Ring_30", 136.00, 13.20)
+    b.add_ring("Ring_31", 208.00, 13.20)
+    b.add_ring("Ring_32", 210.00, 13.20)
+    b.add_ring("Ring_33", 284.00, 13.20)
+    b.add_ring("Ring_34", 286.00, 13.20)
+    b.add_ring("Ring_35", 360.00, 13.20)
+    b.add_ring("Ring_36", 362.00, 13.20)
+    b.add_spring_vert("SpringV_0", 70.00, 9.50, force=22.00)
+    b.add_spring_vert("SpringV_1", 144.00, 9.50, force=22.00)
+    b.add_spring_vert("SpringV_2", 220.00, 9.50, force=22.00)
+    b.add_spring_vert("SpringV_3", 380.00, 9.50, force=22.00)
+    b.add_dash_pad("DashPad_0", 36.00, 0.50)
+    b.add_dash_pad("DashPad_1", 110.00, 0.50)
+    b.add_dash_pad("DashPad_2", 184.00, 0.50)
+    b.add_dash_pad("DashPad_3", 260.00, 0.50)
+    b.add_dash_pad("DashPad_4", 336.00, 0.50)
+    b.add_enemy("Enemy_0", 80.00, 1.00, speed=3.00)
+    b.add_enemy("Enemy_1", 176.00, 1.00, speed=3.00)
+    b.add_enemy("Enemy_2", 320.00, 1.00, speed=3.00)
+    b.add_cactus("Cactus_0", 120.00, 1.00, speed=1.25)
+    b.add_cactus("Cactus_1", 280.00, 1.00, speed=1.25)
+    b.add_spikes("Spikes_0", 200.00, 0.50)
+    b.add_spikes("Spikes_1", 202.00, 0.50)
+    b.add_spikes("Spikes_2", 204.00, 0.50)
+    b.add_level_finish("Goal_0", 434.00, 17.00)

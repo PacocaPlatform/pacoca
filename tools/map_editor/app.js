@@ -1,10 +1,11 @@
 // --- Application State ---
 let Y_STEP = 3.0;
 let X_STEP = 2.0;
-// Defaults to a non-builtin ID: compiling the builtin IDs (01-04, 41, ...)
-// overwrites levels shipped with the game instead of creating a custom one.
-let levelId = "99";
+// The level ID is internal: users only type a name, and the ID is derived
+// from it (see slugifyLevelName). Opening a saved map keeps the file's ID
+// until the name is edited.
 let levelName = "Nova Fase";
+let levelId = "novafase";
 let levelTheme = "forest"; // forest | glacial | cidade | caverna
 let gridWidth = 100;
 let gridHeight = 15;
@@ -51,20 +52,28 @@ const ELEMENTS = [
 ];
 
 // --- Initialization ---
+// Derives the internal level ID from the level name: lowercase, accents
+// stripped, alphanumerics only. Purely numeric names get a "fase" prefix so
+// they can never collide with the builtin level IDs (01-04, 41, ...).
+function slugifyLevelName(name) {
+    let slug = (name || "")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (/^\d+$/.test(slug)) slug = "fase" + slug;
+    return slug.slice(0, 24);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initTheme();
     initPalette();
     initGrid(gridWidth, gridHeight);
     
-    // Config events
-    document.getElementById("level-id").addEventListener("input", (e) => {
-        levelId = e.target.value;
-        updateDynamicTexts();
-        generateExports();
-    });
-    
+    // Config events. The name IS the level's identity: editing it re-derives
+    // the internal ID, so a renamed map compiles as a new level.
     document.getElementById("level-name").addEventListener("input", (e) => {
         levelName = e.target.value;
+        levelId = slugifyLevelName(levelName);
+        updateDynamicTexts();
         generateExports();
     });
 
@@ -1130,11 +1139,12 @@ function importMap() {
 
 function importJSON(data) {
     if (grid.length) pushHistory();
-    levelId = data.level || "03";
     levelName = data.name || "Imported Level";
+    // Keep the file's ID so recompiling updates the same level; renaming
+    // re-derives it.
+    levelId = data.level || slugifyLevelName(levelName);
     setLevelTheme(data.theme || "forest");
 
-    document.getElementById("level-id").value = levelId;
     document.getElementById("level-name").value = levelName;
     
     // Find limits to establish canvas size
@@ -1387,7 +1397,6 @@ function importASCII(text) {
                 
                 if (key === "level") {
                     levelId = val;
-                    document.getElementById("level-id").value = val;
                 } else if (key === "name") {
                     levelName = val;
                     document.getElementById("level-name").value = val;
@@ -1496,7 +1505,9 @@ function openMaps() {
     modal.hidden = false;
     lucide.createIcons();
     const hint = document.getElementById("maps-savehint");
-    hint.textContent = `Saves as level_${(levelId || "").padStart(2, "0")}_map.txt in tools/map_editor/levels/`;
+    hint.textContent = levelId
+        ? `Saves as level_${levelId.padStart(2, "0")}_map.txt in tools/map_editor/levels/`
+        : "Give the level a name to save it.";
     if (location.protocol === "file:") {
         document.getElementById("maps-list").innerHTML =
             '<p class="tab-note">Requires the local server (python tools/map_editor/server.py).</p>';
@@ -1567,6 +1578,7 @@ async function refreshMapsList() {
 
 async function saveCurrentMap() {
     if (location.protocol === "file:") { showToast("Requires local server", "alert-triangle"); return; }
+    if (!levelId) { showToast("Give the level a name first!", "alert-triangle"); return; }
     try {
         const content = document.getElementById("ascii-output").value;
         const resp = await fetch("/api/maps", {
@@ -1737,6 +1749,7 @@ async function testLevel() {
         showToast("Use the local server to test the stage", "alert-triangle");
         return;
     }
+    if (!levelId) { showToast("Give the level a name first!", "alert-triangle"); return; }
 
     const btn = document.getElementById("btn-test-level");
     const resultBox = document.getElementById("compile-result");
@@ -1877,6 +1890,8 @@ async function compileLevel() {
         showToast("Use the local server to compile", "alert-triangle");
         return;
     }
+
+    if (!levelId) { showToast("Give the level a name first!", "alert-triangle"); return; }
 
     const content = document.getElementById("ascii-output").value;
     resultBox.hidden = false;
