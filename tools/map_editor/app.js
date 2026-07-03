@@ -1,8 +1,10 @@
 // --- Application State ---
 let Y_STEP = 3.0;
 let X_STEP = 2.0;
-let levelId = "04";
-let levelName = "Sky Ruins";
+// Defaults to a non-builtin ID: compiling the builtin IDs (01-04, 41, ...)
+// overwrites levels shipped with the game instead of creating a custom one.
+let levelId = "99";
+let levelName = "Nova Fase";
 let levelTheme = "forest"; // forest | glacial | cidade | caverna
 let gridWidth = 100;
 let gridHeight = 15;

@@ -515,6 +515,22 @@ def generate_python_module(level_data: dict, source_file: str) -> str:
 # Level manifest (levels.json)
 # --------------------------------------------------------------------------- #
 
+def is_builtin_level(script_dir: str, level_id: str) -> bool:
+    """True when the manifest flags this level id as builtin (shipped)."""
+    manifest_path = os.path.normpath(
+        os.path.join(script_dir, "..", "scenes", "levels", "levels.json")
+    )
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            data = json.load(f) or {}
+    except (OSError, ValueError):
+        return False
+    return any(
+        e.get("id") == level_id and e.get("builtin")
+        for e in data.get("levels", [])
+    )
+
+
 def update_manifest(script_dir: str, level_id: str, level_name: str, theme: str) -> str:
     """Upsert this level in scenes/levels/levels.json (read by the game menu).
 
@@ -631,6 +647,14 @@ def main() -> int:
 
     print(f"Level identified: ID='{level_id}', Name='{level_name}', Theme='{theme}'")
 
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    if is_builtin_level(script_dir, level_id):
+        level_data.setdefault("warnings", []).append(
+            f"level ID '{level_id}' is a BUILTIN level shipped with the game — compiling "
+            "OVERWRITES it (and it stays under its theme, not in the custom list). "
+            "Change the Level ID in the editor to create a custom level."
+        )
+
     counts = {
         "platforms": len(level_data.get("platforms", [])),
         "ramps": len(level_data.get("ramps_up", [])) + len(level_data.get("ramps_down", [])),
@@ -644,7 +668,6 @@ def main() -> int:
         print(f"WARNING: {warning}")
     
     # Path coordinates
-    script_dir = os.path.dirname(os.path.abspath(__file__))
     py_module_path = os.path.join(script_dir, "levels", f"level_{level_id}.py")
     tscn_scene_path = os.path.join(script_dir, "..", "scenes", "levels", f"level_{level_id}.tscn")
     
