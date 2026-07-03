@@ -12,9 +12,11 @@ bump_strength = 1.5
 
 [resource]
 albedo_color = Color(0.27, 0.28, 0.31, 1)
+metallic_specular = 0.15
 roughness = 0.95
 normal_enabled = true
 normal_texture = SubResource("NoiseTexture2D_asphalt")
 uv1_scale = Vector3(0.25, 0.25, 0.25)
 uv1_triplanar = true
 uv1_world_triplanar = true
+texture_filter = 5

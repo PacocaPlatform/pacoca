@@ -6,5 +6,5 @@
 albedo_texture = ExtResource("1_MountainAlbedo")
 roughness = 1.0
 metallic = 0.0
-specular = 0.0
+metallic_specular = 0.0
 uv1_scale = Vector3(1, 1, 1)

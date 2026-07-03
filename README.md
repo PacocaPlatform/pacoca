@@ -11,7 +11,7 @@ The player controls Paçoca through fast-paced levels: running, jumping, rolling
 - **Procedural Sound Effects + Music**: SFX are generated in real-time as sine waves; background music tracks live in `src/audio/`.
 - **HUD**: score, time, rings, lives, and speed (km/h).
 - **Gamepad Support**: controller selection and automatic mapping for the most common buttons.
-- **Dynamic Stage Select**: the menu lists levels from `scenes/levels/levels.json` (written by the map pipeline) plus a directory scan — levels you create in the map editor appear automatically.
+- **Dynamic Stage Select**: the menu lists levels from `scenes/levels/levels.json` (written by the map pipeline) plus a directory scan. Builtin levels (`"builtin": true`, shipped with the game) are grouped by theme; levels you compile in the map editor land in a separate **Custom Levels** list automatically.
 - **Level Themes**: forest, glacial, city, and cave terrain materials, chosen per map (`theme:` header).
 
 ## Controls
@@ -102,7 +102,7 @@ From `src/` (Godot project root):
 python scripts/convert_map.py --input ../tools/map_editor/levels/level_04_map.txt --level 04
 ```
 
-This generates/updates `src/scenes/levels/level_04.tscn` (ready to open in Godot) and registers the level in `scenes/levels/levels.json`, which the in-game stage select reads.
+This generates/updates `src/scenes/levels/level_04.tscn` (ready to open in Godot) and registers the level in `scenes/levels/levels.json`, which the in-game stage select reads. New levels are registered as custom (`"builtin": false`) and show up under the menu's **Custom Levels** list; recompiling a builtin level keeps it builtin.
 
 ### Quick Syntax
 

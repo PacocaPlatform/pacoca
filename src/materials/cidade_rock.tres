@@ -13,9 +13,11 @@ bump_strength = 1.8
 
 [resource]
 albedo_color = Color(0.58, 0.58, 0.6, 1)
+metallic_specular = 0.15
 roughness = 0.9
 normal_enabled = true
 normal_texture = SubResource("NoiseTexture2D_concrete")
 uv1_scale = Vector3(0.2, 0.2, 0.2)
 uv1_triplanar = true
 uv1_world_triplanar = true
+texture_filter = 5

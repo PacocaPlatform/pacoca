@@ -5,6 +5,9 @@ public static class GameSettings
 {
     public static int SelectedJoypadId = -1; // -1 means All/Auto
     public static string LevelToLoad = "res://scenes/levels/level_01.tscn";
+    // Theme of the level being loaded ("forest"/"glacial"/"cidade"/"caverna"),
+    // set by the menu from the level manifest; empty means "detect in Main".
+    public static string LevelTheme = "";
     public static string Language = "pt"; // "pt" (default) or "en"
 
     // Music volume (0..1 linear), routed through a dedicated "Music" audio bus.

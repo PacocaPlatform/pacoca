@@ -30,18 +30,25 @@ public partial class Menu : Control
 
     // Dynamic level list, built from scenes/levels/levels.json (written by the
     // map pipeline) plus a directory scan, so user-created levels show up in
-    // the menu without touching this code. _level1Button is kept invisible and
-    // used only as the style template for the generated buttons.
+    // the menu without touching this code. Builtin levels (shipped with the
+    // game) are listed under their theme; everything else goes to the
+    // "FASES CUSTOM" list. _level1Button is kept invisible and used only as
+    // the style template for the generated buttons.
     private sealed class LevelEntry
     {
         public string Id = "";
         public string Name = "";
         public string Theme = "forest";
         public string Scene = "";
+        // Builtin levels ship with the game and are listed under their theme.
+        // Everything else (map-editor output, manifest entries without the
+        // flag, dir-scanned scenes) is a custom level.
+        public bool Builtin;
     }
     private readonly List<LevelEntry> _levels = new();
     private readonly List<Button> _dynamicLevelButtons = new();
     private VBoxContainer _levelListBox = null!;
+    private Label? _levelListEmptyLabel;
     
     private Button _creditsBackButton = null!;
     private Button _achievementsBackButton = null!;
@@ -52,6 +59,7 @@ public partial class Menu : Control
     private Button _glacialButton = null!;
     private Button _cityButton = null!;
     private Button _caveButton = null!;
+    private Button _customLevelsButton = null!;
     private Button _themeBackButton = null!;
 
     // Language selector nodes
@@ -175,6 +183,15 @@ public partial class Menu : Control
         _caveButton = GetNode<Button>("ThemePanel/MarginContainer/VBoxContainer/GridContainer/CaveButton");
         _themeBackButton = GetNode<Button>("ThemePanel/MarginContainer/VBoxContainer/ThemeBackButton");
 
+        // "Custom levels" button: levels compiled by the map editor (builtin=false
+        // in the manifest) get their own list, separate from the shipped themes.
+        // Cloned from ThemeBackButton so it inherits the panel's button style.
+        _customLevelsButton = (Button)_themeBackButton.Duplicate();
+        _customLevelsButton.Name = "CustomLevelsButton";
+        var themeVBox = GetNode<VBoxContainer>("ThemePanel/MarginContainer/VBoxContainer");
+        themeVBox.AddChild(_customLevelsButton);
+        themeVBox.MoveChild(_customLevelsButton, _themeBackButton.GetIndex());
+
         // Level Panel references
         _level1Button = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/Level1Button");
         _level2Button = GetNode<Button>("LevelPanel/MarginContainer/VBoxContainer/Level2Button");
@@ -225,6 +242,7 @@ public partial class Menu : Control
         _animatedButtons.Add(_glacialButton);
         _animatedButtons.Add(_cityButton);
         _animatedButtons.Add(_caveButton);
+        _animatedButtons.Add(_customLevelsButton);
         _animatedButtons.Add(_themeBackButton);
         _animatedButtons.Add(_levelBackButton);
         _animatedButtons.Add(_creditsBackButton);
@@ -267,6 +285,7 @@ public partial class Menu : Control
         _glacialButton.Pressed += OnGlacialPressed;
         _cityButton.Pressed += OnCityPressed;
         _caveButton.Pressed += OnCavePressed;
+        _customLevelsButton.Pressed += OnCustomLevelsPressed;
         _themeBackButton.Pressed += OnThemeBackPressed;
 
         _levelBackButton.Pressed += OnLevelBackPressed;
@@ -458,6 +477,7 @@ public partial class Menu : Control
         _glacialButton.GetNode<Label>("Label").Text = isPt ? "GLACIAL" : "GLACIAL";
         _cityButton.GetNode<Label>("Label").Text = isPt ? "CIDADE" : "CITY";
         _caveButton.GetNode<Label>("Label").Text = isPt ? "CAVERNA" : "CAVE";
+        _customLevelsButton.Text = isPt ? "FASES CUSTOM" : "CUSTOM LEVELS";
 
         // Level Panel Dynamic Title & buttons
         string themeName = _selectedTheme switch
@@ -467,9 +487,9 @@ public partial class Menu : Control
             "cave" => isPt ? "CAVERNA" : "CAVE",
             _ => isPt ? "FLORESTA" : "FOREST"
         };
-        GetNode<Label>("LevelPanel/MarginContainer/VBoxContainer/Title").Text = isPt 
-            ? $"TEMA: {themeName}" 
-            : $"THEME: {themeName}";
+        GetNode<Label>("LevelPanel/MarginContainer/VBoxContainer/Title").Text = _selectedTheme == "custom"
+            ? (isPt ? "FASES CUSTOM" : "CUSTOM LEVELS")
+            : (isPt ? $"TEMA: {themeName}" : $"THEME: {themeName}");
 
         // Dynamic level buttons re-render their labels for the current language.
         if (_dynamicLevelButtons.Count > 0 && _levelPanel.Visible)
@@ -538,6 +558,8 @@ public partial class Menu : Control
 
     private void OnCavePressed() => ShowLevelPanel("cave");
 
+    private void OnCustomLevelsPressed() => ShowLevelPanel("custom");
+
     private void ShowLevelPanel(string theme)
     {
         PlayMenuSound("forward", 523.25f, 0.1f, 0.3f);
@@ -596,6 +618,7 @@ public partial class Menu : Control
                         Name = dict.TryGetValue("name", out var name) ? name.AsString() : "",
                         Theme = dict.TryGetValue("theme", out var theme) ? theme.AsString() : "forest",
                         Scene = dict.TryGetValue("scene", out var scene) ? scene.AsString() : "",
+                        Builtin = dict.TryGetValue("builtin", out var builtin) && builtin.AsBool(),
                     };
                     if (entry.Scene.Length == 0 || !ResourceLoader.Exists(entry.Scene)) continue;
                     _levels.Add(entry);
@@ -605,8 +628,9 @@ public partial class Menu : Control
         }
 
         // 2. Directory scan picks up levels missing from the manifest (e.g.
-        // hand-made scenes). In exported builds scene files are listed with a
-        // ".remap" suffix, so strip it before matching.
+        // hand-made scenes); they are treated as custom levels. In exported
+        // builds scene files are listed with a ".remap" suffix, so strip it
+        // before matching.
         using var dir = DirAccess.Open("res://scenes/levels");
         if (dir != null)
         {
@@ -632,12 +656,24 @@ public partial class Menu : Control
         _levels.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
     }
 
-    private string LevelButtonText(LevelEntry entry, bool isPt)
+    private static string ThemeDisplayName(string theme, bool isPt) => theme switch
+    {
+        "glacial" => "Glacial",
+        "cidade" => isPt ? "Cidade" : "City",
+        "caverna" => isPt ? "Caverna" : "Cave",
+        _ => isPt ? "Floresta" : "Forest",
+    };
+
+    private string LevelButtonText(LevelEntry entry, bool isPt, bool showTheme)
     {
         string label = (isPt ? "FASE " : "LEVEL ") + entry.Id.ToUpper();
         if (entry.Name.Length > 0)
         {
             label += " · " + entry.Name;
+        }
+        if (showTheme)
+        {
+            label += $" ({ThemeDisplayName(entry.Theme, isPt)})";
         }
         return label;
     }
@@ -650,32 +686,51 @@ public partial class Menu : Control
             btn.QueueFree();
         }
         _dynamicLevelButtons.Clear();
+        _levelListEmptyLabel?.QueueFree();
+        _levelListEmptyLabel = null;
 
         bool isPt = GameSettings.Language == "pt";
+        // The custom list mixes every theme (anything not builtin); the theme
+        // lists show only the builtin levels shipped with the game.
+        bool customMode = _selectedTheme == "custom";
         string theme = ManifestTheme(_selectedTheme);
         foreach (var entry in _levels)
         {
-            if (entry.Theme != theme) continue;
+            bool include = customMode ? !entry.Builtin : (entry.Builtin && entry.Theme == theme);
+            if (!include) continue;
 
             var btn = (Button)_level1Button.Duplicate();
             btn.Name = "Level_" + entry.Id;
             btn.Visible = true;
-            btn.Text = LevelButtonText(entry, isPt);
+            btn.Text = LevelButtonText(entry, isPt, customMode);
             btn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             btn.PivotOffset = btn.CustomMinimumSize / 2.0f;
             string scenePath = entry.Scene;
-            btn.Pressed += () => OnDynamicLevelPressed(scenePath);
+            string entryTheme = entry.Theme;
+            btn.Pressed += () => OnDynamicLevelPressed(scenePath, entryTheme);
             _levelListBox.AddChild(btn);
             ConnectUIFeedback(btn);
             _animatedButtons.Add(btn);
             _dynamicLevelButtons.Add(btn);
         }
+
+        if (customMode && _dynamicLevelButtons.Count == 0)
+        {
+            _levelListEmptyLabel = new Label();
+            _levelListEmptyLabel.Text = isPt
+                ? "Nenhuma fase custom ainda.\nUse o Map Editor para criar uma!"
+                : "No custom levels yet.\nUse the Map Editor to create one!";
+            _levelListEmptyLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            _levelListEmptyLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            _levelListBox.AddChild(_levelListEmptyLabel);
+        }
     }
 
-    private void OnDynamicLevelPressed(string scenePath)
+    private void OnDynamicLevelPressed(string scenePath, string theme)
     {
         PlayMenuSound("forward", 1046.50f, 0.15f, 0.4f); // C6 note confirm sound
         GameSettings.LevelToLoad = scenePath;
+        GameSettings.LevelTheme = theme;
         ChangeSceneWithFade("res://scenes/main.tscn");
     }
 
@@ -695,6 +750,9 @@ public partial class Menu : Control
                 break;
             case "cave":
                 _caveButton.GrabFocus();
+                break;
+            case "custom":
+                _customLevelsButton.GrabFocus();
                 break;
             case "forest":
             default:
@@ -851,6 +909,7 @@ public partial class Menu : Control
         _glacialButton.Disabled = disabled;
         _cityButton.Disabled = disabled;
         _caveButton.Disabled = disabled;
+        _customLevelsButton.Disabled = disabled;
         _themeBackButton.Disabled = disabled;
 
         _level1Button.Disabled = disabled;

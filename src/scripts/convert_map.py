@@ -24,18 +24,22 @@ THEMES = {
     "forest": {
         "top": "res://materials/grass.tres",
         "rock": "res://materials/rock.tres",
+        "bg": "res://materials/bg_forest.tres",
     },
     "glacial": {
         "top": "res://materials/glacial_top.tres",
         "rock": "res://materials/glacial_rock.tres",
+        "bg": "res://materials/bg_glacial.tres",
     },
     "cidade": {
         "top": "res://materials/cidade_top.tres",
         "rock": "res://materials/cidade_rock.tres",
+        "bg": "res://materials/bg_cidade.tres",
     },
     "caverna": {
         "top": "res://materials/caverna_top.tres",
         "rock": "res://materials/caverna_rock.tres",
+        "bg": "res://materials/bg_caverna.tres",
     },
 }
 DEFAULT_THEME = "forest"
@@ -49,7 +53,7 @@ TSCN_TEMPLATE = """[gd_scene format=3 uid="uid://c33r1q6joc2l{level}"]
 [ext_resource type="Material" path="{top_mat}" id="1_GrassMat"]
 [ext_resource type="Material" path="{rock_mat}" id="2_RockMat"]
 [ext_resource type="Material" path="res://materials/water.tres" id="3_WaterMat"]
-[ext_resource type="Material" path="res://materials/mountain_bg.tres" id="4_MountainMat"]
+[ext_resource type="Material" path="{bg_mat}" id="4_MountainMat"]
 [ext_resource type="PackedScene" path="res://scenes/ring.tscn" id="5_RingScene"]
 [ext_resource type="PackedScene" path="res://scenes/spring.tscn" id="6_SpringScene"]
 [ext_resource type="PackedScene" path="res://scenes/dash_pad.tscn" id="7_DashPadScene"]
@@ -117,6 +121,8 @@ def base_edits(content: str) -> str:
                      '[ext_resource type="Material" path="{top_mat}" id="1_GrassMat"]', content)
     content = re.sub(r'\\[ext_resource type="Material"[^\\]]*id="2_RockMat"\\]',
                      '[ext_resource type="Material" path="{rock_mat}" id="2_RockMat"]', content)
+    content = re.sub(r'\\[ext_resource type="Material"[^\\]]*id="4_MountainMat"\\]',
+                     '[ext_resource type="Material" path="{bg_mat}" id="4_MountainMat"]', content)
     return content
 
 def build(b: NodeBuilder) -> None:
@@ -501,6 +507,7 @@ def generate_python_module(level_data: dict, source_file: str) -> str:
         spawn_y=level_data["spawn"][1],
         top_mat=theme["top"],
         rock_mat=theme["rock"],
+        bg_mat=theme["bg"],
         build_code=build_code
     )
 
@@ -509,7 +516,13 @@ def generate_python_module(level_data: dict, source_file: str) -> str:
 # --------------------------------------------------------------------------- #
 
 def update_manifest(script_dir: str, level_id: str, level_name: str, theme: str) -> str:
-    """Upsert this level in scenes/levels/levels.json (read by the game menu)."""
+    """Upsert this level in scenes/levels/levels.json (read by the game menu).
+
+    Levels shipped with the game carry ``"builtin": true`` in the manifest.
+    Anything compiled by the map editor lands as a custom level
+    (``"builtin": false``) and shows up under the menu's custom-levels list;
+    recompiling an existing builtin level keeps it builtin.
+    """
     manifest_path = os.path.normpath(
         os.path.join(script_dir, "..", "scenes", "levels", "levels.json")
     )
@@ -527,9 +540,11 @@ def update_manifest(script_dir: str, level_id: str, level_name: str, theme: str)
         "name": level_name,
         "theme": theme,
         "scene": f"res://scenes/levels/level_{level_id}.tscn",
+        "builtin": False,
     }
     for i, existing in enumerate(levels):
         if existing.get("id") == level_id:
+            entry["builtin"] = bool(existing.get("builtin", False))
             levels[i] = entry
             break
     else:
@@ -644,6 +659,7 @@ def main() -> int:
                 level=level_id,
                 top_mat=theme_mats["top"],
                 rock_mat=theme_mats["rock"],
+                bg_mat=theme_mats["bg"],
             ))
             
     # 2. Generate Python level module script

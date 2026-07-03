@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://images/backgrounds/bg_cidade.png" id="1_BG"]
+
+[resource]
+shading_mode = 0
+albedo_texture = ExtResource("1_BG")
+texture_filter = 5
+uv1_scale = Vector3(11.46, 1, 1)

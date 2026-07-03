@@ -13,10 +13,12 @@ bump_strength = 2.0
 
 [resource]
 albedo_color = Color(0.62, 0.78, 0.92, 1)
-metallic = 0.1
-roughness = 0.25
+metallic = 0.0
+metallic_specular = 0.45
+roughness = 0.35
 normal_enabled = true
 normal_texture = SubResource("NoiseTexture2D_ice")
 uv1_scale = Vector3(0.2, 0.2, 0.2)
 uv1_triplanar = true
 uv1_world_triplanar = true
+texture_filter = 5

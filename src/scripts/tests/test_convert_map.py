@@ -5,13 +5,15 @@ Run from the Godot project root (src/):
     python3 -m unittest discover -s scripts/tests
 """
 
+import json
 import os
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-from convert_map import parse_ascii_grid, generate_python_module  # noqa: E402
+from convert_map import parse_ascii_grid, generate_python_module, update_manifest  # noqa: E402
 
 
 def parse(text: str) -> dict:
@@ -169,6 +171,46 @@ class TestModuleGeneration(unittest.TestCase):
         self.assertIn("grass=False", code)
         self.assertIn("cidade_top.tres", code)
         self.assertIn("cidade_rock.tres", code)
+
+
+class TestManifest(unittest.TestCase):
+    def _run_update(self, root: str, *args) -> dict:
+        script_dir = os.path.join(root, "scripts")
+        path = update_manifest(script_dir, *args)
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_new_level_is_custom(self):
+        with tempfile.TemporaryDirectory() as root:
+            os.makedirs(os.path.join(root, "scenes", "levels"))
+            data = self._run_update(root, "77", "Minha Fase", "forest")
+            self.assertEqual(len(data["levels"]), 1)
+            entry = data["levels"][0]
+            self.assertEqual(entry["id"], "77")
+            self.assertFalse(entry["builtin"])
+
+    def test_recompiling_builtin_level_stays_builtin(self):
+        with tempfile.TemporaryDirectory() as root:
+            manifest_dir = os.path.join(root, "scenes", "levels")
+            os.makedirs(manifest_dir)
+            with open(os.path.join(manifest_dir, "levels.json"), "w", encoding="utf-8") as f:
+                json.dump({"levels": [{
+                    "id": "01", "name": "Nível 01", "theme": "forest",
+                    "scene": "res://scenes/levels/level_01.tscn", "builtin": True,
+                }]}, f)
+            data = self._run_update(root, "01", "Nível 01 v2", "forest")
+            self.assertEqual(len(data["levels"]), 1)
+            entry = data["levels"][0]
+            self.assertEqual(entry["name"], "Nível 01 v2")
+            self.assertTrue(entry["builtin"])
+
+    def test_recompiling_custom_level_stays_custom(self):
+        with tempfile.TemporaryDirectory() as root:
+            os.makedirs(os.path.join(root, "scenes", "levels"))
+            self._run_update(root, "77", "Minha Fase", "forest")
+            data = self._run_update(root, "77", "Minha Fase v2", "glacial")
+            self.assertEqual(len(data["levels"]), 1)
+            self.assertFalse(data["levels"][0]["builtin"])
 
 
 if __name__ == "__main__":

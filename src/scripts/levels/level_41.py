@@ -19,6 +19,8 @@ def base_edits(content: str) -> str:
                      '[ext_resource type="Material" path="res://materials/grass.tres" id="1_GrassMat"]', content)
     content = re.sub(r'\[ext_resource type="Material"[^\]]*id="2_RockMat"\]',
                      '[ext_resource type="Material" path="res://materials/rock.tres" id="2_RockMat"]', content)
+    content = re.sub(r'\[ext_resource type="Material"[^\]]*id="4_MountainMat"\]',
+                     '[ext_resource type="Material" path="res://materials/bg_forest.tres" id="4_MountainMat"]', content)
     return content
 
 def build(b: NodeBuilder) -> None:

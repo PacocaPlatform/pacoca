@@ -58,6 +58,8 @@ public partial class Main : Node3D
                 ? val
                 : $"res://scenes/levels/level_{val}.tscn";
             GameSettings.LevelToLoad = path;
+            // The menu didn't run, so its theme choice (if any) is stale.
+            GameSettings.LevelTheme = "";
             GD.Print($"Main.cs: Level override from cmdline -> {path}");
         }
     }
@@ -108,6 +110,63 @@ public partial class Main : Node3D
 
         // Reset camera limits and immediately snap the camera
         _camera.ResetCameraLimits();
+
+        // After the camera snapped: the backdrop anchors to its rest height.
+        SetupParallaxBackground(levelInstance, levelPath);
+    }
+
+    // Swaps the legacy stretched BG_Mountains quad for the camera-following
+    // parallax backdrop, themed after the level. Runs on every level (old,
+    // hand-made, or map-editor output) without requiring a recompile.
+    private void SetupParallaxBackground(Node3D levelInstance, string levelPath)
+    {
+        var oldBg = levelInstance.GetNodeOrNull<MeshInstance3D>("Level/BG_Mountains");
+        if (oldBg != null)
+        {
+            oldBg.Visible = false;
+        }
+
+        var backdrop = new ParallaxBackground3D();
+        backdrop.Name = "ParallaxBackdrop";
+        backdrop.LevelTheme = DetectLevelTheme(levelPath);
+        levelInstance.AddChild(backdrop);
+    }
+
+    // Theme priority: menu selection > levels.json manifest (map-editor test
+    // runs bypass the menu) > filename convention > forest.
+    private static string DetectLevelTheme(string levelPath)
+    {
+        if (!string.IsNullOrEmpty(GameSettings.LevelTheme))
+        {
+            return GameSettings.LevelTheme;
+        }
+
+        const string manifestPath = "res://scenes/levels/levels.json";
+        if (Godot.FileAccess.FileExists(manifestPath))
+        {
+            using var file = Godot.FileAccess.Open(manifestPath, Godot.FileAccess.ModeFlags.Read);
+            var parsed = Json.ParseString(file.GetAsText());
+            if (parsed.VariantType == Variant.Type.Dictionary &&
+                parsed.AsGodotDictionary().TryGetValue("levels", out var levelsVar))
+            {
+                foreach (var item in levelsVar.AsGodotArray())
+                {
+                    var dict = item.AsGodotDictionary();
+                    if (dict.TryGetValue("scene", out var scene) && scene.AsString() == levelPath &&
+                        dict.TryGetValue("theme", out var theme))
+                    {
+                        return theme.AsString();
+                    }
+                }
+            }
+        }
+
+        string fileName = levelPath.GetFile();
+        foreach (string t in new[] { "glacial", "cidade", "caverna" })
+        {
+            if (fileName.StartsWith($"level_{t}_")) return t;
+        }
+        return "forest";
     }
 
     public void RestartStage()

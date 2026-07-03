@@ -16,7 +16,7 @@ Then open **http://localhost:8000** in your browser.
 - **Preview minimap** — live render of the whole level below the canvas; click it to navigate.
 - **Theme** — choose forest / glacial / city / cave terrain materials (saved as `theme:` in the map header).
 - **Maps** — saves the current map to disk (`tools/map_editor/levels/level_<id>_map.txt`), lists created custom levels, and allows **opening them for editing** or **deleting**.
-- **Compile** — generates `src/scenes/levels/level_<id>.tscn` from the map, prints validation warnings, and registers the level in `src/scenes/levels/levels.json` (the game menu reads it, so the level shows up in the stage select).
+- **Compile** — generates `src/scenes/levels/level_<id>.tscn` from the map, prints validation warnings, and registers the level in `src/scenes/levels/levels.json` as a custom level (`"builtin": false`) — it shows up in the game menu under **Custom Levels**. Recompiling a level that ships with the game keeps it builtin.
 - **Test Level** (**F5**) — compiles the current level and opens Godot **directly in it**.
 - **Run** — opens the game starting from the main menu.
 

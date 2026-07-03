@@ -16,9 +16,11 @@ bump_strength = 3.0
 [resource]
 albedo_color = Color(0.42, 0.38, 0.36, 1)
 albedo_texture = ExtResource("1_DirtAlbedo")
+metallic_specular = 0.15
 roughness = 0.95
 normal_enabled = true
 normal_texture = SubResource("NoiseTexture2D_caverock")
 uv1_scale = Vector3(0.2, 0.2, 0.2)
 uv1_triplanar = true
 uv1_world_triplanar = true
+texture_filter = 5

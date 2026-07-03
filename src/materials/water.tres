@@ -13,8 +13,9 @@ bump_strength = 1.5
 [resource]
 transparency = 1
 albedo_color = Color(0.12, 0.44, 0.72, 0.65)
-metallic = 0.1
-roughness = 0.02
+metallic = 0.0
+metallic_specular = 0.4
+roughness = 0.12
 normal_enabled = true
 normal_texture = SubResource("NoiseTexture2D_water")
 uv1_scale = Vector3(10, 10, 10)
