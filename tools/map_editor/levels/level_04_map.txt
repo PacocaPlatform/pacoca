@@ -1,6 +1,5 @@
 level: 04
-name: Sky Ruins
-xstep: 2.0
+name: Ruínas Celestes
 ystep: 3.0
 
 [grid]
@@ -16,6 +15,6 @@ ystep: 3.0
 
 
 
-
-  P
-##########
+          oooo             G
+/\    oooo    ooooo   C
+##############################
