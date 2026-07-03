@@ -36,6 +36,13 @@
       "builtin": true
     },
     {
+      "id": "50",
+      "name": "Minha Fase",
+      "theme": "forest",
+      "scene": "res://scenes/levels/level_50.tscn",
+      "builtin": false
+    },
+    {
       "id": "caverna_01",
       "name": "Caverna 1",
       "theme": "caverna",
