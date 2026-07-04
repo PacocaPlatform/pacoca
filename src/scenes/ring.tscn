@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://src/Ring.cs" id="1_RingScript"]
+[ext_resource type="Script" path="res://src/ring.gd" id="1_RingScript"]
 [ext_resource type="Material" path="res://materials/gold.tres" id="2_GoldMat"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ring"]

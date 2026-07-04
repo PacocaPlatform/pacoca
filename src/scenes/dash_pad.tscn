@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" path="res://src/DashPad.cs" id="1_DashPadScript"]
+[ext_resource type="Script" path="res://src/dash_pad.gd" id="1_DashPadScript"]
 [ext_resource type="Material" path="res://materials/tech_metal.tres" id="2_TechMetal"]
 [ext_resource type="Material" path="res://materials/neon_blue.tres" id="3_NeonBlue"]
 

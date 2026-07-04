@@ -1,8 +1,8 @@
 [gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://src/Main.cs" id="1_MainScript"]
+[ext_resource type="Script" path="res://src/main.gd" id="1_MainScript"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_PlayerScene"]
-[ext_resource type="Script" path="res://src/CameraController.cs" id="3_CamScript"]
+[ext_resource type="Script" path="res://src/camera_controller.gd" id="3_CamScript"]
 [ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="4_HUDScene"]
 [ext_resource type="PackedScene" path="res://scenes/pause_menu.tscn" id="5_PauseScene"]
 [ext_resource type="Texture2D" path="res://textures/sky_panorama.jpg" id="6_SkyPanorama"]

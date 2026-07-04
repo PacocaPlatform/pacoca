@@ -1,6 +1,6 @@
 [gd_scene load_steps=28 format=3]
 
-[ext_resource type="Script" path="res://src/Menu.cs" id="1_MenuScript"]
+[ext_resource type="Script" path="res://src/menu.gd" id="1_MenuScript"]
 [ext_resource type="Texture2D" path="res://images/main.png" id="2_Background"]
 [ext_resource type="FontFile" path="res://textures/ui/PressStart2P-Regular.ttf" id="3_Font"]
 [ext_resource type="Texture2D" path="res://textures/ui/btn_green_normal.png" id="4_BtnGreenNormal"]

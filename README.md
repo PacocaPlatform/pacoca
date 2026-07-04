@@ -1,6 +1,6 @@
 # Paçoca
 
-A 2.5D Sonic-style platformer built with **Godot 4.6** and **C# (.NET 8)**.
+A 2.5D Sonic-style platformer built with **Godot 4.6** and **GDScript**.
 
 The player controls Paçoca through fast-paced levels: running, jumping, rolling, charging spin dash, performing air dashes, collecting rings (coins), and dodging enemies — all powered by custom physics for acceleration, friction, and slope mechanics.
 
@@ -26,19 +26,17 @@ The player controls Paçoca through fast-paced levels: running, jumping, rolling
 
 ## Requirements
 
-- **Godot 4.6** - **.NET / Mono** edition (required for C# projects)
-- **.NET SDK 8.0**
+- **Godot 4.6** (standard edition — the project is pure GDScript, no .NET/Mono required)
 
 ## How to Run
 
 1. Open the project in the Godot editor by pointing it to `src/project.godot`.
-2. Godot will automatically compile the C# assembly.
-3. Run the project (F5). The initial scene is `res://scenes/menu.tscn`.
+2. Run the project (F5). The initial scene is `res://scenes/menu.tscn`.
 
-To just compile the C# project via command line (from `src/`, where `Paçoca.csproj` is located):
+To run headless from the command line (from `src/`, the Godot project root):
 
 ```bash
-dotnet build
+godot --path . scenes/menu.tscn
 ```
 
 ## Project Structure
@@ -62,13 +60,13 @@ Paçoca/
     ├── models/             # Animated FBX models (Mixamo)
     ├── materials/
     ├── textures/
-    └── src/                # C# scripts (res://src/*.cs)
-        ├── Main.cs         # Coordinates gameplay and loads levels
-        ├── Player.cs       # Player (CharacterBody3D) and physics
-        ├── GameSettings.cs # Global state across scenes (level, gamepad)
-        ├── CameraController.cs
-        ├── HUD.cs, Menu.cs, PauseMenu.cs, GameOver.cs
-        └── Ring.cs, Spring.cs, DashPad.cs, Enemy.cs
+    └── src/                # GDScript scripts (res://src/*.gd)
+        ├── main.gd         # Coordinates gameplay and loads levels
+        ├── player.gd       # Player (CharacterBody3D) and physics
+        ├── game_settings.gd # Global static state across scenes (level, gamepad)
+        ├── camera_controller.gd
+        ├── hud.gd, menu.gd, pause_menu.gd, game_over.gd
+        └── ring.gd, spring.gd, dash_pad.gd, enemy.gd
 ```
 
 ## Level Creation (Map Editor)

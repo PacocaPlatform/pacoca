@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3]
 
-[ext_resource type="Script" path="res://src/CactusEnemy.cs" id="1_CactusEnemyScript"]
+[ext_resource type="Script" path="res://src/cactus_enemy.gd" id="1_CactusEnemyScript"]
 [ext_resource type="PackedScene" uid="uid://c8eivoekjuph5" path="res://models/cactus-walking.fbx" id="2_WalkingModel"]
 [ext_resource type="PackedScene" uid="uid://b0jpmpobgbw2m" path="res://models/cactus-turn-180.fbx" id="3_TurningModel"]
 
