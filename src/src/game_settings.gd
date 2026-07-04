@@ -5,6 +5,10 @@ extends RefCounted
 
 static var selected_joypad_id := -1 # -1 means All/Auto
 static var level_to_load := "res://scenes/levels/level_01.tscn"
+# A structured level Dictionary (canonical JSON format) to build in-engine via
+# RuntimeLevelBuilder instead of loading a packed level scene. Set by the
+# custom-level flow (map editor / community levels); empty means "load a .tscn".
+static var pending_custom_map: Dictionary = {}
 # Theme of the level being loaded ("forest"/"glacial"/"cidade"/"caverna"),
 # set by the menu from the level manifest; empty means "detect in Main".
 static var level_theme := ""

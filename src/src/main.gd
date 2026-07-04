@@ -43,6 +43,21 @@ func _ready() -> void:
 #   Godot --path src scenes/main.tscn -- --level=res://scenes/levels/level_04.tscn
 func _apply_cmdline_level_override() -> void:
 	for arg in OS.get_cmdline_user_args():
+		# --custom-map=<path.json>: build a structured JSON map at runtime (used
+		# by the map editor's "test custom level" flow and for validation).
+		if arg.begins_with("--custom-map="):
+			var map_path := arg.substr("--custom-map=".length()).strip_edges()
+			if map_path.is_empty() or not FileAccess.file_exists(map_path):
+				printerr("main.gd: --custom-map file not found: %s" % map_path)
+				continue
+			var parsed: Variant = JSON.parse_string(FileAccess.open(map_path, FileAccess.READ).get_as_text())
+			if parsed is Dictionary:
+				GameSettings.pending_custom_map = parsed
+				print("main.gd: custom map override from cmdline -> %s" % map_path)
+			else:
+				printerr("main.gd: --custom-map is not a JSON object: %s" % map_path)
+			continue
+
 		if not arg.begins_with("--level="):
 			continue
 
@@ -58,26 +73,34 @@ func _apply_cmdline_level_override() -> void:
 
 
 func _load_level() -> void:
-	var level_path := GameSettings.level_to_load
-	if level_path.is_empty():
-		level_path = LevelToLoad
+	# Custom maps (map editor / community levels) are built in-engine from the
+	# structured JSON; builtin levels load a packed .tscn.
+	var level_instance: Node3D
+	var level_path := ""
+	if not GameSettings.pending_custom_map.is_empty():
+		level_instance = _build_custom_level()
+		if level_instance == null:
+			return
+	else:
+		level_path = GameSettings.level_to_load
+		if level_path.is_empty():
+			level_path = LevelToLoad
+		if level_path.is_empty():
+			printerr("main.gd: Level path is not set.")
+			return
 
-	if level_path.is_empty():
-		printerr("main.gd: Level path is not set.")
-		return
+		# Clean up any existing level inside the wrapper
+		for child in _level_wrapper.get_children():
+			child.queue_free()
 
-	# Clean up any existing level inside the wrapper
-	for child in _level_wrapper.get_children():
-		child.queue_free()
+		# Load and instance the new level scene
+		var level_scene := load(level_path) as PackedScene
+		if level_scene == null:
+			printerr("main.gd: Failed to load level scene at path '%s'" % level_path)
+			return
 
-	# Load and instance the new level scene
-	var level_scene := load(level_path) as PackedScene
-	if level_scene == null:
-		printerr("main.gd: Failed to load level scene at path '%s'" % level_path)
-		return
-
-	var level_instance := level_scene.instantiate() as Node3D
-	_level_wrapper.add_child(level_instance)
+		level_instance = level_scene.instantiate() as Node3D
+		_level_wrapper.add_child(level_instance)
 
 	# Find SpawnPoint (Marker3D) inside the loaded level
 	var spawn_point: Marker3D = level_instance.get_node_or_null("SpawnPoint")
@@ -93,6 +116,30 @@ func _load_level() -> void:
 
 	# After the camera snapped: the backdrop anchors to its rest height.
 	_setup_parallax_background(level_instance, level_path)
+
+
+# Builds a custom level from GameSettings.pending_custom_map via the runtime
+# builder. Returns the level root (already parented under LevelWrapper), or null
+# if the map is invalid.
+func _build_custom_level() -> Node3D:
+	var map := GameSettings.pending_custom_map
+	# The map's own theme drives the parallax backdrop (menu selection is stale
+	# for custom levels).
+	GameSettings.level_theme = str(map.get("theme", "forest"))
+
+	var result := RuntimeLevelBuilder.build(map)
+	for w in result["warnings"]:
+		print("main.gd: custom level warning: %s" % w)
+	if not result["ok"]:
+		for e in result["errors"]:
+			printerr("main.gd: custom level error: %s" % e)
+		return null
+
+	for child in _level_wrapper.get_children():
+		child.queue_free()
+	var root: Node3D = result["root"]
+	_level_wrapper.add_child(root)
+	return root
 
 
 # Swaps the legacy stretched BG_Mountains quad for the camera-following
