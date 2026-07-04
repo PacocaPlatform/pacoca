@@ -1,0 +1,19 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "pacoca-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-07-04",
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "pacoca-levels",
+			// Filled in by `wrangler d1 create pacoca-levels` before deploy.
+			// Local `wrangler dev` uses a local SQLite file and ignores this id.
+			"database_id": "REPLACE_WITH_D1_ID"
+		}
+	]
+}
