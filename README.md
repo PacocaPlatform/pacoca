@@ -41,6 +41,9 @@ godot --path . scenes/menu.tscn
 
 ## Play on the Web (WebAssembly)
 
+> Full operational runbook (build, local dev, Cloudflare deploy, troubleshooting):
+> [`docs/build_and_deploy.md`](docs/build_and_deploy.md).
+
 Paçoca runs entirely in the browser — no install. The public site is **three
 static pieces served from the same origin**, plus the community backend:
 
