@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" shape-rendering="crispEdges">
+  <rect width="64" height="64" rx="12" fill="#2a2350"/>
+  <rect width="64" height="64" rx="12" fill="url(#sky)"/>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6b3f76"/>
+      <stop offset="1" stop-color="#d9628a"/>
+    </linearGradient>
+  </defs>
+  <!-- grass -->
+  <rect x="0" y="46" width="64" height="18" fill="#3f8c2f"/>
+  <rect x="0" y="46" width="64" height="5" fill="#6fbf4a"/>
+  <!-- little dino -->
+  <g fill="#7fd8c9">
+    <rect x="26" y="20" width="14" height="12"/>
+    <rect x="24" y="24" width="4" height="8"/>
+    <rect x="28" y="30" width="12" height="14"/>
+    <rect x="28" y="44" width="4" height="4"/>
+    <rect x="36" y="44" width="4" height="4"/>
+    <rect x="38" y="28" width="8" height="4"/>
+  </g>
+  <rect x="34" y="23" width="3" height="3" fill="#1c2b2a"/>
+</svg>

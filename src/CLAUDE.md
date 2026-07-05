@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Paçoca is a 2.5D Sonic-style platformer built with **Godot 4.6** and **GDScript** (pure — no .NET/Mono). UI text is in Portuguese (e.g. "MOEDAS" = rings, "VIDAS" = lives, "JOGAR" = play).
+Paçoca is a 2.5D momentum platformer built with **Godot 4.6** and **GDScript** (pure — no .NET/Mono). UI text is in Portuguese (e.g. "MOEDAS" = rings, "VIDAS" = lives, "JOGAR" = play).
 
 ## Directory layout (important — nested `src`)
 

@@ -1,12 +1,12 @@
 # Paçoca
 
-A 2.5D Sonic-style platformer built with **Godot 4.6** and **GDScript**.
+A fast-paced 2.5D momentum platformer built with **Godot 4.6** and **GDScript**.
 
 The player controls Paçoca through fast-paced levels: running, jumping, rolling, charging spin dash, performing air dashes, collecting rings (coins), and dodging enemies — all powered by custom physics for acceleration, friction, and slope mechanics.
 
 ## Features
 
-- **Sonic-style Physics**: acceleration/deceleration, friction, manual gravity, slope force, chargeable spin dash, diagonal air dash, variable jump height, coyote time, and jump buffering.
+- **Momentum Physics**: acceleration/deceleration, friction, manual gravity, slope force, chargeable spin dash, diagonal air dash, variable jump height, coyote time, and jump buffering.
 - **3D Rendering on a 2D Plane (2.5D)**: the player is a `CharacterBody3D` locked to the XY plane, using animated 3D models.
 - **Procedural Sound Effects + Music**: SFX are generated in real-time as sine waves; background music tracks live in `src/audio/`.
 - **HUD**: score, time, rings, lives, and speed (km/h).
@@ -39,16 +39,65 @@ To run headless from the command line (from `src/`, the Godot project root):
 godot --path . scenes/menu.tscn
 ```
 
+## Play on the Web (WebAssembly)
+
+Paçoca runs entirely in the browser — no install. The public site is **three
+static pieces served from the same origin**, plus the community backend:
+
+| Source | Served at | What it is |
+| --- | --- | --- |
+| `site/` | `/` | landing page |
+| `build/web/` | `/play/` | the exported WASM game |
+| `tools/map_editor/` | `/editor/` | the visual map editor |
+| `backend/` | `/api/*` | Cloudflare Worker (community levels) |
+
+Same origin matters: the links are relative, and the editor's **Testar** button
+hands the level to the game through `localStorage` (only shared across `/editor/`
+and `/play/` when they share an origin). So you never deploy `site/` or
+`build/web/` alone — you deploy a folder that combines all three as siblings.
+
+**1. Export the game** (needs the **standard**, non‑Mono Godot 4.6+ and the Web
+export templates — the Mono edition cannot export to Web):
+
+```bash
+GODOT=/path/to/Godot ./tools/export_web.sh      # writes build/web/
+```
+
+**2a. Preview locally** — assembles the layout and serves it on one origin:
+
+```bash
+./preview.sh            # http://localhost:8000  (/, /play/, /editor/)
+```
+
+**2b. Build the deploy bundle** — real copies, ready to upload:
+
+```bash
+./build_dist.sh         # writes build/dist/
+```
+
+Upload the **contents of `build/dist/`** as the site root (e.g. Cloudflare Pages),
+and deploy `backend/` separately so it answers `/api/*` on the same origin. The
+backend is optional: without it, only **Publicar** and the community levels list
+are unavailable (with a friendly message) — playing, testing, and saving levels
+in the browser all work offline. See [`site/README.md`](site/README.md) for
+details.
+
 ## Project Structure
 
 > Note the nested `src` directory: the git repository root is at the top level, but the **Godot project** is in `src/`, and the **C# scripts** are located in `src/src/`.
 
 ```
 Paçoca/
+├── preview.sh              # Local web preview (landing + game + editor, one origin)
+├── build_dist.sh           # Assemble build/dist/ to upload to a static host
+├── site/                   # Landing page (static; deploys at /)
+├── build/web/              # Exported WASM game (generated; deploys at /play/)
+├── backend/                # Community-levels API (Cloudflare Worker; /api/*)
 ├── assets/                 # Raw assets (exported models, etc.)
 ├── docs/                   # Documentation (e.g., map_syntax.md)
 ├── tools/
-│   └── map_editor/         # Visual map editor (web + server.py)
+│   ├── export_web.sh       # Exports the game to build/web/ (standard Godot)
+│   └── map_editor/         # Visual map editor (fully client-side; deploys at /editor/)
 └── src/                    # Godot project root (res://)
     ├── project.godot
     ├── Paçoca.csproj
@@ -75,22 +124,28 @@ Levels are drawn as **maps** (ASCII grid or JSON) and converted into Godot scene
 
 ### Visual Editor (`tools/map_editor/`)
 
+The editor is a **fully client-side, online tool** — no Python server, no local
+Godot. The level you draw is handed to the WebAssembly build of the game, which
+builds it at runtime (`RuntimeLevelBuilder`). Serve it statically:
+
 ```bash
-python tools/map_editor/server.py     # open http://localhost:8000
+python -m http.server 8000        # from the repo root
+# open http://localhost:8000/tools/map_editor/
 ```
 
 - **Palette Dock** (platforms, ramps, rings, springs, enemies, spikes, spawn, level finish).
 - **Tools**: paint, erase, line, rectangle, fill bucket, and select (with copy/cut/paste), plus full undo/redo.
 - **Preview minimap** — a live render of the whole level under the canvas; click it to navigate.
 - **Theme selector** — forest / glacial / city / cave terrain materials per level.
-- **Compile** — generates the level `.tscn` from the drawing, with validation warnings (missing spawn/goal, buried objects).
-- **Test Level** (`F5`) — compiles the current level and opens Godot **directly in it**, with live player tracking on the map.
-- **Run** — opens the game starting from the main menu.
-- **Settings Gear** — configures the Godot executable path (automatically detected in PATH; specify manually if not found).
+- **Fases** — save / open / delete maps, stored in the browser (`localStorage`).
+- **Testar** (`F5`) — opens the game in the browser (`/play/?custom=1`) and plays the current drawing, passed via `localStorage`. No compile step.
+- **Jogar** — opens the game's main menu (`/play/`).
+- **Publicar** — submits the level to the community backend (`POST /api/levels`).
 - Shortcuts: `B` paint · `E` erase · `L` line · `R` rectangle · `G` fill · `M` select · `Ctrl+Z/Y` undo/redo · `Ctrl+C/X/V` copy/cut/paste · `F5` test · `Esc` close.
-- Source maps are saved under `tools/map_editor/levels/` (single canonical folder).
 
-> The editor also works when opened directly (`file://`) to draw and export, but buttons that run Godot/compile require the local server.
+> **Testar**/**Jogar** need the game reachable at `../play/` on the same origin
+> (see [`site/README.md`](site/README.md) for the deploy layout).
+> `server.py` is kept only for the legacy offline/native compile pipeline.
 
 ### Command Line Compiling
 

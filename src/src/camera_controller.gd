@@ -58,7 +58,7 @@ func _physics_process(delta: float) -> void:
 	var target_pos := _target.global_position
 
 	# Smoothly interpolate the X and Y coordinates to track the player, plus offset
-	# In Sonic, we offset the camera in the direction of the player's movement
+	# We offset the camera in the direction of the player's movement
 	var player_vel := Vector3.ZERO
 	var is_grounded := true
 	if _target is Player:

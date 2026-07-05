@@ -22,6 +22,39 @@ static var music_volume := 0.6
 static var sound_theme := "procedural"
 
 
+# Key the web map editor writes the level-under-test into (window.localStorage).
+# Mirrors TEST_MAP_KEY in tools/map_editor/app.js.
+const WEB_TEST_MAP_KEY := "pacoca_test_map"
+
+
+# Web only: if the game was opened by the map editor's "Testar" button
+# (play/?custom=1), read the structured level it stashed in localStorage and load
+# it via RuntimeLevelBuilder. Returns true if a custom map was consumed, in which
+# case the caller should jump straight to main.tscn. No-op on native builds.
+static func consume_web_custom_map() -> bool:
+	if not OS.has_feature("web"):
+		return false
+
+	var search := str(JavaScriptBridge.eval("window.location.search || ''", true))
+	if not search.contains("custom=1"):
+		return false
+
+	var raw: Variant = JavaScriptBridge.eval(
+			"window.localStorage.getItem('%s')" % WEB_TEST_MAP_KEY, true)
+	if raw == null or str(raw).is_empty():
+		printerr("game_settings.gd: custom=1 but no '%s' in localStorage" % WEB_TEST_MAP_KEY)
+		return false
+
+	var parsed: Variant = JSON.parse_string(str(raw))
+	if parsed is Dictionary:
+		pending_custom_map = parsed
+		print("game_settings.gd: loaded custom map from localStorage (web)")
+		return true
+
+	printerr("game_settings.gd: '%s' is not a JSON object" % WEB_TEST_MAP_KEY)
+	return false
+
+
 # Loads a sound effect. Prefers the imported resource, but falls back to reading
 # the raw .wav file directly and parsing its PCM data.
 static func load_sfx(path: String) -> AudioStream:

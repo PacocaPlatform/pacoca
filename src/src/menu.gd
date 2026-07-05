@@ -88,6 +88,12 @@ var _animated_buttons: Array[Button] = []
 
 
 func _ready() -> void:
+	# Web: the map editor can hand a level to the WASM build via localStorage
+	# (opened as play/?custom=1). Jump straight into it, skipping the menu.
+	if GameSettings.consume_web_custom_map():
+		get_tree().change_scene_to_file("res://scenes/main.tscn")
+		return
+
 	# Setup WAV sound player
 	_sfx_wav_player = AudioStreamPlayer.new()
 	_sfx_wav_player.bus = "Master"

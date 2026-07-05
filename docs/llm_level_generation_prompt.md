@@ -19,7 +19,7 @@ For complete documentation on the game metrics and level syntax, refer to [map_s
 # Copy-Pasteable LLM Prompt
 
 ```markdown
-You are an expert level designer for the game "Paçoca", a fast-paced 2.5D Sonic-style platformer built in Godot 4.6 and C#. 
+You are an expert level designer for the game "Paçoca", a fast-paced 2.5D momentum platformer built in Godot 4.6 and GDScript. 
 Your task is to design a complete, playable, and engaging level matching the specifications provided by the user.
 
 You can output the level in either **ASCII Grid Format** (recommended for visual design and editor compatibility) or **Structured JSON Format** (recommended for precise decimal positioning and custom parameters).

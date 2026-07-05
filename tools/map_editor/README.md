@@ -1,52 +1,67 @@
 # Paçoca — Visual Map Editor
 
-A web-based editor to design stages and compile them into Godot `.tscn` scenes without leaving the browser.
+A fully client-side web editor to design stages and play them in the browser.
+No Python server, no local Godot: the level you draw is handed to the
+WebAssembly build of the game, which builds it at runtime via
+`RuntimeLevelBuilder`.
 
-## How to Run (Full Mode, with "Compile now" button)
+## How to Run
 
-From the repository root:
+The editor is a static site. In production it deploys next to the game
+(`/editor/` and `/play/` on the same origin — see [`site/README.md`](../../site/README.md)).
+For local development, serve the repo root with any static server and open the
+editor:
 
 ```bash
-python tools/map_editor/server.py
+python -m http.server 8000        # from the repo root
+# open http://localhost:8000/tools/map_editor/
 ```
 
-Then open **http://localhost:8000** in your browser.
+> Opening `index.html` via `file://` also works for drawing and exporting, but
+> **Testar**/**Jogar** need the game to be reachable at `../play/` (same origin),
+> so use a static server with the deployed folder layout.
 
 - Draw the stage on the grid with the paint, line, rectangle, fill, and select tools (full undo/redo).
 - **Preview minimap** — live render of the whole level below the canvas; click it to navigate.
-- **Theme** — choose forest / glacial / city / cave terrain materials (saved as `theme:` in the map header).
-- **Level name is the only identity** — there is no ID field. The internal level id is derived from the name (`"Fase do Dragão"` → `fasedodragao`); renaming a map and compiling creates a new level. Purely numeric names are prefixed (`fase04`) so they can never overwrite the builtin levels.
-- **Maps** — saves the current map to disk (`tools/map_editor/levels/level_<id>_map.txt`), lists created custom levels, and allows **opening them for editing** or **deleting**. Opening a saved map keeps its original id until the name is edited.
-- **Compile** — generates `src/scenes/levels/level_<id>.tscn` from the map, prints validation warnings, and registers the level in `src/scenes/levels/levels.json` as a custom level (`"builtin": false`) — it shows up in the game menu under **Custom Levels**, listed by its name. Recompiling a level that ships with the game keeps it builtin (and prints a warning).
-- **Test Level** (**F5**) — compiles the current level and opens Godot **directly in it**.
-- **Run** — opens the game starting from the main menu.
+- **Theme** — choose forest / glacial / city / cave terrain materials (saved as `theme:` in the map).
+- **Level name is the only identity** — there is no ID field. The internal id is derived from the name (`"Fase do Dragão"` → `fasedodragao`).
+
+### Actions (top bar)
+
+- **Fases** — save / open / delete maps. Maps are stored **in the browser**
+  (`localStorage`, key `pacoca_maps`); nothing is written to disk.
+- **Código** — export the level as ASCII grid or structured JSON, or import one back in.
+- **Testar** (**F5**) — opens the game in a new tab (`../play/?custom=1`) and plays
+  the current drawing. The level is passed via `localStorage` (key
+  `pacoca_test_map`) and built in-engine — no compile step.
+- **Jogar** — opens the game's main menu (`../play/`).
+- **Publicar** — submits the level to the community backend (`POST /api/levels`)
+  as canonical structured JSON. Optionally set your name in the **Publicar** tab.
 
 ### Shortcuts
 
 - **B** = paint · **E** = erase · **L** = line · **R** = rectangle · **G** = fill · **M** = select · **F5** = test stage · **Esc** = cancel selection/paste or close the code drawer.
 - **Ctrl/Cmd+Z** undo · **Ctrl/Cmd+Shift+Z** / **Ctrl+Y** redo · with a selection: **Ctrl/Cmd+C/X** copy/cut, **Del** clear, **Ctrl/Cmd+V** then click to paste.
 
-### Godot Path
+## The level format
 
-The **Test Level** / **Run** buttons need the Godot executable. The server resolves it in this order: **saved path in editor → `GODOT_BIN` environment variable → system PATH detection → default path**.
+The editor exports the **structured JSON** (absolute coordinates) shared by three
+consumers, which all agree on the same keys and caps:
 
-- Click the **gear icon** (top bar) to see/set the path. If Godot is in your PATH, it is automatically detected and filled on startup; otherwise, specify the path manually and click **Save** (persists in `editor_config.json`, which is ignored by git).
+- the in-engine `RuntimeLevelBuilder` (`src/src/runtime_level_builder.gd`),
+- the community backend validator (`backend/src/validation.ts`),
+- the browser test handoff (`localStorage['pacoca_test_map']`).
 
-### Environment Variables
-
-- `PORT` — server port (default `8000`).
-- `GODOT_BIN` — Godot executable path (used if no path is saved in the editor).
-
-## Simple Mode (without server)
-
-You can open `index.html` directly via `file://` to draw, copy/download the ASCII/JSON representation, and compile manually. In this mode, the **Compile now** button will not work (browsers do not allow launching local processes) — use the command shown in the Compile tab instead.
+Keys: `platforms`, `ramps_up`, `ramps_down`, `rings`, `springs_vert`,
+`springs_diag`, `dash_pads`, `enemies`, `cactus_enemies`, `spikes`, `goals`,
+`spawn`, plus `theme` / `name`.
 
 ## Architecture
 
-- `index.html` / `app.js` / `styles.css` — the static web editor.
-- `icons/` — SVG icons for the palette blocks.
-- `levels/` — **source maps** (`.txt`/`.json`) saved by the editor (custom levels).
-- `server.py` — local Python server (stdlib, no dependencies). Serves the editor and exposes the JSON API (`/api/compile`, `/api/run`, `/api/config`, `/api/maps`).
-- Build scripts (`convert_map.py`, `generate_level.py`) remain in `src/scripts/` — the server merely orchestrates them. When compiling, it reads the map from `levels/` and writes the generated artifacts (`.py`/`.tscn`) to the Godot project (`src/`).
+- `index.html` / `app.js` / `styles.css` — the static web editor (no build step).
+- `icons/`, `images/` — palette and preview art.
+- `server.py` — **legacy/optional.** The old native pipeline (compile a map into a
+  `.tscn` via `convert_map.py` and launch native Godot). The editor no longer
+  depends on it; it is kept only for the offline/native workflow.
 
 Map syntax and design metrics: see [`docs/map_syntax.md`](../../docs/map_syntax.md).

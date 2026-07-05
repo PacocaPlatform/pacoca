@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paçoca — Plataforma 2.5D de ação veloz</title>
+    <meta name="description" content="Paçoca é um platformer 2.5D de ação veloz feito em Godot. Jogue no navegador, crie suas fases no Map Editor visual e publique para a comunidade.">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Paçoca — Plataforma 2.5D de ação veloz">
+    <meta property="og:description" content="Corra, pule e crie suas próprias fases. Jogue no navegador ou abra o Map Editor.">
+    <meta property="og:image" content="assets/hero.png">
+    <meta property="og:type" content="website">
+
+    <!-- Fonts: Press Start 2P (pixel display) + Outfit (UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Decorative sunset sky -->
+    <div class="sky" aria-hidden="true">
+        <div class="clouds"></div>
+        <div class="stars"></div>
+    </div>
+
+    <!-- NAV -->
+    <header class="nav">
+        <a class="nav-brand" href="#top">
+            <span class="nav-badge">2.5D</span>
+            <span class="nav-name">Paçoca</span>
+        </a>
+        <nav class="nav-links">
+            <a href="#recursos">Recursos</a>
+            <a href="#temas">Temas</a>
+            <a href="#comunidade">Comunidade</a>
+            <a class="nav-cta" data-link="editor" href="#">Map Editor</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <main id="top" class="hero">
+        <div class="hero-art">
+            <img src="assets/hero.png" alt="Paçoca, o dinossauro, correndo por um vale ao pôr do sol" fetchpriority="high">
+        </div>
+
+        <div class="hero-copy">
+            <p class="eyebrow">Platformer 2.5D · ação veloz · feito em Godot</p>
+            <h1>Corra rápido.<br>Pule alto.<br><span class="hl">Crie seu mundo.</span></h1>
+            <p class="lede">
+                Controle o <strong>Paçoca</strong> por fases velozes: giro carregado, investida
+                no ar, moedas, molas e inimigos — com física própria de aceleração e rampas.
+                Depois desenhe suas próprias fases e publique para a comunidade.
+            </p>
+
+            <div class="cta-row">
+                <a class="btn btn-play" data-link="play" href="#">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">
+                        <strong>Jogar agora</strong>
+                        <small>Roda no navegador</small>
+                    </span>
+                </a>
+                <a class="btn btn-editor" data-link="editor" href="#">
+                    <span class="btn-icon">✎</span>
+                    <span class="btn-text">
+                        <strong>Map Editor</strong>
+                        <small>Crie suas fases</small>
+                    </span>
+                </a>
+            </div>
+
+            <p class="hero-note" data-hero-note></p>
+        </div>
+    </main>
+
+    <!-- FEATURES -->
+    <section id="recursos" class="section">
+        <h2 class="section-title">O que tem em Paçoca</h2>
+        <div class="feature-grid">
+            <article class="feature">
+                <div class="feature-emoji">🏃</div>
+                <h3>Física com momentum</h3>
+                <p>Aceleração, atrito, força de rampa, giro carregável, investida diagonal no ar, coyote time e jump buffering.</p>
+            </article>
+            <article class="feature">
+                <div class="feature-emoji">🗺️</div>
+                <h3>Map Editor visual</h3>
+                <p>Pinte plataformas, rampas, moedas, molas e inimigos. Ferramentas de linha, retângulo, balde e seleção — com undo/redo completo.</p>
+            </article>
+            <article class="feature">
+                <div class="feature-emoji">🎮</div>
+                <h3>Teste em um clique</h3>
+                <p>Jogue sua fase direto no navegador — o jogo a monta em tempo real via WebAssembly. Sem compilar, sem instalar Godot.</p>
+            </article>
+            <article class="feature">
+                <div class="feature-emoji">🌍</div>
+                <h3>Fases da comunidade</h3>
+                <p>Publique o que você criou e jogue as fases de outras pessoas — carregadas direto no motor do jogo.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- THEMES -->
+    <section id="temas" class="section">
+        <h2 class="section-title">Quatro mundos, um dinossauro</h2>
+        <p class="section-sub">Cada fase escolhe um tema com materiais de terreno e parallax próprios.</p>
+        <div class="theme-strip">
+            <figure class="theme-card">
+                <img src="assets/themes/forest.png" alt="Tema Floresta" loading="lazy">
+                <figcaption>Floresta</figcaption>
+            </figure>
+            <figure class="theme-card">
+                <img src="assets/themes/glacial.png" alt="Tema Glacial" loading="lazy">
+                <figcaption>Glacial</figcaption>
+            </figure>
+            <figure class="theme-card">
+                <img src="assets/themes/city.png" alt="Tema Cidade" loading="lazy">
+                <figcaption>Cidade</figcaption>
+            </figure>
+            <figure class="theme-card">
+                <img src="assets/themes/cave.png" alt="Tema Caverna" loading="lazy">
+                <figcaption>Caverna</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- COMMUNITY -->
+    <section id="comunidade" class="section">
+        <h2 class="section-title">Feitas pela comunidade</h2>
+        <p class="section-sub">Fases publicadas por outros jogadores. Abra no Map Editor e jogue.</p>
+        <div class="community" data-community>
+            <p class="community-empty">Carregando fases…</p>
+        </div>
+    </section>
+
+    <!-- CTA BAND -->
+    <section class="cta-band">
+        <h2>Pronto pra correr?</h2>
+        <div class="cta-row cta-row--center">
+            <a class="btn btn-play" data-link="play" href="#">
+                <span class="btn-icon">▶</span>
+                <span class="btn-text"><strong>Jogar agora</strong><small>Roda no navegador</small></span>
+            </a>
+            <a class="btn btn-editor" data-link="editor" href="#">
+                <span class="btn-icon">✎</span>
+                <span class="btn-text"><strong>Abrir o Map Editor</strong><small>Crie suas fases</small></span>
+            </a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p><span class="nav-badge">2.5D</span> <strong>Paçoca</strong> — platformer feito com Godot 4.6 &amp; GDScript.</p>
+        <p class="footer-muted">Interface em português · Suporte a gamepad · Física própria</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

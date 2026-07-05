@@ -1,7 +1,7 @@
 class_name Player
 extends CharacterBody3D
 
-# Movement configuration (Sonic style)
+# Movement configuration (momentum style)
 # Exported names stay PascalCase for compatibility with existing .tscn files.
 @export var MaxSpeed := 24.0
 # Absolute horizontal speed cap (70 km/h = 19.44 m/s). Caps spin dash, slopes and boosts.
@@ -625,7 +625,7 @@ func play_sound(frequency: float, duration: float, volume := 0.5) -> void:
 
 
 func _play_ring_sound() -> void:
-	# Sonic-like chime sound: a sequence of two rapid high tones
+	# Arcade-like chime sound: a sequence of two rapid high tones
 	if _audio_playback == null:
 		return
 

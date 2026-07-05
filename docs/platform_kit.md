@@ -6,7 +6,7 @@ This documentation details the asset structure, physical metrics, and design gui
 
 ## 1. Spatial Rules and Alignment (2.5D)
 
-The game **Paçoca** is a fast-paced 3D platformer (Sonic-style) with gameplay locked to a two-dimensional plane.
+The game **Paçoca** is a fast-paced 3D platformer (momentum-based) with gameplay locked to a two-dimensional plane.
 
 > [!IMPORTANT]
 > **Z-Axis Alignment:**

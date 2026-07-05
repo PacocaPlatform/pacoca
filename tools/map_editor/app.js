@@ -30,11 +30,6 @@ let redoStack = [];
 let showGridlines = true;
 let activeTab = "tab-ascii";
 
-// --- Live View (sync with the running game) ---
-let liveActive = false;
-let liveInterval = null;
-let liveMarker = null;
-
 // --- Elements Catalog ---
 const ELEMENTS = [
     { symbol: "#", name: "Grass Platform", class: "platform", desc: "Basic solid block (CSGBox3D)", color: "var(--color-platform)" },
@@ -148,11 +143,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const tag = (e.target.tagName || "").toLowerCase();
         const typing = tag === "input" || tag === "textarea";
         if (e.key === "Escape") {
-            const settings = document.getElementById("settings-modal");
             const maps = document.getElementById("maps-modal");
             if (pasteMode) cancelPaste();
             else if (selection) clearSelection();
-            else if (settings && !settings.hidden) closeSettings();
             else if (maps && !maps.hidden) closeMaps();
             else setDrawer(false);
             return;
@@ -204,9 +197,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial setups
     updateDynamicTexts();
     generateExports();
-    loadGodotConfig();
-    checkGameStatus();
-    setInterval(checkGameStatus, 2000);
 });
 
 // --- UI Construction ---
@@ -838,7 +828,10 @@ function generateASCIIExport() {
     document.getElementById("ascii-output").value = output;
 }
 
-function generateJSONExport() {
+// Scans the drawing grid into the canonical *structured* level JSON consumed by
+// the in-engine RuntimeLevelBuilder, the community backend (/api/levels) and the
+// browser test flow. Returns the level object (does not touch the DOM).
+function buildStructuredMap() {
     // Prepare structures
     let spawn = [0.0, 1.5];
     let platforms = [];
@@ -1100,18 +1093,18 @@ function generateJSONExport() {
         spikes: spikes,
         goals: goals
     };
-    
-    document.getElementById("json-output").value = JSON.stringify(jsonObj, null, 2);
+
+    return jsonObj;
+}
+
+function generateJSONExport() {
+    document.getElementById("json-output").value = JSON.stringify(buildStructuredMap(), null, 2);
 }
 
 // --- Dynamic Text Updates ---
 
 function updateDynamicTexts() {
-    // Update IDs inside compiling guide tab
     document.querySelectorAll(".dynamic-level-id").forEach(el => el.innerText = levelId);
-    
-    const compileCmd = `python scripts/convert_map.py --input ../tools/map_editor/levels/level_${levelId}_map.txt --level ${levelId}`;
-    document.getElementById("compile-command").innerText = compileCmd;
 }
 
 // --- Import / Load Map Functionality ---
@@ -1488,17 +1481,24 @@ function copyToClipboard(elementId) {
     }
 }
 
-function copyCommand() {
-    const cmdText = document.getElementById("compile-command").innerText;
+
+// --- Saved maps (persistence) ---
+
+// Maps are stored in the browser (localStorage) — no server needed. Each entry
+// keeps the ASCII source so it round-trips back into the editor exactly.
+const MAPS_STORE_KEY = "pacoca_maps";
+
+function readMapsStore() {
     try {
-        navigator.clipboard.writeText(cmdText);
-        showToast("Command copied!", "terminal");
-    } catch (err) {
-        showToast("Error copying command.", "alert-triangle");
+        return JSON.parse(localStorage.getItem(MAPS_STORE_KEY) || "{}") || {};
+    } catch (e) {
+        return {};
     }
 }
 
-// --- Saved maps (persistence) ---
+function writeMapsStore(store) {
+    localStorage.setItem(MAPS_STORE_KEY, JSON.stringify(store));
+}
 
 function openMaps() {
     const modal = document.getElementById("maps-modal");
@@ -1506,13 +1506,8 @@ function openMaps() {
     lucide.createIcons();
     const hint = document.getElementById("maps-savehint");
     hint.textContent = levelId
-        ? `Saves as level_${levelId.padStart(2, "0")}_map.txt in tools/map_editor/levels/`
-        : "Give the level a name to save it.";
-    if (location.protocol === "file:") {
-        document.getElementById("maps-list").innerHTML =
-            '<p class="tab-note">Requires the local server (python tools/map_editor/server.py).</p>';
-        return;
-    }
+        ? `Salvo no navegador como "${levelName}".`
+        : "Dê um nome à fase para salvar.";
     refreshMapsList();
 }
 
@@ -1536,106 +1531,80 @@ function formatMtime(epochSeconds) {
     }
 }
 
-async function refreshMapsList() {
+function refreshMapsList() {
     const list = document.getElementById("maps-list");
-    list.innerHTML = '<p class="tab-note">Loading...</p>';
-    try {
-        const resp = await fetch("/api/maps");
-        const data = await resp.json();
-        const maps = (data && data.maps) || [];
-        if (!maps.length) {
-            list.innerHTML = '<p class="tab-note">No maps saved yet. Draw and click "Save current map".</p>';
-            return;
-        }
-        list.innerHTML = "";
-        maps.forEach(m => {
-            const row = document.createElement("div");
-            row.className = "map-row";
-            const name = m.name ? m.name : "(no name)";
-            row.innerHTML = `
-                <div class="map-meta">
-                    <span class="map-badge">${m.level}</span>
-                    <div class="map-text">
-                        <span class="map-name">${escapeHtml(name)}</span>
-                        <span class="map-sub">${m.file} · ${formatMtime(m.mtime)}</span>
-                    </div>
+    const store = readMapsStore();
+    const ids = Object.keys(store).sort((a, b) => (store[b].mtime || 0) - (store[a].mtime || 0));
+    if (!ids.length) {
+        list.innerHTML = '<p class="tab-note">Nenhuma fase salva ainda. Desenhe e clique em "Salvar fase".</p>';
+        return;
+    }
+    list.innerHTML = "";
+    ids.forEach(id => {
+        const m = store[id];
+        const row = document.createElement("div");
+        row.className = "map-row";
+        const name = m.name ? m.name : "(sem nome)";
+        row.innerHTML = `
+            <div class="map-meta">
+                <span class="map-badge">${escapeHtml(m.theme || "forest").slice(0, 3)}</span>
+                <div class="map-text">
+                    <span class="map-name">${escapeHtml(name)}</span>
+                    <span class="map-sub">${formatMtime((m.mtime || 0) / 1000)}</span>
                 </div>
-                <div class="map-actions">
-                    <button class="btn btn-sm btn-secondary" title="Open to edit"><i data-lucide="pencil"></i> Edit</button>
-                    <button class="btn btn-sm btn-danger-outline" title="Delete"><i data-lucide="trash-2"></i></button>
-                </div>
-            `;
-            const [editBtn, delBtn] = row.querySelectorAll("button");
-            editBtn.onclick = () => openMap(m.level, m.format);
-            delBtn.onclick = () => deleteMap(m.level, m.format, name);
-            list.appendChild(row);
-        });
-        lucide.createIcons();
+            </div>
+            <div class="map-actions">
+                <button class="btn btn-sm btn-secondary" title="Abrir para editar"><i data-lucide="pencil"></i> Editar</button>
+                <button class="btn btn-sm btn-danger-outline" title="Excluir"><i data-lucide="trash-2"></i></button>
+            </div>
+        `;
+        const [editBtn, delBtn] = row.querySelectorAll("button");
+        editBtn.onclick = () => openMap(id);
+        delBtn.onclick = () => deleteMap(id, name);
+        list.appendChild(row);
+    });
+    lucide.createIcons();
+}
+
+function saveCurrentMap() {
+    if (!levelId) { showToast("Dê um nome à fase primeiro!", "alert-triangle"); return; }
+    const store = readMapsStore();
+    store[levelId] = {
+        name: levelName,
+        theme: levelTheme,
+        format: "txt",
+        content: document.getElementById("ascii-output").value,
+        mtime: Date.now()
+    };
+    try {
+        writeMapsStore(store);
+        showToast(`Fase "${levelName}" salva no navegador`, "save");
+        refreshMapsList();
     } catch (err) {
-        list.innerHTML = '<p class="tab-note">Local server not found.</p>';
+        showToast("Não foi possível salvar (armazenamento cheio?)", "alert-triangle");
     }
 }
 
-async function saveCurrentMap() {
-    if (location.protocol === "file:") { showToast("Requires local server", "alert-triangle"); return; }
-    if (!levelId) { showToast("Give the level a name first!", "alert-triangle"); return; }
-    try {
-        const content = document.getElementById("ascii-output").value;
-        const resp = await fetch("/api/maps", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ level: levelId, format: "txt", content })
-        });
-        const data = await resp.json();
-        if (data.ok) {
-            showToast(`Map saved: ${data.file}`, "save");
-            refreshMapsList();
-        } else {
-            showToast(data.error || "Failed to save", "alert-triangle");
-        }
-    } catch (err) {
-        showToast("Local server not found", "alert-triangle");
+function openMap(id) {
+    const store = readMapsStore();
+    const m = store[id];
+    if (!m) { showToast("Fase não encontrada", "alert-triangle"); return; }
+    if (m.format === "json") {
+        importJSON(typeof m.content === "string" ? JSON.parse(m.content) : m.content);
+    } else {
+        importASCII(m.content);
     }
+    closeMaps();
+    showToast(`Fase "${m.name || id}" carregada`, "pencil");
 }
 
-async function openMap(level, format) {
-    try {
-        const resp = await fetch(`/api/maps/item?level=${encodeURIComponent(level)}&format=${encodeURIComponent(format)}`);
-        const data = await resp.json();
-        if (!data.ok) {
-            showToast(data.error || "Failed to open", "alert-triangle");
-            return;
-        }
-        if (data.format === "json") {
-            importJSON(JSON.parse(data.content));
-        } else {
-            importASCII(data.content);
-        }
-        closeMaps();
-        showToast(`Map ${data.level} loaded for editing`, "pencil");
-    } catch (err) {
-        showToast("Local server not found", "alert-triangle");
-    }
-}
-
-async function deleteMap(level, format, name) {
-    if (!confirm(`Delete map for level ${level}${name ? ` ("${name}")` : ""}? This action cannot be undone.`)) return;
-    try {
-        const resp = await fetch("/api/maps/delete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ level, format })
-        });
-        const data = await resp.json();
-        if (data.ok) {
-            showToast(`Map ${level} deleted`, "trash-2");
-            refreshMapsList();
-        } else {
-            showToast(data.error || "Failed to delete", "alert-triangle");
-        }
-    } catch (err) {
-        showToast("Local server not found", "alert-triangle");
-    }
+function deleteMap(id, name) {
+    if (!confirm(`Excluir a fase${name ? ` "${name}"` : ""}? Esta ação não pode ser desfeita.`)) return;
+    const store = readMapsStore();
+    delete store[id];
+    writeMapsStore(store);
+    showToast(`Fase excluída`, "trash-2");
+    refreshMapsList();
 }
 
 function escapeHtml(s) {
@@ -1644,295 +1613,87 @@ function escapeHtml(s) {
     }[c]));
 }
 
-// --- Godot path configuration ---
+// --- Online play & publish -------------------------------------------------
+//
+// Fully client-side: no Python server. "Testar" hands the current drawing to the
+// WebAssembly game via localStorage (same origin); "Publicar" posts the
+// structured level to the community backend (/api/levels). The game and editor
+// deploy as sibling folders (../play/ and ../editor/) on the same origin.
 
-const GODOT_SOURCE_LABELS = {
-    saved: "manually defined",
-    env: "GODOT_BIN env variable",
-    path: "detected in PATH",
-    default: "default path",
-};
+const TEST_MAP_KEY = "pacoca_test_map";   // shared with the WASM game (game_settings.gd)
+const GAME_URL = "../play/";              // exported Godot WASM build
+const API_BASE = "/api";                  // community levels Worker
 
-function applyGodotConfig(data) {
-    const input = document.getElementById("godot-path");
-    const status = document.getElementById("godot-status");
-    if (data && data.godot_bin && document.activeElement !== input) {
-        input.value = data.godot_bin;
-    }
-    status.classList.remove("ok", "bad");
-    if (!data || !data.ok) {
-        status.textContent = "Could not read configuration.";
-        status.classList.add("bad");
+// Builds the level, checks it has the essentials, and returns it (or null after
+// showing a toast). `soft` downgrades the missing-goal error to a warning.
+function prepareLevelForPlay() {
+    if (!levelId) { showToast("Dê um nome à fase primeiro!", "alert-triangle"); return null; }
+    const map = buildStructuredMap();
+    const hasTerrain = (map.platforms.length + map.ramps_up.length + map.ramps_down.length) > 0;
+    if (!hasTerrain) { showToast("Desenhe ao menos uma plataforma", "alert-triangle"); return null; }
+    if (!map.goals.length) showToast("Aviso: a fase não tem chegada (G)", "alert-triangle");
+    return map;
+}
+
+// "Testar" — open the WASM game straight into the current drawing.
+function testLevel() {
+    const map = prepareLevelForPlay();
+    if (!map) return;
+    try {
+        localStorage.setItem(TEST_MAP_KEY, JSON.stringify(map));
+    } catch (err) {
+        showToast("Não foi possível preparar o teste (armazenamento cheio?)", "alert-triangle");
         return;
     }
-    const label = GODOT_SOURCE_LABELS[data.source] || data.source;
-    if (data.exists) {
-        status.textContent = `✓ Godot found · ${label}`;
-        status.classList.add("ok");
-    } else {
-        status.textContent = `✗ Not found at this path (${label})`;
-        status.classList.add("bad");
-    }
+    showToast("Abrindo a fase no navegador…", "gamepad-2");
+    window.open(GAME_URL + "?custom=1", "_blank");
 }
 
-async function loadGodotConfig() {
-    if (location.protocol === "file:") return;
-    try {
-        const resp = await fetch("/api/config");
-        applyGodotConfig(await resp.json());
-    } catch (err) {
-        // server not reachable; leave defaults
-    }
+// "Jogar" — open the game's main menu.
+function runGame() {
+    window.open(GAME_URL, "_blank");
 }
 
-function openSettings() {
-    const modal = document.getElementById("settings-modal");
-    modal.hidden = false;
-    lucide.createIcons();
-    if (location.protocol === "file:") {
-        const status = document.getElementById("godot-status");
-        status.textContent = "Requires the local server (python tools/map_editor/server.py).";
-        status.classList.remove("ok");
-        status.classList.add("bad");
-        return;
-    }
-    loadGodotConfig();
-    setTimeout(() => document.getElementById("godot-path").focus(), 50);
-}
+// "Publicar" — submit the level to the community backend.
+async function publishLevel() {
+    const map = prepareLevelForPlay();
+    if (!map) return;
 
-function closeSettings() {
-    document.getElementById("settings-modal").hidden = true;
-}
-
-function onSettingsBackdrop(e) {
-    if (e.target === document.getElementById("settings-modal")) closeSettings();
-}
-
-async function postGodotConfig(godotBin) {
-    const resp = await fetch("/api/config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ godot_bin: godotBin })
-    });
-    return resp.json();
-}
-
-async function detectGodot() {
-    if (location.protocol === "file:") { showToast("Requires local server", "alert-triangle"); return; }
-    try {
-        // Clearing the saved value makes the server auto-detect (env -> PATH -> default).
-        const data = await postGodotConfig("");
-        applyGodotConfig(data);
-        if (data.exists && data.source === "path") showToast("Godot detected in PATH!", "check");
-        else if (data.exists) showToast("Using Godot (" + (GODOT_SOURCE_LABELS[data.source] || data.source) + ")", "check");
-        else showToast("Godot not found in PATH — specify the path", "alert-triangle");
-    } catch (err) {
-        showToast("Local server not found", "alert-triangle");
-    }
-}
-
-async function saveGodotPath() {
-    if (location.protocol === "file:") { showToast("Requires local server", "alert-triangle"); return; }
-    const value = document.getElementById("godot-path").value.trim();
-    try {
-        const data = await postGodotConfig(value);
-        applyGodotConfig(data);
-        if (data.exists) showToast("Godot path saved!", "check");
-        else showToast("Saved, but the path does not exist", "alert-triangle");
-    } catch (err) {
-        showToast("Local server not found", "alert-triangle");
-    }
-}
-
-async function testLevel() {
-    if (location.protocol === "file:") {
-        showToast("Use the local server to test the stage", "alert-triangle");
-        return;
-    }
-    if (!levelId) { showToast("Give the level a name first!", "alert-triangle"); return; }
-
-    const btn = document.getElementById("btn-test-level");
-    const resultBox = document.getElementById("compile-result");
-    btn.disabled = true;
-    showToast("Compiling level " + levelId + "...", "hammer");
-
-    try {
-        // 1. Compile the current ASCII map.
-        const content = document.getElementById("ascii-output").value;
-        const cResp = await fetch("/api/compile", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ level: levelId, format: "txt", content })
-        });
-        const cData = await cResp.json();
-
-        if (!cData.ok) {
-            openDrawerTab("tab-instructions");
-            resultBox.hidden = false;
-            resultBox.textContent =
-                "❌ Compilation failed:\n\n" +
-                ((cData.stderr || cData.error || "").trim()) +
-                (cData.stdout ? "\n\n" + cData.stdout.trim() : "");
-            showToast("Compilation failed", "alert-triangle");
-            return;
-        }
-
-        // 2. Launch Godot straight into this level.
-        showToast("Compiled! Starting Godot...", "gamepad-2");
-        const rResp = await fetch("/api/run", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ level: levelId })
-        });
-        const rData = await rResp.json();
-
-        if (rData.ok) {
-            showToast(`Testing level ${rData.level} in Godot!`, "check");
-            if (rData.build_warning) showToast(rData.build_warning, "alert-triangle");
-            // Enter live view: follow the player on the map as soon as the game connects.
-            startLiveView();
-            setStopButtonState(true);
-        } else {
-            openDrawerTab("tab-instructions");
-            resultBox.hidden = false;
-            resultBox.textContent =
-                "❌ " + (rData.error || "Failed to start Godot") +
-                (rData.build_log ? "\n\n" + rData.build_log.trim() : "");
-            showToast(rData.error || "Failed to execute", "alert-triangle");
-        }
-    } catch (err) {
-        showToast("Local server not found", "alert-triangle");
-    } finally {
-        btn.disabled = false;
-    }
-}
-
-async function runGame() {
-    if (location.protocol === "file:") {
-        showToast("Use the local server to run", "alert-triangle");
-        return;
-    }
-    showToast("Starting Godot...", "gamepad-2");
-    try {
-        const resp = await fetch("/api/run", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: "{}"
-        });
-        const data = await resp.json();
-        if (data.ok) {
-            showToast("Godot started!", "check");
-            setStopButtonState(true);
-        } else {
-            showToast(data.error || "Failed to start Godot", "alert-triangle");
-        }
-    } catch (err) {
-        showToast("Local server not found", "alert-triangle");
-    }
-}
-
-async function stopGame() {
-    if (location.protocol === "file:") {
-        showToast("Requires local server", "alert-triangle");
-        return;
-    }
-    const btn = document.getElementById("btn-stop-game");
+    const btn = document.getElementById("btn-publish");
+    const author = (localStorage.getItem("pacoca_author") || "").trim();
     if (btn) btn.disabled = true;
-    showToast("Stopping game...", "hammer");
+    showToast("Publicando…", "upload-cloud");
     try {
-        const resp = await fetch("/api/stop", {
-            method: "POST"
+        const resp = await fetch(`${API_BASE}/levels`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: levelName,
+                theme: levelTheme,
+                map: map,
+                author_name: author || undefined
+            })
         });
-        const data = await resp.json();
-        if (data.ok) {
-            showToast("Game stopped!", "check");
-            setStopButtonState(false);
-            stopLiveView();
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok && data.id) {
+            showToast(`Publicada! Fase #${data.id} na comunidade`, "check");
         } else {
-            showToast(data.error || "Failed to stop game", "alert-triangle");
-            if (btn) btn.disabled = false;
+            showToast(data.error || `Falha ao publicar (HTTP ${resp.status})`, "alert-triangle");
         }
     } catch (err) {
-        showToast("Local server not found", "alert-triangle");
+        showToast("Backend da comunidade indisponível", "alert-triangle");
+    } finally {
         if (btn) btn.disabled = false;
     }
 }
 
-async function checkGameStatus() {
-    if (location.protocol === "file:") return;
-    try {
-        const resp = await fetch("/api/status");
-        const data = await resp.json();
-        setStopButtonState(data.ok && data.running);
-    } catch (err) {
-        setStopButtonState(false);
-    }
-}
-
-function setStopButtonState(running) {
-    const btn = document.getElementById("btn-stop-game");
-    if (btn) {
-        btn.disabled = !running;
-    }
-}
-
-async function compileLevel() {
-    const btn = document.getElementById("btn-compile-live");
-    const resultBox = document.getElementById("compile-result");
-
-    if (location.protocol === "file:") {
-        resultBox.hidden = false;
-        resultBox.textContent =
-            "⚠️ You opened the editor via file://, which cannot compile.\n" +
-            "Start the local server and open it in the browser:\n\n" +
-            "  python tools/map_editor/server.py\n" +
-            "  http://localhost:8000";
-        showToast("Use the local server to compile", "alert-triangle");
-        return;
-    }
-
-    if (!levelId) { showToast("Give the level a name first!", "alert-triangle"); return; }
-
-    const content = document.getElementById("ascii-output").value;
-    resultBox.hidden = false;
-    resultBox.textContent = "⏳ Compiling level " + levelId + "...";
-    btn.disabled = true;
-
-    try {
-        const resp = await fetch("/api/compile", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ level: levelId, format: "txt", content })
-        });
-        const data = await resp.json();
-
-        if (data.ok) {
-            resultBox.textContent =
-                `✅ Level ${data.level} compiled successfully!\n` +
-                `Map:   ${data.map_file}\n` +
-                `Scene: ${data.scene_file}\n\n` +
-                `Open/reload the project in Godot to test.\n\n` +
-                (data.stdout || "").trim();
-            showToast(`Level ${data.level} ready for Godot!`, "check");
-        } else {
-            resultBox.textContent =
-                `❌ Compilation failed.\n\n` +
-                ((data.stderr || data.error || "").trim()) +
-                (data.stdout ? "\n\n" + data.stdout.trim() : "");
-            showToast("Compilation failed", "alert-triangle");
-        }
-    } catch (err) {
-        resultBox.textContent =
-            "⚠️ Could not connect to the local server.\n" +
-            "Make sure it is running:\n\n" +
-            "  python tools/map_editor/server.py\n" +
-            "  http://localhost:8000\n\n" +
-            "Detail: " + err.message;
-        showToast("Local server not found", "alert-triangle");
-    } finally {
-        btn.disabled = false;
-    }
-}
+// Removed with the Python server (native compile/run/telemetry). Kept as no-ops
+// so any stray references stay harmless.
+function stopGame() {}
+function setStopButtonState() {}
+function startLiveView() {}
+function stopLiveView() {}
+function toggleLiveView() {}
 
 function downloadFile(format) {
     const levelIdSanitized = levelId.padStart(2, '0');
@@ -2092,98 +1853,11 @@ function onPreviewClick(e) {
     renderPreview();
 }
 
-// --- Live View: follow the running player on the drawn map ---------------- //
-// The game POSTs its position to /api/telemetry (~15 Hz); we poll it and draw a
-// marker over #map-grid using the same coordinate mapping the editor uses
-// (col = X / 2.0, visual row = (gridHeight - 1) - Y / Y_STEP).
-
+// Cell size in px (used by the preview minimap navigation and scrolling).
 function getCellSize() {
     const v = getComputedStyle(document.documentElement).getPropertyValue("--grid-cell-size");
     const n = parseFloat(v);
     return isNaN(n) ? 38 : n;
-}
-
-// The marker lives inside #map-grid so it inherits the grid's zoom transform.
-// renderGrid() wipes the grid's children, so we (re)create it on demand.
-function ensureLiveMarker() {
-    const mapGrid = document.getElementById("map-grid");
-    if (!liveMarker || !liveMarker.isConnected) {
-        liveMarker = document.createElement("div");
-        liveMarker.className = "live-player";
-        liveMarker.innerHTML = '<span class="live-player-dot"></span><span class="live-player-label">P</span>';
-    }
-    if (liveMarker.parentElement !== mapGrid) mapGrid.appendChild(liveMarker);
-    return liveMarker;
-}
-
-async function pollTelemetry() {
-    const ind = document.getElementById("live-indicator");
-    try {
-        const resp = await fetch("/api/telemetry", { cache: "no-store" });
-        const data = await resp.json();
-
-        if (!data.connected) {
-            if (liveMarker) liveMarker.style.display = "none";
-            if (ind) ind.textContent = "● waiting for the game…";
-            if (data.exited) {
-                stopLiveView();
-            }
-            return;
-        }
-
-        const cell = getCellSize();
-        const c = data.x / X_STEP;
-        const r = (gridHeight - 1) - (data.y / Y_STEP);
-
-        const marker = ensureLiveMarker();
-        marker.style.display = "block";
-        marker.style.left = ((c + 0.5) * cell) + "px";
-        marker.style.top = ((r + 0.5) * cell) + "px";
-        marker.classList.toggle("airborne", !data.on_floor);
-
-        if (ind) {
-            ind.textContent =
-                `● live · X ${data.x.toFixed(1)}m  Y ${data.y.toFixed(1)}m · ${data.speed.toFixed(1)} m/s`;
-        }
-
-        // Auto-follow horizontally so the player stays centered in the viewport.
-        const container = document.getElementById("grid-container");
-        if (container) {
-            container.scrollLeft = (c + 0.5) * cell * zoomLevel - container.clientWidth / 2;
-        }
-    } catch (err) {
-        if (ind) ind.textContent = "● local server unreachable";
-    }
-}
-
-function startLiveView() {
-    if (liveActive) return;
-    liveActive = true;
-
-    const btn = document.getElementById("btn-live");
-    if (btn) btn.classList.add("active");
-    const ind = document.getElementById("live-indicator");
-    if (ind) { ind.hidden = false; ind.textContent = "● connecting…"; }
-
-    pollTelemetry();
-    liveInterval = setInterval(pollTelemetry, 100);
-}
-
-function stopLiveView() {
-    liveActive = false;
-    if (liveInterval) { clearInterval(liveInterval); liveInterval = null; }
-
-    const btn = document.getElementById("btn-live");
-    if (btn) btn.classList.remove("active");
-    const ind = document.getElementById("live-indicator");
-    if (ind) ind.hidden = true;
-    if (liveMarker) liveMarker.style.display = "none";
-    setStopButtonState(false);
-}
-
-function toggleLiveView() {
-    if (liveActive) stopLiveView();
-    else startLiveView();
 }
 
 function showToast(message, iconName = "info") {

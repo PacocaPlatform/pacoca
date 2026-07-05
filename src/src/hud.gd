@@ -38,7 +38,7 @@ func _process(delta: float) -> void:
 		var seconds := int(elapsed) % 60
 		var centiseconds := int(elapsed * 100) % 100
 
-		# Format time as 0' 13" 71 like Sonic games
+		# Format time as 0' 13" 71 like classic arcade platformers
 		_time_label.text = "%d' %02d\" %02d" % [minutes, seconds, centiseconds]
 
 	# Blinking Rings label when rings are zero
@@ -55,7 +55,7 @@ func _process(delta: float) -> void:
 
 
 func _on_player_stats_changed(rings: int, score: int, speed: float, lives: int) -> void:
-	# Sonic score uses 9 digits (e.g. 000000300)
+	# The score uses 9 digits (e.g. 000000300)
 	_score_label.text = "%09d" % score
 	_rings_label.text = "%03d" % rings
 	_lives_label.text = "x %02d" % lives
