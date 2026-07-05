@@ -49,6 +49,13 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
 	const path = url.pathname.replace(/\/+$/, "");
 	const method = request.method;
 
+	// Non-API paths are the static site (landing + game + editor), served from
+	// the R2 bucket so the oversized game files (index.pck ~137MB, index.wasm
+	// ~38MB) sidestep the 25 MiB/file limit of Pages/Static Assets.
+	if (path !== "/api" && !path.startsWith("/api/")) {
+		return serveStatic(request, env, url);
+	}
+
 	if (method === "GET" && path === "/api/health") {
 		return json({ ok: true });
 	}
@@ -72,6 +79,70 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
 	}
 
 	return json({ error: "not found" }, 404);
+}
+
+// --- Static assets from R2 -------------------------------------------------
+//
+// The deploy bundle (build/dist/) is uploaded to the R2 bucket bound as ASSETS
+// (see deploy_r2.sh). This keeps everything — site, game and API — on one origin,
+// which the editor's localStorage handoff and the same-origin /api both need.
+
+const CONTENT_TYPES: Record<string, string> = {
+	html: "text/html; charset=utf-8",
+	js: "text/javascript; charset=utf-8",
+	mjs: "text/javascript; charset=utf-8",
+	css: "text/css; charset=utf-8",
+	json: "application/json; charset=utf-8",
+	wasm: "application/wasm", // must be exact for streaming compilation
+	pck: "application/octet-stream",
+	png: "image/png",
+	jpg: "image/jpeg",
+	jpeg: "image/jpeg",
+	gif: "image/gif",
+	svg: "image/svg+xml",
+	ico: "image/x-icon",
+	webp: "image/webp",
+	txt: "text/plain; charset=utf-8",
+	woff2: "font/woff2",
+	wav: "audio/wav",
+	mp3: "audio/mpeg",
+	ogg: "audio/ogg",
+};
+
+// Maps a URL path to an R2 object key: strips the leading slash, resolves
+// directories to index.html, and blocks `..` traversal.
+function assetKey(pathname: string): string {
+	let p = decodeURIComponent(pathname).replace(/^\/+/, "");
+	if (p === "" || p.endsWith("/")) p += "index.html";
+	return p.replace(/\.\.+/g, "").replace(/\/{2,}/g, "/");
+}
+
+async function serveStatic(request: Request, env: Env, url: URL): Promise<Response> {
+	if (!env.ASSETS) return json({ error: "not found (no ASSETS bucket bound)" }, 404);
+	if (request.method !== "GET" && request.method !== "HEAD") {
+		return json({ error: "method not allowed" }, 405);
+	}
+
+	let key = assetKey(url.pathname);
+	let obj = await env.ASSETS.get(key);
+
+	// Bare directory path without a trailing slash (e.g. /editor) -> its index.
+	if (!obj && !key.includes(".")) {
+		key = key.replace(/\/+$/, "") + "/index.html";
+		obj = await env.ASSETS.get(key);
+	}
+	if (!obj || !obj.body) return json({ error: "not found" }, 404);
+
+	const ext = key.slice(key.lastIndexOf(".") + 1).toLowerCase();
+	const headers = new Headers();
+	// Trust our own extension map first so .wasm is always application/wasm.
+	headers.set("content-type", CONTENT_TYPES[ext] ?? obj.httpMetadata?.contentType ?? "application/octet-stream");
+	headers.set("etag", obj.httpEtag);
+	// index.html changes on every deploy; other assets keep the fixed names Godot
+	// emits, so revalidate them too but allow a short cache.
+	headers.set("cache-control", ext === "html" ? "public, max-age=60" : "public, max-age=3600");
+
+	return new Response(request.method === "HEAD" ? null : obj.body, { headers });
 }
 
 // GET /api/levels — public listing (no heavy map_json payload).

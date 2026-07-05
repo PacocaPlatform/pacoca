@@ -15,5 +15,16 @@
 			// Local `wrangler dev` uses a local SQLite file and ignores this id.
 			"database_id": "REPLACE_WITH_D1_ID"
 		}
+	],
+	// The static site (landing + game + editor) is served from this R2 bucket by
+	// the Worker (src/index.ts serveStatic + deploy_r2.sh). R2 has no per-file size
+	// limit, so the game's index.pck (~137MB) / index.wasm (~38MB) upload fine.
+	"r2_buckets": [
+		{
+			"binding": "ASSETS",
+			"bucket_name": "pacoca-site"
+		}
 	]
+	// To serve on your own domain, add a custom-domain route (dashboard, or here):
+	// "routes": [{ "pattern": "pacoca.games", "custom_domain": true }]
 }

@@ -35,14 +35,20 @@ Web):
 GODOT=/path/to/Godot_v4.6.3-stable_console ./tools/export_web.sh
 ```
 
-### Assembling the deploy folder
+### Assembling & hosting
 
 `build_dist.sh` (repo root) assembles the layout above with real copies into
-`build/dist/`. Upload the **contents of `build/dist/`** as the site root:
+`build/dist/`:
 
 ```bash
 ./build_dist.sh                   # from the repo root -> build/dist/
 ```
+
+Host it on Cloudflare, where a single Worker serves the static files from R2 and
+`/api/*` from D1 on one origin — `deploy_r2.sh` uploads the bundle. Plain
+Cloudflare Pages won't work: it rejects files over 25 MiB, and the game's
+`index.pck`/`index.wasm` exceed that. Full steps:
+[`../backend/README.md`](../backend/README.md).
 
 ## Local preview
 

@@ -69,18 +69,29 @@ GODOT=/path/to/Godot ./tools/export_web.sh      # writes build/web/
 ./preview.sh            # http://localhost:8000  (/, /play/, /editor/)
 ```
 
-**2b. Build the deploy bundle** — real copies, ready to upload:
+**2b. Build the deploy bundle** — real copies, one folder:
 
 ```bash
 ./build_dist.sh         # writes build/dist/
 ```
 
-Upload the **contents of `build/dist/`** as the site root (e.g. Cloudflare Pages),
-and deploy `backend/` separately so it answers `/api/*` on the same origin. The
-backend is optional: without it, only **Publicar** and the community levels list
-are unavailable (with a friendly message) — playing, testing, and saving levels
-in the browser all work offline. See [`site/README.md`](site/README.md) for
-details.
+**3. Host it.** The recommended target is Cloudflare, where **one Worker serves
+both the static site (from R2) and `/api/*` (from D1)** on a single origin:
+
+```bash
+./deploy_r2.sh                      # upload build/dist/ to the R2 bucket
+(cd backend && npm run deploy)      # deploy the Worker
+```
+
+> ⚠️ Don't use plain Cloudflare Pages: it (and Workers Static Assets) rejects
+> files over **25 MiB**, and the game's `index.pck` (~137MB) and `index.wasm`
+> (~38MB) exceed that. R2 has no per-file limit, which is why the Worker serves
+> the static files from an R2 bucket. Full steps: [`backend/README.md`](backend/README.md).
+
+The backend is optional for the game itself: without it, only **Publicar** and
+the community levels list are unavailable (with a friendly message) — playing,
+testing, and saving levels in the browser all work offline. See
+[`site/README.md`](site/README.md) for the layout details.
 
 ## Project Structure
 
@@ -89,7 +100,8 @@ details.
 ```
 Paçoca/
 ├── preview.sh              # Local web preview (landing + game + editor, one origin)
-├── build_dist.sh           # Assemble build/dist/ to upload to a static host
+├── build_dist.sh           # Assemble build/dist/ (the deploy bundle)
+├── deploy_r2.sh            # Upload build/dist/ to the Cloudflare R2 bucket
 ├── site/                   # Landing page (static; deploys at /)
 ├── build/web/              # Exported WASM game (generated; deploys at /play/)
 ├── backend/                # Community-levels API (Cloudflare Worker; /api/*)
