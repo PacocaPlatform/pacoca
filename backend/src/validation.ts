@@ -6,6 +6,9 @@
 export const THEMES = ["forest", "glacial", "cidade", "caverna"] as const;
 export const DEFAULT_THEME = "forest";
 
+export const DIFFICULTIES = ["infantil", "iniciante", "normal", "hard", "impossible"] as const;
+export const DEFAULT_DIFFICULTY = "normal";
+
 export const MAX_NAME_LEN = 80;
 export const MAX_JSON_BYTES = 512 * 1024; // 512 KB raw map JSON
 export const MAX_TERRAIN = 6000; // platforms + ramps
@@ -28,6 +31,7 @@ const ARRAY_KEYS = [...TERRAIN_KEYS, ...OBJECT_KEYS];
 export interface CleanLevel {
 	name: string;
 	theme: string;
+	difficulty: string;
 	author_name: string | null;
 	map: Record<string, unknown>;
 	map_json: string;
@@ -53,6 +57,9 @@ export function validatePublish(body: unknown): ValidationResult {
 	let theme = typeof b.theme === "string" ? b.theme.trim().toLowerCase() : DEFAULT_THEME;
 	if (!(THEMES as readonly string[]).includes(theme)) theme = DEFAULT_THEME;
 
+	let difficulty = typeof b.difficulty === "string" ? b.difficulty.trim().toLowerCase() : DEFAULT_DIFFICULTY;
+	if (!(DIFFICULTIES as readonly string[]).includes(difficulty)) difficulty = DEFAULT_DIFFICULTY;
+
 	let author_name: string | null = null;
 	if (typeof b.author_name === "string" && b.author_name.trim().length > 0) {
 		author_name = b.author_name.trim().slice(0, MAX_NAME_LEN);
@@ -76,7 +83,7 @@ export function validatePublish(body: unknown): ValidationResult {
 		return { ok: false, error: `map too large (max ${MAX_JSON_BYTES} bytes)` };
 	}
 
-	return { ok: true, value: { name, theme, author_name, map, map_json } };
+	return { ok: true, value: { name, theme, difficulty, author_name, map, map_json } };
 }
 
 // Validates the structured map: every known collection must be an array, and
@@ -101,7 +108,7 @@ export function validateMap(map: Record<string, unknown>): ValidationResult {
 	}
 
 	// Cheap dummy result — callers that only need the counts ignore `value`.
-	return { ok: true, value: { name: "", theme: DEFAULT_THEME, author_name: null, map, map_json: "" } };
+	return { ok: true, value: { name: "", theme: DEFAULT_THEME, difficulty: DEFAULT_DIFFICULTY, author_name: null, map, map_json: "" } };
 }
 
 function byteLength(s: string): number {

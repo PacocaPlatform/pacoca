@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paçoca — Plataforma 2.5D de ação veloz</title>
-    <meta name="description" content="Paçoca é um platformer 2.5D de ação veloz feito em Godot. Jogue no navegador, crie suas fases no Map Editor visual e publique para a comunidade.">
+    <meta name="description" content="Paçoca é um platformer 2.5D de ação veloz. Jogue direto no navegador, crie suas fases no Map Editor visual e publique para a comunidade.">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
     <!-- Open Graph -->
@@ -17,6 +17,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- Google Identity Services (Sign in with Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -37,7 +40,11 @@
             <a href="#recursos">Recursos</a>
             <a href="#temas">Temas</a>
             <a href="#comunidade">Comunidade</a>
-            <a class="nav-cta" data-link="editor" href="#">Map Editor</a>
+            <a href="fases/">Fases</a>
+            <a data-auth-link hidden href="minhas/">Minhas fases</a>
+            <a data-admin-link hidden href="admin/">Moderação</a>
+            <a class="nav-cta nav-editor" data-link="editor" href="#">Map Editor</a>
+            <span class="nav-auth" data-auth-slot></span>
         </nav>
     </header>
 
@@ -48,7 +55,7 @@
         </div>
 
         <div class="hero-copy">
-            <p class="eyebrow">Platformer 2.5D · ação veloz · feito em Godot</p>
+            <p class="eyebrow">Platformer 2.5D · ação veloz · jogue no navegador</p>
             <h1>Corra rápido.<br>Pule alto.<br><span class="hl">Crie seu mundo.</span></h1>
             <p class="lede">
                 Controle o <strong>Paçoca</strong> por fases velozes: giro carregado, investida
@@ -94,7 +101,7 @@
             <article class="feature">
                 <div class="feature-emoji">🎮</div>
                 <h3>Teste em um clique</h3>
-                <p>Jogue sua fase direto no navegador — o jogo a monta em tempo real via WebAssembly. Sem compilar, sem instalar Godot.</p>
+                <p>Jogue sua fase direto no navegador — o jogo a monta na hora. Sem instalar nada, sem download.</p>
             </article>
             <article class="feature">
                 <div class="feature-emoji">🌍</div>
@@ -131,9 +138,28 @@
     <!-- COMMUNITY -->
     <section id="comunidade" class="section">
         <h2 class="section-title">Feitas pela comunidade</h2>
-        <p class="section-sub">Fases publicadas por outros jogadores. Abra no Map Editor e jogue.</p>
-        <div class="community" data-community>
+        <p class="section-sub">Fases publicadas por outros jogadores. Abra a fase e jogue no navegador.</p>
+
+        <p class="feed-browse-cta">
+            <a class="btn btn-editor" href="fases/">
+                <span class="btn-icon">🗂️</span>
+                <span class="btn-text"><strong>Ver todas as fases</strong><small>Filtre por autor, dificuldade e data</small></span>
+            </a>
+        </p>
+
+        <h3 class="feed-title">🔥 Mais jogadas</h3>
+        <div class="community" data-feed="popular">
             <p class="community-empty">Carregando fases…</p>
+        </div>
+
+        <h3 class="feed-title">❤ Mais curtidas</h3>
+        <div class="community" data-feed="liked">
+            <p class="community-empty">Carregando fases…</p>
+        </div>
+
+        <h3 class="feed-title">🏆 Autores em destaque</h3>
+        <div class="community" data-feed="authors">
+            <p class="community-empty">Carregando autores…</p>
         </div>
     </section>
 
@@ -153,10 +179,12 @@
     </section>
 
     <footer class="footer">
-        <p><span class="nav-badge">2.5D</span> <strong>Paçoca</strong> — platformer feito com Godot 4.6 &amp; GDScript.</p>
+        <p><span class="nav-badge">2.5D</span> <strong>Paçoca</strong> — platformer de ação veloz com editor de fases.</p>
         <p class="footer-muted">Interface em português · Suporte a gamepad · Física própria</p>
     </footer>
 
+    <script src="auth.js"></script>
+    <script src="app-nav.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@ let X_STEP = 2.0;
 let levelName = "Nova Fase";
 let levelId = "novafase";
 let levelTheme = "forest"; // forest | glacial | cidade | caverna
+let levelDifficulty = "normal"; // infantil | iniciante | normal | hard | impossible
 let gridWidth = 100;
 let gridHeight = 15;
 let grid = []; // 2D array: grid[c][r] where c is column (X), r is visual row (Y-inverted)
@@ -76,6 +77,12 @@ document.addEventListener("DOMContentLoaded", () => {
         levelTheme = e.target.value;
         generateExports();
     });
+
+    document.getElementById("level-difficulty").addEventListener("change", (e) => {
+        levelDifficulty = e.target.value;
+    });
+
+    initAuth();
 
     document.getElementById("grid-width").addEventListener("change", (e) => {
         let val = parseInt(e.target.value);
@@ -1572,6 +1579,7 @@ function saveCurrentMap() {
     store[levelId] = {
         name: levelName,
         theme: levelTheme,
+        difficulty: levelDifficulty,
         format: "txt",
         content: document.getElementById("ascii-output").value,
         mtime: Date.now()
@@ -1594,6 +1602,7 @@ function openMap(id) {
     } else {
         importASCII(m.content);
     }
+    setLevelDifficulty(m.difficulty || "normal");
     closeMaps();
     showToast(`Fase "${m.name || id}" carregada`, "pencil");
 }
@@ -1654,29 +1663,129 @@ function runGame() {
     window.open(GAME_URL, "_blank");
 }
 
-// "Publicar" — submit the level to the community backend.
+// --- Google Sign-In --------------------------------------------------------
+//
+// Publishing requires a logged-in account. We use Google Identity Services: the
+// button yields a Google ID token, which we POST to /api/auth/google; the Worker
+// verifies it and sets an HttpOnly session cookie. `currentUser` mirrors the
+// session so the UI can gate Publicar and show who is signed in.
+
+let currentUser = null; // { id, name, email, picture } or null
+
+async function initAuth() {
+    // Reflect any existing session first (cookie survives reloads).
+    try {
+        const resp = await fetch(`${API_BASE}/me`, { credentials: "same-origin" });
+        const data = await resp.json();
+        currentUser = data.user || null;
+    } catch (err) { currentUser = null; }
+    renderAuth();
+
+    if (currentUser) return; // already signed in — no button needed
+
+    // Fetch the public Google client id and render the Sign-In button once the
+    // GIS library has loaded (it's async/defer).
+    let clientId = "";
+    try {
+        const cfg = await fetch(`${API_BASE}/config`).then(r => r.json());
+        clientId = cfg.google_client_id || "";
+    } catch (err) { /* backend offline — leave login disabled */ }
+
+    if (!clientId) return;
+    waitForGoogle(() => {
+        google.accounts.id.initialize({ client_id: clientId, callback: onGoogleCredential });
+        const host = document.getElementById("gsi-button");
+        if (host) google.accounts.id.renderButton(host, { theme: "filled_blue", size: "medium", text: "signin" });
+    });
+}
+
+// GIS loads async; poll briefly until window.google is ready.
+function waitForGoogle(cb, tries = 0) {
+    if (window.google && google.accounts && google.accounts.id) return cb();
+    if (tries > 40) return; // ~10s; give up quietly
+    setTimeout(() => waitForGoogle(cb, tries + 1), 250);
+}
+
+async function onGoogleCredential(response) {
+    try {
+        const resp = await fetch(`${API_BASE}/auth/google`, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_token: response.credential })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok && data.user) {
+            currentUser = data.user;
+            renderAuth();
+            showToast(`Bem-vindo, ${data.user.name || "jogador"}!`, "check");
+        } else {
+            showToast(data.error || "Falha no login", "alert-triangle");
+        }
+    } catch (err) {
+        showToast("Não foi possível entrar (backend offline?)", "alert-triangle");
+    }
+}
+
+async function logout() {
+    try { await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "same-origin" }); } catch (err) {}
+    currentUser = null;
+    renderAuth();
+    // Re-render the Sign-In button for the next login.
+    initAuth();
+}
+
+// Toggle between the Sign-In button and the user chip, and gate Publicar.
+function renderAuth() {
+    const chip = document.getElementById("user-chip");
+    const gsi = document.getElementById("gsi-button");
+    const nameEl = document.getElementById("user-name");
+    const publishBtn = document.getElementById("btn-publish");
+    if (currentUser) {
+        if (nameEl) nameEl.textContent = currentUser.name || "Você";
+        if (chip) chip.hidden = false;
+        if (gsi) gsi.style.display = "none";
+        if (publishBtn) { publishBtn.disabled = false; publishBtn.title = "Publicar a fase para a comunidade"; }
+    } else {
+        if (chip) chip.hidden = true;
+        if (gsi) gsi.style.display = "";
+        if (publishBtn) { publishBtn.disabled = false; publishBtn.title = "Entre com Google para publicar"; }
+    }
+}
+
+// "Publicar" — submit the level to the community backend. Login required; the
+// author comes from the session, so it's never sent from the client.
 async function publishLevel() {
+    if (!currentUser) {
+        showToast("Entre com Google para publicar sua fase", "alert-triangle");
+        return;
+    }
     const map = prepareLevelForPlay();
     if (!map) return;
 
     const btn = document.getElementById("btn-publish");
-    const author = (localStorage.getItem("pacoca_author") || "").trim();
     if (btn) btn.disabled = true;
     showToast("Publicando…", "upload-cloud");
     try {
         const resp = await fetch(`${API_BASE}/levels`, {
             method: "POST",
+            credentials: "same-origin",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 name: levelName,
                 theme: levelTheme,
-                map: map,
-                author_name: author || undefined
+                difficulty: levelDifficulty,
+                map: map
             })
         });
         const data = await resp.json().catch(() => ({}));
         if (resp.ok && data.id) {
-            showToast(`Publicada! Fase #${data.id} na comunidade`, "check");
+            const url = `${location.origin}/l/${data.id}`;
+            showToast("Publicada! Link copiado para a área de transferência", "check");
+            navigator.clipboard && navigator.clipboard.writeText(url).catch(() => {});
+        } else if (resp.status === 401) {
+            currentUser = null; renderAuth();
+            showToast("Sua sessão expirou — entre novamente", "alert-triangle");
         } else {
             showToast(data.error || `Falha ao publicar (HTTP ${resp.status})`, "alert-triangle");
         }
@@ -1730,6 +1839,14 @@ function setLevelTheme(theme) {
     levelTheme = LEVEL_THEMES.includes(theme) ? theme : "forest";
     const sel = document.getElementById("level-theme");
     if (sel) sel.value = levelTheme;
+}
+
+const LEVEL_DIFFICULTIES = ["infantil", "iniciante", "normal", "hard", "impossible"];
+
+function setLevelDifficulty(difficulty) {
+    levelDifficulty = LEVEL_DIFFICULTIES.includes(difficulty) ? difficulty : "normal";
+    const sel = document.getElementById("level-difficulty");
+    if (sel) sel.value = levelDifficulty;
 }
 
 // --- Preview minimap ------------------------------------------------------- //

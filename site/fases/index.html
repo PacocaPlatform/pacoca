@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fases da comunidade — Paçoca</title>
+    <meta name="description" content="Explore todas as fases criadas pela comunidade. Filtre por autor, dificuldade e data, jogue, curta e salve na sua coleção.">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <!-- Google Identity Services (for liking / collecting) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div class="sky" aria-hidden="true"><div class="clouds"></div><div class="stars"></div></div>
+
+    <header class="nav">
+        <a class="nav-brand" href="../">
+            <span class="nav-badge">2.5D</span>
+            <span class="nav-name">Paçoca</span>
+        </a>
+        <nav class="nav-links">
+            <a href="../#comunidade">Comunidade</a>
+            <a class="nav-cta" href="../editor/">Map Editor</a>
+            <span class="nav-auth" data-auth-slot></span>
+        </nav>
+    </header>
+
+    <main class="section" style="max-width:1120px">
+        <h1 class="section-title" style="text-align:left">Fases da comunidade</h1>
+        <p class="section-sub" style="margin:0 0 1.8rem;text-align:left">
+            Todas as fases publicadas por jogadores. Filtre, jogue, curta e salve na sua coleção.
+        </p>
+
+        <div class="browse-filters">
+            <div class="field">
+                <label for="f-sort">Ordenar</label>
+                <select id="f-sort" class="inp" data-sort>
+                    <option value="new">Mais recentes</option>
+                    <option value="popular">Mais jogadas</option>
+                    <option value="liked">Mais curtidas</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="f-diff">Dificuldade</label>
+                <select id="f-diff" class="inp" data-diff>
+                    <option value="">Todas</option>
+                    <option value="infantil">Infantil</option>
+                    <option value="iniciante">Iniciante</option>
+                    <option value="normal">Normal</option>
+                    <option value="hard">Difícil</option>
+                    <option value="impossible">Impossível</option>
+                </select>
+            </div>
+            <div class="field field--grow">
+                <label for="f-author">Autor</label>
+                <input id="f-author" class="inp" type="search" placeholder="Buscar por nome do autor…" data-author>
+            </div>
+            <div class="field">
+                <label for="f-scope">Mostrar</label>
+                <select id="f-scope" class="inp" data-scope>
+                    <option value="all">Todas as fases</option>
+                    <option value="collection">Minha coleção</option>
+                </select>
+            </div>
+        </div>
+
+        <p class="browse-count" data-count></p>
+
+        <div class="community" data-levels>
+            <p class="community-empty">Carregando fases…</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p><span class="nav-badge">2.5D</span> <strong>Paçoca</strong></p>
+    </footer>
+
+    <script src="../auth.js"></script>
+    <script src="../app-nav.js"></script>
+    <script src="fases.js"></script>
+</body>
+</html>

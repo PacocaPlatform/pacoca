@@ -17,7 +17,9 @@ set -euo pipefail
 BUCKET="${1:-pacoca-site}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="$ROOT/build/dist"
-LOCAL_FLAG=""
+# wrangler r2 object put/get default to the LOCAL bucket, so target the remote
+# bucket explicitly unless LOCAL=1 is set (which seeds the local R2 for dev).
+LOCAL_FLAG="--remote"
 [ -n "${LOCAL:-}" ] && LOCAL_FLAG="--local"
 
 if [ -z "${SKIP_BUILD:-}" ]; then
@@ -61,7 +63,7 @@ while IFS= read -r f; do
   ( cd "$ROOT/backend" && npx wrangler r2 object put "$BUCKET/$key" --file="$f" --content-type="$ct" $LOCAL_FLAG >/dev/null )
 done < <(find "$DIST" -type f)
 
-if [ -n "$LOCAL_FLAG" ]; then
+if [ -n "${LOCAL:-}" ]; then
   echo "Done (local). Run the Worker:  (cd backend && npm run db:local && npm run dev)"
 else
   echo "Done. Deploy the Worker to serve them:  (cd backend && npm run deploy)"

@@ -52,6 +52,36 @@ Scripts principais (raiz):
   cd backend && npm install
   ```
 
+### Login Google (obrigatório para publicar)
+
+Publicar uma fase e curtir exigem login. O login usa **Google Identity Services**
+(o navegador obtém um ID token; o Worker verifica a assinatura e emite um cookie
+de sessão HttpOnly assinado por HMAC). Você precisa de:
+
+1. Um **OAuth 2.0 Client ID** (tipo *Web application*) no
+   [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+   Em **Authorized JavaScript origins** inclua as origens onde o site roda:
+   `http://localhost:8000` (dev) e o domínio de produção (ex.: `https://pacoca.games`).
+2. Um **`SESSION_SECRET`** — string aleatória longa que assina o cookie de sessão:
+   ```bash
+   node -e "console.log(crypto.randomBytes(32).toString('hex'))"
+   ```
+
+**Dev local**: copie `backend/.dev.vars.example` para `backend/.dev.vars` e preencha
+`GOOGLE_CLIENT_ID` e `SESSION_SECRET`. **Produção**: `GOOGLE_CLIENT_ID` vai em
+`wrangler.jsonc` (`vars`, é público) e o secret via
+`npx wrangler secret put SESSION_SECRET` (veja a seção 4).
+
+**Moderação** (`/admin`): quem pode ocultar/remover fases é definido pelo env
+`ADMIN_EMAILS` (lista de e-mails separados por vírgula) — em `wrangler.jsonc`
+(`vars`) para produção e no `.dev.vars` para dev. A página **Minhas fases**
+(`/minhas`) não precisa de config extra: qualquer usuário logado vê e gerencia as
+próprias fases.
+
+> Sem essa config o backend sobe, mas ninguém consegue logar (botão do Google não
+> inicializa) — logo **Publicar** e **Curtir** ficam indisponíveis. Jogar, editar
+> e testar continuam funcionando.
+
 ---
 
 ## 2. Build do jogo (WebAssembly)
@@ -98,6 +128,7 @@ Precisa do backend rodando para `/api` responder. Dois terminais:
 # terminal 1 — a API (Worker + D1 local)
 cd backend
 npm install                  # 1x
+cp .dev.vars.example .dev.vars   # 1x — preencha GOOGLE_CLIENT_ID e SESSION_SECRET (login)
 npm run types                # 1x (gera worker-configuration.d.ts)
 npm run db:local             # cria as tabelas no D1 local  ← passo fácil de esquecer
 npm run dev                  # Worker/API em http://localhost:8787
@@ -139,6 +170,8 @@ npx wrangler d1 create pacoca-levels     # copie o database_id para wrangler.jso
 npm run db:remote                        # aplica schema.sql no D1 remoto
 # Bucket de estáticos (R2)
 npx wrangler r2 bucket create pacoca-site
+# Login: client id em wrangler.jsonc (vars) + secret de sessão
+npx wrangler secret put SESSION_SECRET   # cole a string aleatória gerada acima
 cd ..
 ```
 

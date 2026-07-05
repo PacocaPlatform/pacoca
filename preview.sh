@@ -43,7 +43,7 @@ echo "  /editor/  map editor  ->  desenhe e clique em Testar"
 echo "  /api/*    -> $PREVIEW_API  (para Publicar/comunidade: cd backend && npm run db:local && npm run dev)"
 
 exec python3 - <<'PY'
-import os, urllib.request, urllib.error
+import os, re, urllib.request, urllib.error
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -58,34 +58,56 @@ class Handler(SimpleHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0) or 0)
         body = self.rfile.read(length) if length else None
         req = urllib.request.Request(API + self.path, data=body, method=self.command)
-        for h in ("Content-Type", "Accept", "Authorization"):
+        # Forward Cookie so the session (login) reaches the Worker; without this,
+        # authenticated routes (publish, like, moderate) would all 401/403 locally.
+        for h in ("Content-Type", "Accept", "Authorization", "Cookie"):
             if h in self.headers:
                 req.add_header(h, self.headers[h])
+        set_cookies = []
         try:
             with urllib.request.urlopen(req) as r:
                 data, status, ctype = r.read(), r.status, r.headers.get("Content-Type", "application/json")
+                set_cookies = r.headers.get_all("Set-Cookie") or []
         except urllib.error.HTTPError as e:
             data, status, ctype = e.read(), e.code, e.headers.get("Content-Type", "application/json")
+            set_cookies = e.headers.get_all("Set-Cookie") or []
         except Exception:
             data = ('{"error":"API offline em %s — rode: cd backend && npm run dev"}' % API).encode()
             status, ctype = 502, "application/json"
         self.send_response(status)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
+        # Relay Set-Cookie back so the browser stores the session cookie. Drop the
+        # Secure attribute so it works over http://localhost.
+        for c in set_cookies:
+            self.send_header("Set-Cookie", c.replace("; Secure", "").replace("Secure; ", ""))
         self.end_headers()
         self.wfile.write(data)
+
+    # Pretty level links /l/<id> (no extension) render the level page, mirroring
+    # the Worker's rewrite in production. Real files under /l/ still resolve.
+    def _maybe_level_path(self):
+        p = self.path.split("?", 1)[0]
+        return re.match(r"^/l/[^/.]+/?$", p) is not None
 
     def do_GET(self):
         if self.path.startswith("/api/"):
             return self._proxy()
+        if self._maybe_level_path():
+            self.path = "/l/index.html"
         return super().do_GET()
 
     def do_HEAD(self):
         if self.path.startswith("/api/"):
             return self._proxy()
+        if self._maybe_level_path():
+            self.path = "/l/index.html"
         return super().do_HEAD()
 
     def do_POST(self):
+        return self._proxy() if self.path.startswith("/api/") else self.send_error(501)
+
+    def do_DELETE(self):
         return self._proxy() if self.path.startswith("/api/") else self.send_error(501)
 
     def do_OPTIONS(self):

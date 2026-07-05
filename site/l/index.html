@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fase — Paçoca</title>
+    <meta name="description" content="Uma fase da comunidade Paçoca. Jogue no navegador.">
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Fase da comunidade — Paçoca">
+    <meta property="og:description" content="Jogue esta fase do Paçoca direto no navegador.">
+    <meta property="og:image" content="../assets/hero.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div class="sky" aria-hidden="true">
+        <div class="clouds"></div>
+        <div class="stars"></div>
+    </div>
+
+    <header class="nav">
+        <a class="nav-brand" href="../">
+            <span class="nav-badge">2.5D</span>
+            <span class="nav-name">Paçoca</span>
+        </a>
+        <nav class="nav-links">
+            <a href="../#comunidade">Comunidade</a>
+            <a class="nav-cta" href="../editor/">Map Editor</a>
+        </nav>
+    </header>
+
+    <main class="level-page" data-level-page>
+        <p class="community-empty" data-level-status>Carregando fase…</p>
+    </main>
+
+    <footer class="footer">
+        <p><span class="nav-badge">2.5D</span> <strong>Paçoca</strong> — platformer feito com Godot 4.6 &amp; GDScript.</p>
+    </footer>
+
+    <script src="level.js"></script>
+</body>
+</html>

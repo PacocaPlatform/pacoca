@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://src/main.gd" id="1_MainScript"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_PlayerScene"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/pause_menu.tscn" id="5_PauseScene"]
 [ext_resource type="Texture2D" path="res://textures/sky_panorama.jpg" id="6_SkyPanorama"]
 [ext_resource type="PackedScene" path="res://scenes/level_finish_screen.tscn" id="7_FinishScreenScene"]
+[ext_resource type="PackedScene" path="res://scenes/virtual_controls.tscn" id="8_VCScene"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_sky"]
 panorama = ExtResource("6_SkyPanorama")
@@ -62,6 +63,8 @@ Offset = Vector2(2.0, 4.5)
 [node name="HUDLayer" type="CanvasLayer" parent="."]
 
 [node name="HUD" parent="HUDLayer" instance=ExtResource("4_HUDScene")]
+
+[node name="VirtualControls" parent="HUDLayer" instance=ExtResource("8_VCScene")]
 
 [node name="PauseMenu" parent="HUDLayer" instance=ExtResource("5_PauseScene")]
 

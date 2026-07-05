@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons for premium visual indicator icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Identity Services (Sign in with Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="styles.css">
     <!-- Apply saved theme before paint to avoid a flash of the wrong theme -->
     <script>
@@ -41,6 +43,13 @@
                     <option value="glacial">Glacial</option>
                     <option value="cidade">City</option>
                     <option value="caverna">Cave</option>
+                </select>
+                <select id="level-difficulty" class="inp inp-theme" title="Grau de dificuldade da fase">
+                    <option value="infantil">Infantil</option>
+                    <option value="iniciante">Iniciante</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Difícil</option>
+                    <option value="impossible">Impossível</option>
                 </select>
             </div>
 
@@ -87,6 +96,15 @@
                 <button class="btn btn-publish" id="btn-publish" onclick="publishLevel()" title="Publicar a fase para a comunidade">
                     <i data-lucide="upload-cloud"></i> Publicar
                 </button>
+                <!-- Auth: login button (logged out) OR user chip (logged in) -->
+                <div id="auth-area" class="auth-area">
+                    <div id="gsi-button" title="Entrar com Google"></div>
+                    <span id="user-chip" class="user-chip" hidden>
+                        <span id="user-name"></span>
+                        <a class="btn btn-secondary btn-sm" href="../minhas/" title="Minhas fases">Minhas fases</a>
+                        <button class="btn btn-secondary btn-sm" onclick="logout()" title="Sair">Sair</button>
+                    </span>
+                </div>
             </div>
         </header>
 

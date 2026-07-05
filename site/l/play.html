@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carregando fase… — Paçoca</title>
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div class="sky" aria-hidden="true"><div class="clouds"></div><div class="stars"></div></div>
+    <main class="level-page">
+        <p class="community-empty" data-status>Preparando a fase…</p>
+    </main>
+
+    <script>
+    /* Play bridge for /l/<id>. Fetches the shared level, counts one play, stashes
+       the structured map where the WASM game reads custom levels (localStorage
+       key 'pacoca_test_map', same as the editor's Testar), then opens the game
+       with ?custom=1. Keeps the game (GDScript) unchanged. */
+    (function () {
+        var TEST_MAP_KEY = "pacoca_test_map"; // mirrors game_settings.gd WEB_TEST_MAP_KEY
+        var GAME_URL = "../play/?custom=1";
+        var statusEl = document.querySelector("[data-status]");
+
+        var id = new URLSearchParams(location.search).get("id");
+        if (!id) { statusEl.textContent = "Fase não encontrada."; return; }
+
+        fetch("/api/levels/" + encodeURIComponent(id), { credentials: "same-origin" })
+            .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+            .then(function (data) {
+                if (!data || !data.map) throw new Error("no map");
+                try { localStorage.setItem(TEST_MAP_KEY, JSON.stringify(data.map)); }
+                catch (e) { statusEl.textContent = "Armazenamento cheio — não foi possível carregar."; throw e; }
+
+                // Best-effort play counter; don't block the redirect on it.
+                fetch("/api/levels/" + encodeURIComponent(id) + "/play", { method: "POST" }).catch(function () {});
+
+                statusEl.textContent = "Abrindo a fase…";
+                location.replace(GAME_URL);
+            })
+            .catch(function () {
+                if (statusEl.textContent.indexOf("cheio") === -1) statusEl.textContent = "Fase não encontrada ou indisponível.";
+            });
+    })();
+    </script>
+</body>
+</html>

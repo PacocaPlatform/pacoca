@@ -7,13 +7,23 @@
 		"enabled": true,
 		"head_sampling_rate": 1
 	},
+	// Public config. GOOGLE_CLIENT_ID is the OAuth Web client id from Google Cloud
+	// Console (it's public — it also ships in the browser). The signing secret for
+	// our session cookie is NOT here: set it as a secret with
+	//   npx wrangler secret put SESSION_SECRET
+	// and, for local dev, put both in backend/.dev.vars (see .dev.vars.example).
+	"vars": {
+		"GOOGLE_CLIENT_ID": "446912895398-sl5p342cg7ut4790cbg7hb1ior4nqu94.apps.googleusercontent.com",
+		// Comma-separated emails granted moderation rights (/admin). Not secret.
+		"ADMIN_EMAILS": "ricardoborges@gmail.com"
+	},
 	"d1_databases": [
 		{
 			"binding": "DB",
 			"database_name": "pacoca-levels",
 			// Filled in by `wrangler d1 create pacoca-levels` before deploy.
 			// Local `wrangler dev` uses a local SQLite file and ignores this id.
-			"database_id": "REPLACE_WITH_D1_ID"
+			"database_id": "b46310a3-f221-4f90-bfc0-cefd0f097992"
 		}
 	],
 	// The static site (landing + game + editor) is served from this R2 bucket by

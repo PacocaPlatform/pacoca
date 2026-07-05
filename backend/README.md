@@ -13,22 +13,43 @@ One Worker that does two jobs, on **one origin**:
 Serving both from one origin is what makes the editor's **Testar** handoff
 (`localStorage`) and the same-origin `/api` fetches work.
 
-Anonymous publishing today; the schema reserves `author_id` for when user login
-is added (see [`schema.sql`](./schema.sql)), so auth slots in without a migration.
+Publishing and liking require a **Google Sign-In** session (an HttpOnly cookie
+signed by the Worker; see [`src/auth.ts`](./src/auth.ts)). The author of a level
+is taken from the session, never the request body. Configure `GOOGLE_CLIENT_ID`
+and the `SESSION_SECRET` secret (see [build_and_deploy.md](../docs/build_and_deploy.md)).
 
 ## API
 
-| Method | Path | Body / Query | Result |
-| --- | --- | --- | --- |
-| `GET` | `/api/health` | — | `{ ok: true }` |
-| `GET` | `/api/levels` | `?sort=new\|popular&limit=&offset=` | listing (no `map`) |
-| `GET` | `/api/levels/:id` | — | full level incl. `map` |
-| `POST` | `/api/levels` | `{ name, theme, map, author_name? }` | `{ id }` |
-| `POST` | `/api/levels/:id/play` | — | `{ play_count }` |
+| Method | Path | Body / Query | Auth | Result |
+| --- | --- | --- | --- | --- |
+| `GET` | `/api/health` | — | — | `{ ok: true }` |
+| `GET` | `/api/config` | — | — | `{ google_client_id }` |
+| `POST` | `/api/auth/google` | `{ id_token }` | — | sets session cookie, `{ user }` |
+| `POST` | `/api/auth/logout` | — | — | clears session cookie |
+| `GET` | `/api/me` | — | — | `{ user }` (incl. `is_admin`) or `{ user: null }` |
+| `GET` | `/api/me/levels` | — | **login** | caller's own levels (not removed) |
+| `GET` | `/api/admin/levels` | `?status=all\|active\|hidden\|removed` | **admin** | all levels for moderation |
+| `GET` | `/api/levels` | `?sort=new\|popular\|liked&limit=&offset=` | — | listing (no `map`) |
+| `GET` | `/api/authors` | `?limit=` | — | author leaderboard by total plays |
+| `GET` | `/api/levels/:id` | — | optional | full **active** level incl. `map`, `liked` |
+| `POST` | `/api/levels` | `{ name, theme, difficulty, map }` | **login** | `{ id }` |
+| `POST` | `/api/levels/:id/play` | — | — | `{ play_count }` |
+| `POST`·`DELETE` | `/api/levels/:id/like` | — | **login** | `{ liked, like_count }` |
+| `POST` | `/api/levels/:id/moderate` | `{ status }` | **admin** | `{ id, status }` |
+| `DELETE` | `/api/levels/:id` | — | author/admin | soft-remove → `{ ok }` |
+
+Moderation rights come from the `ADMIN_EMAILS` env var (comma-separated emails).
+Levels have a `status`: `active` (public/playable), `hidden` (unlisted — feeds
+skip it and its share link 404s) and `removed` (soft-deleted). Only `active`
+levels are served by `GET /api/levels/:id`.
+
+Pretty level links `/l/<id>` are rewritten by the Worker to the level page
+(`l/index.html`); the client reads the id from the path.
 
 Publishing is validated server-side (`src/validation.ts`) with the same caps as
 the game's runtime builder — a level is just data, so the only risk is an
-oversized/malformed payload.
+oversized/malformed payload. `difficulty` is one of
+`infantil|iniciante|normal|hard|impossible`.
 
 ## Local development
 

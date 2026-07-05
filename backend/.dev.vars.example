@@ -1,0 +1,12 @@
+# Local dev secrets for `wrangler dev`. Copy to `.dev.vars` (gitignored) and fill.
+#   cp .dev.vars.example .dev.vars
+#
+# GOOGLE_CLIENT_ID also lives in wrangler.jsonc "vars" for production; setting it
+# here too lets local dev override it. SESSION_SECRET is any long random string
+# used to sign the session cookie — generate one with:
+#   node -e "console.log(crypto.randomBytes(32).toString('hex'))"
+GOOGLE_CLIENT_ID=REPLACE_WITH_GOOGLE_OAUTH_CLIENT_ID
+SESSION_SECRET=REPLACE_WITH_LONG_RANDOM_STRING
+# Comma-separated emails with moderation rights (the /admin page). Leave empty
+# for none. Example: ADMIN_EMAILS=you@gmail.com,teammate@gmail.com
+ADMIN_EMAILS=
