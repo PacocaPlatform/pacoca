@@ -3,7 +3,7 @@ extends SceneTree
 ## the resulting node tree (name/type/transform/size) so it can be compared
 ## against the Python pipeline's level_XX.tscn output.
 ##
-##   godot --headless --path src --script res://../tools/runtime_builder_test.gd
+##   godot --headless --path game --script res://../tools/runtime_builder_test.gd
 
 func _init() -> void:
 	var map: Variant = JSON.parse_string(FileAccess.open(_fixture_path(), FileAccess.READ).get_as_text())
@@ -12,7 +12,7 @@ func _init() -> void:
 		quit(1)
 		return
 
-	var builder: GDScript = load("res://src/runtime_level_builder.gd")
+	var builder: GDScript = load("res://scripts/runtime_level_builder.gd")
 	var result: Dictionary = builder.build(map)
 	print("OK=%s ERRORS=%s WARNINGS=%s" % [result["ok"], result["errors"], result["warnings"]])
 	if not result["ok"]:

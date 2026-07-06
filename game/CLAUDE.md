@@ -6,12 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Paçoca is a 2.5D momentum platformer built with **Godot 4.6** and **GDScript** (pure — no .NET/Mono). UI text is in Portuguese (e.g. "MOEDAS" = rings, "VIDAS" = lives, "JOGAR" = play).
 
-## Directory layout (important — nested `src`)
+## Directory layout
 
 - Git repo root: the top-level `pacoca/` directory.
-- **Godot project root** (`res://`): `src/` — contains `project.godot`, `scenes/`, `models/`, `materials/`, `textures/`.
-- **GDScript scripts**: `src/src/` — so a script is referenced as `res://src/player.gd`. Files are `snake_case.gd`; each declares a `class_name` (PascalCase) matching the old C# class (e.g. `player.gd` → `class_name Player`).
-- **Map sources** (`.txt`/`.json`): `tools/map_editor/levels/` (single canonical folder). The pipeline generates `src/scripts/levels/level_XX.py`, `src/scenes/levels/level_XX.tscn`, and updates `src/scenes/levels/levels.json`.
+- **Godot project root** (`res://`): `game/` — contains `project.godot`, `scenes/`, `scripts/`, `levelgen/`, `models/`, `materials/`, `textures/`.
+- **GDScript game code**: `game/scripts/` — so a script is referenced as `res://scripts/player.gd`. Files are `snake_case.gd`; each declares a `class_name` (PascalCase) matching the old C# class (e.g. `player.gd` → `class_name Player`).
+- **Level pipeline** (Python, build-time): `game/levelgen/` — `convert_map.py` / `generate_level.py`, kept as a direct child of the Godot root so their `../scenes`-relative output paths resolve.
+- **Map sources** (`.txt`/`.json`): `tools/map_editor/levels/` (single canonical folder). The pipeline generates `game/levelgen/levels/level_XX.py`, `game/scenes/levels/level_XX.tscn`, and updates `game/scenes/levels/levels.json`.
 
 All scene/resource paths in code use `res://` (the Godot project root), not filesystem paths.
 
@@ -24,7 +25,7 @@ There is no compile step — GDScript is loaded by the engine directly.
 godot --path . scenes/menu.tscn
 
 # Map-converter unit tests (also from the Godot project root)
-python3 -m unittest discover -s scripts/tests
+python3 -m unittest discover -s levelgen/tests
 ```
 
 Running the game requires the **Godot 4.6 editor** (standard edition is fine). The main scene is `res://scenes/menu.tscn` (set in `project.godot`).
@@ -36,7 +37,7 @@ Scene transitions are done with `get_tree().change_scene_to_file(...)`:
 `menu.tscn` → (sets `GameSettings.level_to_load`, then) `main.tscn` → on death `game_over.tscn` → back to `menu.tscn`. `pause_menu.tscn` overlays gameplay.
 
 - **`main.gd`** (root of `main.tscn`) is the gameplay coordinator. It reads `GameSettings.level_to_load`, instances the level under a `LevelWrapper` node, and moves the `Player` to the level's `SpawnPoint` (a `Marker3D`). Levels are swappable scenes in `scenes/levels/` (`level_01.tscn`, `debug.tscn`). `Main.restart_stage()` reloads the current level in place (used on respawn); `Player`/`LevelFinish` call it via `get_tree().current_scene.has_method(...)` to avoid a class-name dependency cycle.
-- **Stage select is dynamic**: `menu.gd` builds the level list from `res://scenes/levels/levels.json` (written by `scripts/convert_map.py`) plus a `DirAccess` scan of `scenes/levels/`. Manifest entries with `"builtin": true` (shipped levels) are listed under their theme (`forest`/`glacial`/`cidade`/`caverna`, mapped to terrain materials in `materials/`); everything else — map-editor output, dir-scanned scenes — appears in the "Custom Levels" list on the theme panel. `convert_map.py` writes new levels as `"builtin": false` and preserves the flag on recompiles.
+- **Stage select is dynamic**: `menu.gd` builds the level list from `res://scenes/levels/levels.json` (written by `levelgen/convert_map.py`) plus a `DirAccess` scan of `scenes/levels/`. Manifest entries with `"builtin": true` (shipped levels) are listed under their theme (`forest`/`glacial`/`cidade`/`caverna`, mapped to terrain materials in `materials/`); everything else — map-editor output, dir-scanned scenes — appears in the "Custom Levels" list on the theme panel. `convert_map.py` writes new levels as `"builtin": false` and preserves the flag on recompiles.
 - **`game_settings.gd`** is a `class_name GameSettings extends RefCounted` with **static** vars/funcs (accessed as `GameSettings.foo`, never instanced) holding cross-scene state: `level_to_load`, `level_theme` and the selected joypad device. `apply_joypad_settings()` rewrites `InputMap` events to bind a chosen gamepad and pre-maps common buttons.
 - **Backgrounds are runtime-parallax**: `Main._setup_parallax_background()` hides each level's legacy `Level/BG_Mountains` quad and spawns a `ParallaxBackground3D` (camera-following quad, UV-scrolled at ~5% of camera speed) using `materials/bg_<theme>.tres` → seamless art in `images/backgrounds/bg_<theme>.png`, regenerated from `forest-background.png` by `tools/generate_theme_backgrounds.py`. Theme resolution: menu selection > `levels.json` > filename > forest.
 

@@ -10,7 +10,7 @@
     -Godot (or the GODOT env var) at the standard editor binary, or put it on
     PATH as `godot`.
 
-    The Web preset (src/export_presets.cfg) is multi-threaded (thread_support=true)
+    The Web preset (game/export_presets.cfg) is multi-threaded (thread_support=true)
     so Godot runs the audio mixer off the main thread (smooth music). This REQUIRES
     the host to send cross-origin-isolation headers so SharedArrayBuffer is
     available (Cross-Origin-Opener-Policy: same-origin +
@@ -31,7 +31,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$Project = Join-Path $Root "src"
+$Project = Join-Path $Root "game"
 $Out = Join-Path $Root "build\web"
 
 New-Item -ItemType Directory -Force -Path $Out | Out-Null

@@ -6,11 +6,11 @@ Serves the static visual editor AND exposes a small build endpoint so the
 
     POST /api/compile  { "level": "04", "format": "txt"|"json", "content": "<map>" }
 
-It writes the map into ``src/scripts/levels/level_<id>_map.<ext>`` and runs
+It writes the map into ``game/levelgen/levels/level_<id>_map.<ext>`` and runs
 ``convert_map.py``, which generates the ``.tscn`` ready to open in Godot.
 
 The build scripts (``convert_map.py`` / ``generate_level.py``) stay in
-``src/scripts/`` so their ``__file__``-relative output paths keep working; this
+``game/levelgen/`` so their ``__file__``-relative output paths keep working; this
 server just orchestrates them.
 
 Usage::
@@ -34,8 +34,8 @@ import urllib.parse
 # --------------------------------------------------------------------------- #
 EDITOR_DIR = os.path.dirname(os.path.abspath(__file__))           # tools/map_editor
 REPO_ROOT = os.path.normpath(os.path.join(EDITOR_DIR, "..", ".."))  # repo root
-GODOT_ROOT = os.path.join(REPO_ROOT, "src")                        # res:// root
-SCRIPTS_DIR = os.path.join(GODOT_ROOT, "scripts")
+GODOT_ROOT = os.path.join(REPO_ROOT, "game")                        # res:// root
+SCRIPTS_DIR = os.path.join(GODOT_ROOT, "levelgen")
 CONVERTER = os.path.join(SCRIPTS_DIR, "convert_map.py")
 # The editor owns its source maps (.txt/.json) under tools/map_editor/levels/.
 # Compiling reads from here and writes the generated .py/.tscn into the Godot
@@ -597,7 +597,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._json(500, {"ok": False, "error": f"failed to run converter: {exc}"})
             return
 
-        scene_rel = f"src/scenes/levels/level_{safe_level}.tscn"
+        scene_rel = f"game/scenes/levels/level_{safe_level}.tscn"
         map_rel = os.path.relpath(map_path, REPO_ROOT).replace("\\", "/")
         ok = proc.returncode == 0
         self._json(200 if ok else 500, {

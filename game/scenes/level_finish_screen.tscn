@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=3]
 
-[ext_resource type="Script" path="res://src/level_finish_screen.gd" id="1_FinishScript"]
-[ext_resource type="Script" path="res://src/slanted_panel.gd" id="2_SlantedPanelScript"]
+[ext_resource type="Script" path="res://scripts/level_finish_screen.gd" id="1_FinishScript"]
+[ext_resource type="Script" path="res://scripts/slanted_panel.gd" id="2_SlantedPanelScript"]
 [ext_resource type="FontFile" path="res://textures/ui/PressStart2P-Regular.ttf" id="3_FontRetro"]
 [ext_resource type="FontFile" path="res://textures/ui/Oxanium-Bold.ttf" id="4_FontModern"]
 [ext_resource type="Texture2D" path="res://textures/ui/btn_brown_normal.png" id="5_BtnNormal"]

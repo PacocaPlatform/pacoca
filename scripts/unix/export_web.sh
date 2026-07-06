@@ -7,7 +7,7 @@
 #
 #   GODOT=/path/to/Godot_v4.6.3-stable_win64_console.exe ./scripts/unix/export_web.sh
 #
-# The Web preset (src/export_presets.cfg) is multi-threaded (thread_support=true)
+# The Web preset (game/export_presets.cfg) is multi-threaded (thread_support=true)
 # so Godot runs the audio mixer off the main thread (smooth music). This REQUIRES
 # the host to send cross-origin-isolation headers so SharedArrayBuffer is available:
 #   Cross-Origin-Opener-Policy: same-origin
@@ -17,7 +17,7 @@ set -euo pipefail
 
 GODOT="${GODOT:-godot}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PROJECT="$ROOT/src"
+PROJECT="$ROOT/game"
 OUT="$ROOT/build/web"
 
 mkdir -p "$OUT"
