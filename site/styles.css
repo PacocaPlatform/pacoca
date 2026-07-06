@@ -118,7 +118,9 @@ a { color: inherit; text-decoration: none; }
 }
 .nav-cta:hover { transform: translateY(-1px); }
 .nav-links > a:not(.nav-cta):not(.nav-auth) { display: none; }
-@media (min-width: 780px) { .nav-links > a:not(.nav-cta):not(.nav-auth) { display: inline; } }
+/* :not([hidden]) so JS-toggled links (auth/admin) stay hidden — an author
+   `display` rule would otherwise beat the UA `[hidden]` display:none. */
+@media (min-width: 780px) { .nav-links > a:not(.nav-cta):not(.nav-auth):not([hidden]) { display: inline; } }
 
 /* Login / logout controls in the nav. */
 .nav-auth { display: inline-flex; align-items: center; gap: 0.55rem; }
