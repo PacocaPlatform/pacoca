@@ -115,6 +115,10 @@ func _ready() -> void:
 	GameSettings.ensure_music_bus()
 	_music_player = AudioStreamPlayer.new()
 	_music_player.bus = "Music"
+	# Force real-stream playback: on the Web export the default playback type is
+	# "Sample", which only supports WAV. MP3 streams "cannot be sampled" and stay
+	# silent, so decode/stream them instead.
+	_music_player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	add_child(_music_player)
 	var menu_music := GameSettings.load_music("res://audio/menu.mp3")
 	if menu_music is AudioStreamMP3:
