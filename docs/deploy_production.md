@@ -33,7 +33,7 @@ GODOT=/Applications/Godot.app/Contents/MacOS/Godot ./scripts/unix/export_web.sh
 | Changed… | Run |
 | --- | --- |
 | landing / editor (static files only) | `./scripts/unix/deploy_r2.sh` |
-| the game (`src/**/*.gd`, scenes, assets, audio) | step 1 **then** step 2 |
+| the game (`game/**/*.gd`, scenes, assets, audio) | step 1 **then** step 2 |
 | Worker logic (`backend/src/`) | step 3 |
 | database schema (`backend/schema.sql`) | `(cd backend && npm run db:remote)` |
 

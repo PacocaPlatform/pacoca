@@ -48,7 +48,7 @@ python -m http.server 8000        # from the repo root
 The editor exports the **structured JSON** (absolute coordinates) shared by three
 consumers, which all agree on the same keys and caps:
 
-- the in-engine `RuntimeLevelBuilder` (`src/src/runtime_level_builder.gd`),
+- the in-engine `RuntimeLevelBuilder` (`game/scripts/runtime_level_builder.gd`),
 - the community backend validator (`backend/src/validation.ts`),
 - the browser test handoff (`localStorage['pacoca_test_map']`).
 

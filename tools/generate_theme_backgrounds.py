@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generates the per-theme parallax background images for the game.
 
-Source art is ``src/images/backgrounds/forest-background.png``. This script
+Source art is ``game/images/backgrounds/forest-background.png``. This script
 makes it tile seamlessly on the X axis (crossfading the right edge into the
 left) and derives a recolored variant per level theme:
 
@@ -10,7 +10,7 @@ left) and derives a recolored variant per level theme:
     bg_cidade.png   - hazy warm dusk
     bg_caverna.png  - dark, low-saturation blue
 
-The game loads them through ``src/materials/bg_<theme>.tres`` (see
+The game loads them through ``game/materials/bg_<theme>.tres`` (see
 ``ParallaxBackground3D.cs``). Re-run after changing the source art:
 
     python tools/generate_theme_backgrounds.py
@@ -22,7 +22,7 @@ import os
 from PIL import Image, ImageEnhance
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BG_DIR = os.path.join(REPO_ROOT, "src", "images", "backgrounds")
+BG_DIR = os.path.join(REPO_ROOT, "game", "images", "backgrounds")
 SOURCE = os.path.join(BG_DIR, "forest-background.png")
 
 # Width in pixels of the crossfade strip used to make the image tileable.

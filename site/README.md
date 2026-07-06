@@ -28,11 +28,11 @@ and `/play/` share an origin.
 ### Building the game (WASM)
 
 `build/web/` is generated — export it with the **standard (non-Mono) Godot
-4.6.3** editor plus the Web export templates (the Mono edition cannot export to
+4.7** editor plus the Web export templates (the Mono edition cannot export to
 Web):
 
 ```bash
-GODOT=/path/to/Godot_v4.6.3-stable_console ./scripts/unix/export_web.sh
+GODOT=/path/to/Godot_v4.7-stable_console ./scripts/unix/export_web.sh
 ```
 
 ### Assembling & hosting

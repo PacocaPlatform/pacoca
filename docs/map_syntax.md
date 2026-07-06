@@ -2,7 +2,7 @@
 
 This document describes how to draw Paçoca stages in **Text (ASCII Grid)** or **JSON**, how the visual editor and converter work, and how to turn a map into a playable Godot level (`.tscn`).
 
-> **Source of Truth:** The behavior described here reflects `src/scripts/convert_map.py` (parser) and `src/scripts/generate_level.py` (scene generator). If this documentation and the code diverge, the code wins — see the [Known Inconsistencies](#known-inconsistencies) section.
+> **Source of Truth:** The behavior described here reflects `game/levelgen/convert_map.py` (parser) and `game/levelgen/generate_level.py` (scene generator). If this documentation and the code diverge, the code wins — see the [Known Inconsistencies](#known-inconsistencies) section.
 
 ---
 
@@ -12,14 +12,14 @@ This document describes how to draw Paçoca stages in **Text (ASCII Grid)** or *
 map .txt / .json
       │
       ▼
-src/scripts/convert_map.py        ← parses and generates level data
-      │   ├─ creates src/scripts/levels/level_XX.py     (data module: build())
-      │   └─ creates src/scenes/levels/level_XX.tscn    (base scene, only if missing)
+game/levelgen/convert_map.py        ← parses and generates level data
+      │   ├─ creates game/levelgen/levels/level_XX.py     (data module: build())
+      │   └─ creates game/scenes/levels/level_XX.tscn    (base scene, only if missing)
       ▼
-src/scripts/generate_level.py     ← compiles geometry/objects into .tscn
+game/levelgen/generate_level.py     ← compiles geometry/objects into .tscn
       │
       ▼
-src/scenes/levels/level_XX.tscn   ← playable level, open in Godot
+game/scenes/levels/level_XX.tscn   ← playable level, open in Godot
 ```
 
 Three ways to produce the input map:
@@ -215,23 +215,23 @@ Ideal for exact decimal coordinates, custom parameters (enemy speed, spring forc
 
 ## Compiling to Godot
 
-The converter lives in `src/scripts/`, and `--input` paths are relative to the directory from which you run the command. **Run it from the Godot project root (`src/`)**, not the Git repository root.
+The converter lives in `game/levelgen/`, and `--input` paths are relative to the directory from which you run the command. **Run it from the Godot project root (`game/`)**, not the Git repository root.
 
 ```powershell
 # From D:\dev\games\Paçoca\src
-python scripts/convert_map.py --input scripts/levels/level_04_map.txt --level 04
-python scripts/convert_map.py --input scripts/levels/level_04_map.json --level 04
+python levelgen/convert_map.py --input levelgen/levels/level_04_map.txt --level 04
+python levelgen/convert_map.py --input levelgen/levels/level_04_map.json --level 04
 ```
 
 This command will:
 
 1. Parse the `.txt`/`.json` into level structures (printing `WARNING:` lines for common mistakes).
-2. Create `src/scenes/levels/level_04.tscn` (water, background mountains, SpawnPoint) **if it doesn't exist yet**, using the map's theme materials.
-3. Generate `src/scripts/levels/level_04.py` (data module with `build()`).
+2. Create `game/scenes/levels/level_04.tscn` (water, background mountains, SpawnPoint) **if it doesn't exist yet**, using the map's theme materials.
+3. Generate `game/levelgen/levels/level_04.py` (data module with `build()`).
 4. Call `generate_level.py`, which compiles the geometry and distributes items/enemies in the scene (retargeting theme materials on recompiles).
-5. Register the level in `src/scenes/levels/levels.json` — the game menu reads this manifest, so the level appears automatically. New levels are registered with `"builtin": false` and show up in the menu's **Custom Levels** list; levels flagged `"builtin": true` (shipped with the game) stay grouped by theme, and recompiling one keeps the flag.
+5. Register the level in `game/scenes/levels/levels.json` — the game menu reads this manifest, so the level appears automatically. New levels are registered with `"builtin": false` and show up in the menu's **Custom Levels** list; levels flagged `"builtin": true` (shipped with the game) stay grouped by theme, and recompiling one keeps the flag.
 
-Afterwards, open/reload the project in Godot 4.6 (Mono/.NET) to test.
+Afterwards, open/reload the project in Godot 4.7 (standard, non-Mono) to test.
 
 ### Re-generation is Idempotent
 
@@ -329,6 +329,6 @@ Points where the editor, converter, and old docs diverged — recorded here to a
 1. **Vertical Height — STANDARDIZED at 3.0.** Both the editor and `convert_map.py` use the same default (`3.0`), and the editor writes `ystep: 3.0` to the `.txt`. There is no longer a scale mismatch for new levels.
    - **Legacy Levels:** `level_01.txt` locks `ystep: 1.0` in the header and remains valid. `level_04_map.txt` has no header and was already compiling at 3.0, so it remains unchanged.
 
-2. **Relative Paths.** The commands shown in the editor use `scripts/...`, which only work if run from inside `src/` (Godot project root), not the repository root.
+2. **Relative Paths.** The commands shown in the editor use `levelgen/...`, which only work if run from inside `game/` (Godot project root), not the repository root.
 
 3. **Alias `>`.** Accepted by the converter as a dash pad, but absent from the visual editor.

@@ -1,6 +1,6 @@
 # Paçoca
 
-A fast-paced 2.5D momentum platformer built with **Godot 4.6** and **GDScript**.
+A fast-paced 2.5D momentum platformer built with **Godot 4.7** and **GDScript**.
 
 The player controls Paçoca through fast-paced levels: running, jumping, rolling, charging spin dash, performing air dashes, collecting rings (coins), and dodging enemies — all powered by custom physics for acceleration, friction, and slope mechanics.
 
@@ -8,7 +8,7 @@ The player controls Paçoca through fast-paced levels: running, jumping, rolling
 
 - **Momentum Physics**: acceleration/deceleration, friction, manual gravity, slope force, chargeable spin dash, diagonal air dash, variable jump height, coyote time, and jump buffering.
 - **3D Rendering on a 2D Plane (2.5D)**: the player is a `CharacterBody3D` locked to the XY plane, using animated 3D models.
-- **Procedural Sound Effects + Music**: SFX are generated in real-time as sine waves; background music tracks live in `src/audio/`.
+- **Procedural Sound Effects + Music**: SFX are generated in real-time as sine waves; background music tracks live in `game/audio/`.
 - **HUD**: score, time, rings, lives, and speed (km/h).
 - **Gamepad Support**: controller selection and automatic mapping for the most common buttons.
 - **Dynamic Stage Select**: the menu lists levels from `scenes/levels/levels.json` (written by the map pipeline) plus a directory scan. Builtin levels (`"builtin": true`, shipped with the game) are grouped by theme; levels you compile in the map editor land in a separate **Custom Levels** list automatically.
@@ -26,14 +26,14 @@ The player controls Paçoca through fast-paced levels: running, jumping, rolling
 
 ## Requirements
 
-- **Godot 4.6** (standard edition — the project is pure GDScript, no .NET/Mono required)
+- **Godot 4.7** (standard edition — the project is pure GDScript, no .NET/Mono required)
 
 ## How to Run
 
-1. Open the project in the Godot editor by pointing it to `src/project.godot`.
+1. Open the project in the Godot editor by pointing it to `game/project.godot`.
 2. Run the project (F5). The initial scene is `res://scenes/menu.tscn`.
 
-To run headless from the command line (from `src/`, the Godot project root):
+To run headless from the command line (from `game/`, the Godot project root):
 
 ```bash
 godot --path . scenes/menu.tscn
@@ -64,7 +64,7 @@ and `/play/` when they share an origin). So you never deploy `site/` or
 > below use the Unix variant; the Windows equivalents (same names, `.ps1`) and
 > their flags are in [`scripts/README.md`](scripts/README.md). Run from the repo root.
 
-**1. Export the game** (needs the **standard**, non‑Mono Godot 4.6+ and the Web
+**1. Export the game** (needs the **standard**, non‑Mono Godot 4.7+ and the Web
 export templates — the Mono edition cannot export to Web):
 
 ```bash
@@ -107,10 +107,27 @@ testing, and saving levels in the browser all work offline. See
 
 ## Project Structure
 
-> Note the nested `src` directory: the git repository root is at the top level, but the **Godot project** is in `src/`, and the **GDScript files** are located in `src/src/`.
+> The playable game lives in [`game/`](game/) — that's the **Godot project root** (`res://`). Everything else at the top level supports it: the web landing page, the community-levels API, build tooling, and docs.
 
 ```
 Paçoca/
+├── game/                   # Godot project root (res://) — the playable game
+│   ├── project.godot
+│   ├── scripts/            # GDScript game code (res://scripts/*.gd)
+│   │   ├── main.gd         # Coordinates gameplay and loads levels
+│   │   ├── player.gd       # Player (CharacterBody3D) and physics
+│   │   ├── game_settings.gd # Global static state across scenes (level, gamepad)
+│   │   ├── camera_controller.gd
+│   │   ├── hud.gd, menu.gd, pause_menu.gd, game_over.gd
+│   │   └── ring.gd, spring.gd, dash_pad.gd, enemy.gd
+│   ├── scenes/             # Scenes: menu, main, hud, player, enemies, levels...
+│   │   └── levels/         # Generated level_XX.tscn + levels.json manifest
+│   ├── levelgen/           # Python level pipeline (convert_map.py, generate_level.py)
+│   │   ├── levels/         # Generated per-level modules (level_XX.py)
+│   │   └── tests/          # Converter unit tests (python3 -m unittest discover -s levelgen/tests)
+│   ├── models/             # Animated FBX models (Mixamo)
+│   ├── materials/
+│   └── textures/
 ├── scripts/                # Build/preview/deploy, split by OS (see scripts/README.md)
 │   ├── preview_server.py   # Shared local-preview HTTP server (used by both OSes)
 │   ├── unix/               # macOS/Linux: export_web.sh, preview.sh, build_dist.sh, deploy_r2.sh
@@ -120,25 +137,8 @@ Paçoca/
 ├── backend/                # Community-levels API (Cloudflare Worker; /api/*)
 ├── assets/                 # Raw assets (exported models, etc.)
 ├── docs/                   # Documentation (e.g., map_syntax.md)
-├── tools/
-│   └── map_editor/         # Visual map editor (fully client-side; deploys at /editor/)
-└── src/                    # Godot project root (res://)
-    ├── project.godot
-    ├── scenes/             # Scenes: menu, main, hud, player, enemies, levels...
-    │   └── levels/         # Generated level_XX.tscn + levels.json manifest
-    ├── scripts/            # Level pipeline (convert_map.py, generate_level.py)
-    │   ├── levels/         # Generated per-level modules (level_XX.py)
-    │   └── tests/          # Converter unit tests (python3 -m unittest discover -s scripts/tests)
-    ├── models/             # Animated FBX models (Mixamo)
-    ├── materials/
-    ├── textures/
-    └── src/                # GDScript scripts (res://src/*.gd)
-        ├── main.gd         # Coordinates gameplay and loads levels
-        ├── player.gd       # Player (CharacterBody3D) and physics
-        ├── game_settings.gd # Global static state across scenes (level, gamepad)
-        ├── camera_controller.gd
-        ├── hud.gd, menu.gd, pause_menu.gd, game_over.gd
-        └── ring.gd, spring.gd, dash_pad.gd, enemy.gd
+└── tools/
+    └── map_editor/         # Visual map editor (fully client-side; deploys at /editor/)
 ```
 
 ## Level Creation (Map Editor)
@@ -172,13 +172,13 @@ python -m http.server 8000        # from the repo root
 
 ### Command Line Compiling
 
-From `src/` (Godot project root):
+From `game/` (Godot project root):
 
 ```bash
-python scripts/convert_map.py --input ../tools/map_editor/levels/level_04_map.txt --level 04
+python levelgen/convert_map.py --input ../tools/map_editor/levels/level_04_map.txt --level 04
 ```
 
-This generates/updates `src/scenes/levels/level_04.tscn` (ready to open in Godot) and registers the level in `scenes/levels/levels.json`, which the in-game stage select reads. New levels are registered as custom (`"builtin": false`) and show up under the menu's **Custom Levels** list; recompiling a builtin level keeps it builtin.
+This generates/updates `game/scenes/levels/level_04.tscn` (ready to open in Godot) and registers the level in `scenes/levels/levels.json`, which the in-game stage select reads. New levels are registered as custom (`"builtin": false`) and show up under the menu's **Custom Levels** list; recompiling a builtin level keeps it builtin.
 
 ### Quick Syntax
 
@@ -201,4 +201,4 @@ Each **column** of the grid equals 2 m (X) and each **row** is 3 m (Y, `ystep`);
 - **Scene Flow**: `menu.tscn` → `main.tscn` → `game_over.tscn` → `menu.tscn`, with `pause_menu.tscn` overlaid during gameplay.
 - **UI Communication**: the `Player` emits the `player_stats_changed(rings, score, speed, lives)` signal, to which `HUD` connects. Objects like `Ring`, `Spring`, `DashPad`, and `Enemy` call public methods on `Player` (`collect_ring()`, `apply_boost()`, `hurt()`).
 
-For development details, see `src/CLAUDE.md`.
+For development details, see `game/CLAUDE.md`.
