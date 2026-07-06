@@ -154,9 +154,18 @@ a { color: inherit; text-decoration: none; }
     align-items: center;
     grid-template-columns: 1fr;
 }
+.hero-copy { display: flex; flex-direction: column; }
 @media (min-width: 900px) {
     .hero { grid-template-columns: 1.05fr 0.95fr; }
     .hero-art { order: 2; }
+}
+/* On mobile, surface the CTA buttons near the top: headline + buttons first,
+   the lede and the big hero image below. */
+@media (max-width: 899px) {
+    .hero-art { order: 2; }
+    .hero-copy .cta-row { order: 0; }
+    .hero-copy .lede { order: 1; }
+    .hero-copy .hero-note { order: 2; }
 }
 
 .hero-art img {
