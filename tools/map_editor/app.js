@@ -27,7 +27,7 @@ let grid = []; // 2D array: grid[c][r] where c is column (X), r is visual row (Y
 let currentTool = "paint"; // paint | erase | line | rect | fill | select
 let selectedElement = "#"; // Current painting character symbol
 let isDrawing = false;
-let zoomLevel = 1.0;
+let zoomLevel = 0.7; // initial zoom when the editor opens (70%)
 
 // --- Shape tools / selection / clipboard ---
 let dragStart = null;       // {c, r} where the current drag began
@@ -111,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         levelName = e.target.value;
         levelId = slugifyLevelName(levelName);
         updateDynamicTexts();
+        updateSettingsSummary();
         generateExports();
     });
 
@@ -192,8 +193,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const typing = tag === "input" || tag === "textarea";
         if (e.key === "Escape") {
             const maps = document.getElementById("maps-modal");
+            const settings = document.getElementById("settings-modal");
             if (pasteMode) cancelPaste();
             else if (selection) clearSelection();
+            else if (settings && !settings.hidden && !settingsFirstRun) closeSettings();
             else if (maps && !maps.hidden) closeMaps();
             else setDrawer(false);
             return;
@@ -244,7 +247,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initial setups
     updateDynamicTexts();
+    updateSettingsSummary();
     generateExports();
+
+    // Entry flow: when editing an existing community level (?id=...), skip the
+    // wizard and reveal the editor straight away — its config comes from the
+    // loaded level. Otherwise open the setup wizard over a locked editor.
+    if (new URLSearchParams(location.search).get("id")) {
+        revealEditor();
+    } else {
+        openSettings();
+    }
 });
 
 // --- UI Construction ---
@@ -781,6 +794,8 @@ function applyZoom() {
     if (mapGrid) {
         mapGrid.style.transform = `scale(${zoomLevel})`;
     }
+    const label = document.getElementById("zoom-label");
+    if (label) label.innerText = `${Math.round(zoomLevel * 100)}%`;
 }
 
 function toggleGridlines() {
@@ -815,9 +830,9 @@ function applyTheme(theme) {
 }
 
 function initTheme() {
-    let saved = "dark";
+    let saved = "light";
     try {
-        saved = localStorage.getItem(THEME_KEY) || "dark";
+        saved = localStorage.getItem(THEME_KEY) || "light";
     } catch (e) {
         console.warn("localStorage is not accessible:", e);
     }
@@ -1190,7 +1205,8 @@ function importJSON(data) {
     setLevelTheme(data.theme || "forest");
 
     document.getElementById("level-name").value = levelName;
-    
+    updateSettingsSummary();
+
     // Find limits to establish canvas size
     let maxX = 50; // default min width
     let maxY = 12; // default min height
@@ -1444,6 +1460,7 @@ function importASCII(text) {
                 } else if (key === "name") {
                     levelName = val;
                     document.getElementById("level-name").value = val;
+                    updateSettingsSummary();
                 } else if (key === "theme") {
                     setLevelTheme(val.toLowerCase());
                 } else if (key === "ystep" || key === "y_step") {
@@ -1549,6 +1566,125 @@ function readMapsStore() {
 
 function writeMapsStore(store) {
     localStorage.setItem(MAPS_STORE_KEY, JSON.stringify(store));
+}
+
+// --- General settings / setup wizard -------------------------------------
+//
+// The general config (name, theme, difficulty, grid, scale) lives in a modal to
+// keep the main screen uncluttered. On a fresh editor the modal opens as a
+// setup wizard: the tools + grid stay hidden (.pre-config) until the builder
+// confirms the general info.
+
+// True until the editor has been revealed once (drives wizard vs. edit mode).
+let settingsFirstRun = true;
+
+// Fixed grid-size presets offered in the wizard. "Advanced" lets builders type
+// exact dimensions instead; typing values that don't match a preset falls back
+// to the "custom" (no highlight) state.
+const GRID_PRESETS = {
+    small:  { w: 50,  h: 12 },
+    medium: { w: 100, h: 15 },
+    large:  { w: 180, h: 20 },
+};
+
+// Applies a preset's dimensions to the advanced width/height inputs.
+function selectGridPreset(key) {
+    const p = GRID_PRESETS[key];
+    if (!p) return;
+    document.getElementById("grid-width").value = p.w;
+    document.getElementById("grid-height").value = p.h;
+    syncGridPreset();
+}
+
+// Highlights whichever preset matches the current width/height inputs (none if
+// the builder typed custom dimensions in Advanced).
+function syncGridPreset() {
+    const w = parseInt(document.getElementById("grid-width").value);
+    const h = parseInt(document.getElementById("grid-height").value);
+    let match = "";
+    for (const key in GRID_PRESETS) {
+        if (GRID_PRESETS[key].w === w && GRID_PRESETS[key].h === h) { match = key; break; }
+    }
+    document.querySelectorAll("#grid-presets .preset-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.preset === match);
+    });
+}
+
+function openSettings() {
+    const modal = document.getElementById("settings-modal");
+    if (!modal) return;
+    const firstRun = document.querySelector(".app").classList.contains("pre-config");
+    settingsFirstRun = firstRun;
+
+    // First-run acts as a mandatory wizard (no close/backdrop dismissal);
+    // reopening later is a plain settings dialog.
+    const closeBtn = document.getElementById("settings-close");
+    // Use display (not [hidden]) so the .icon-btn display rule can't override it.
+    if (closeBtn) closeBtn.style.display = firstRun ? "none" : "";
+    const intro = document.getElementById("settings-intro");
+    if (intro) intro.hidden = !firstRun;
+    const title = document.getElementById("settings-title");
+    if (title) title.textContent = t(firstRun ? "settings.head" : "settings.headEdit");
+    const applyLabel = document.getElementById("settings-apply-label");
+    if (applyLabel) applyLabel.textContent = t(firstRun ? "settings.start" : "settings.save");
+
+    syncGridPreset();
+    modal.hidden = false;
+    if (window.lucide && lucide.createIcons) lucide.createIcons();
+    const nameInput = document.getElementById("level-name");
+    if (nameInput) { nameInput.focus(); nameInput.select(); }
+}
+
+function closeSettings() {
+    // Never leave the editor locked behind the wizard.
+    revealEditor();
+    document.getElementById("settings-modal").hidden = true;
+}
+
+function onSettingsBackdrop(e) {
+    // Backdrop click dismisses only outside the first-run wizard.
+    if (settingsFirstRun) return;
+    if (e.target === document.getElementById("settings-modal")) closeSettings();
+}
+
+// Reads the modal fields into state, resizes the grid if needed, then reveals
+// the editor and closes the wizard.
+function applySettings() {
+    const nameInput = document.getElementById("level-name");
+    levelName = (nameInput.value || "").trim() || t("level.defaultName");
+    nameInput.value = levelName;
+    levelId = slugifyLevelName(levelName);
+
+    levelTheme = document.getElementById("level-theme").value;
+    levelDifficulty = document.getElementById("level-difficulty").value;
+
+    const xs = parseFloat(document.getElementById("x-step").value);
+    if (xs >= 0.5 && xs <= 5.0) X_STEP = xs;
+    const ys = parseFloat(document.getElementById("y-step").value);
+    if (ys >= 0.5 && ys <= 5.0) Y_STEP = ys;
+
+    const w = Math.max(10, Math.min(1000, parseInt(document.getElementById("grid-width").value) || gridWidth));
+    const h = Math.max(5, Math.min(100, parseInt(document.getElementById("grid-height").value) || gridHeight));
+    if (w !== gridWidth || h !== gridHeight) {
+        rebuildGrid(); // reads the (already clamped) inputs and preserves content
+    }
+
+    updateDynamicTexts();
+    updateSettingsSummary();
+    generateExports();
+    closeSettings();
+}
+
+// Reveals the tools + grid (removes the setup lock).
+function revealEditor() {
+    const app = document.querySelector(".app");
+    if (app) app.classList.remove("pre-config");
+}
+
+// Mirrors the current level name onto the topbar settings button.
+function updateSettingsSummary() {
+    const summary = document.getElementById("settings-summary");
+    if (summary) summary.textContent = levelName || t("level.defaultName");
 }
 
 function openMaps() {
