@@ -1,3 +1,13 @@
+// --- i18n helper ---
+// Thin wrapper over window.I18n (i18n.js loads first). Falls back to the key so
+// the editor still works if the bilingual layer ever fails to load.
+function t(key, vars) {
+    if (window.I18n && typeof window.I18n.t === "function") return window.I18n.t(key, vars);
+    let s = key;
+    if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
+    return s;
+}
+
 // --- Application State ---
 let Y_STEP = 3.0;
 let X_STEP = 2.0;
@@ -64,9 +74,37 @@ function slugifyLevelName(name) {
 
 document.addEventListener("DOMContentLoaded", () => {
     initTheme();
+    // Localize the default level name (only touches the untouched default).
+    const nameInput = document.getElementById("level-name");
+    if (nameInput && nameInput.value === "Nova Fase") {
+        levelName = t("level.defaultName");
+        levelId = slugifyLevelName(levelName);
+        nameInput.value = levelName;
+    }
     initPalette();
     initGrid(gridWidth, gridHeight);
-    
+
+    // Re-render the dynamic UI whenever the language changes (static markup is
+    // handled by i18n.js via data-i18n attributes; these bits are built in JS).
+    if (window.I18n && window.I18n.onChange) {
+        window.I18n.onChange(() => {
+            initPalette();
+            updateDynamicTexts();
+            updatePublishButtonLabel();
+            renderAuth();
+            // Refresh the theme toggle title (it's set from JS, not data-i18n).
+            const th = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+            applyTheme(th);
+            // Refresh the maps modal if it's currently open.
+            const maps = document.getElementById("maps-modal");
+            if (maps && !maps.hidden) {
+                const hint = document.getElementById("maps-savehint");
+                if (hint) hint.textContent = levelId ? t("maps.savedAs", { name: levelName }) : t("maps.needName");
+                refreshMapsList();
+            }
+        });
+    }
+
     // Config events. The name IS the level's identity: editing it re-derives
     // the internal ID, so a renamed map compiles as a new level.
     document.getElementById("level-name").addEventListener("input", (e) => {
@@ -217,15 +255,18 @@ function initPalette() {
 
     ELEMENTS.forEach((el) => {
         const glyph = el.symbol === "\\" ? "\\" : el.symbol;
+        const name = t("el." + el.class + ".name");
+        const desc = t("el." + el.class + ".desc");
+        const short = t("el." + el.class + ".short");
         const item = document.createElement("button");
         item.className = "palette-chip" + (selectedElement === el.symbol ? " active" : "");
-        item.dataset.tip = `${el.name}  ·  '${glyph}'`;
-        item.title = el.desc;
+        item.dataset.tip = `${name}  ·  '${glyph}'`;
+        item.title = desc;
         item.onclick = () => selectElement(el.symbol, item);
 
         item.innerHTML = `
-            <div class="palette-swatch"><img src="icons/${el.class}.svg" alt="${el.name}" draggable="false"></div>
-            <span class="palette-key">${el.name.split(" ")[0]}</span>
+            <div class="palette-swatch"><img src="icons/${el.class}.svg" alt="${escapeHtml(name)}" draggable="false"></div>
+            <span class="palette-key">${escapeHtml(short)}</span>
         `;
         paletteList.appendChild(item);
     });
@@ -328,13 +369,13 @@ function restoreSnapshot(snapshot) {
 }
 
 function undo() {
-    if (!undoStack.length) { showToast("Nothing to undo", "undo-2"); return; }
+    if (!undoStack.length) { showToast(t("toast.undoNothing"), "undo-2"); return; }
     redoStack.push(snapshotGrid());
     restoreSnapshot(undoStack.pop());
 }
 
 function redo() {
-    if (!redoStack.length) { showToast("Nothing to redo", "redo-2"); return; }
+    if (!redoStack.length) { showToast(t("toast.redoNothing"), "redo-2"); return; }
     undoStack.push(snapshotGrid());
     restoreSnapshot(redoStack.pop());
 }
@@ -553,7 +594,7 @@ function clearSelection() {
 }
 
 function copySelection() {
-    if (!selection) { showToast("Nothing selected (use the Select tool)", "box-select"); return false; }
+    if (!selection) { showToast(t("toast.selNothing"), "box-select"); return false; }
     clipboard = [];
     for (let r = selection.r0; r <= selection.r1; r++) {
         const row = [];
@@ -562,7 +603,7 @@ function copySelection() {
         }
         clipboard.push(row);
     }
-    showToast(`Copied ${clipboard[0].length}×${clipboard.length} cells — Ctrl+V then click to place`, "copy");
+    showToast(t("toast.copied", { w: clipboard[0].length, h: clipboard.length }), "copy");
     return true;
 }
 
@@ -582,10 +623,10 @@ function cutSelection() {
 }
 
 function startPaste() {
-    if (!clipboard) { showToast("Clipboard empty — select and Ctrl+C first", "clipboard"); return; }
+    if (!clipboard) { showToast(t("toast.clipEmpty"), "clipboard"); return; }
     pasteMode = true;
     clearSelection();
-    showToast("Click on the grid to place the copied block (Esc cancels)", "clipboard-paste");
+    showToast(t("toast.clipPlace"), "clipboard-paste");
     if (lastHover) showPasteGhost(lastHover.c, lastHover.r);
 }
 
@@ -622,7 +663,7 @@ function commitPaste(c, r) {
     }
     pasteMode = false;
     generateExports();
-    showToast("Block pasted", "check");
+    showToast(t("toast.pasted"), "check");
 }
 
 // Selects active palette element
@@ -651,7 +692,7 @@ function setToolMode(mode) {
 }
 
 function clearGrid() {
-    if (confirm("Are you sure you want to clear the entire grid? All unsaved data will be lost.")) {
+    if (confirm(t("confirm.clear"))) {
         pushHistory();
         for (let c = 0; c < gridWidth; c++) {
             for (let r = 0; r < gridHeight; r++) {
@@ -660,7 +701,7 @@ function clearGrid() {
         }
         renderGrid();
         generateExports();
-        showToast("Grid cleared successfully!", "trash-2");
+        showToast(t("toast.cleared"), "trash-2");
     }
 }
 
@@ -719,7 +760,7 @@ function rebuildGrid() {
     
     renderGrid();
     generateExports();
-    showToast(`Grid resized to ${gridWidth}x${gridHeight}`, "grid");
+    showToast(t("toast.resized", { w: gridWidth, h: gridHeight }), "grid");
 }
 
 // --- Viewport Zoom & Gridlines Control ---
@@ -768,7 +809,7 @@ function applyTheme(theme) {
         // Show the icon for the theme you'd switch TO. Rebuild the <i> because
         // lucide.createIcons() replaces it with an <svg> after the first render.
         btn.innerHTML = `<i data-lucide="${isLight ? "moon" : "sun"}"></i>`;
-        btn.title = isLight ? "Switch to dark theme" : "Switch to light theme";
+        btn.title = isLight ? t("theme.toDark") : t("theme.toLight");
         if (window.lucide) lucide.createIcons();
     }
 }
@@ -801,7 +842,7 @@ function updateCoordinatesDisplay(c, r) {
     const yCoord = ((gridHeight - 1 - r) * Y_STEP).toFixed(1);
     
     document.getElementById("coord-display").innerText =
-        `Col ${c}, Row ${r}  ·  X: ${xCoord}m  Y: ${yCoord}m`;
+        `${t("coord.col")} ${c}, ${t("coord.row")} ${r}  ·  X: ${xCoord}m  Y: ${yCoord}m`;
 }
 
 // --- Exporters (ASCII & JSON) ---
@@ -1122,10 +1163,10 @@ function updateDynamicTexts() {
 function importMap() {
     const text = document.getElementById("import-input").value.trim();
     if (!text) {
-        alert("Paste the map code to import!");
+        alert(t("alert.importEmpty"));
         return;
     }
-    
+
     try {
         if (text.startsWith("{")) {
             // JSON Import
@@ -1136,13 +1177,13 @@ function importMap() {
             importASCII(text);
         }
     } catch (e) {
-        alert("Error importing map. Make sure the text format is correct.\nError: " + e.message);
+        alert(t("alert.importError", { msg: e.message }));
     }
 }
 
 function importJSON(data) {
     if (grid.length) pushHistory();
-    levelName = data.name || "Imported Level";
+    levelName = data.name || t("import.defaultName");
     // Keep the file's ID so recompiling updates the same level; renaming
     // re-derives it.
     levelId = data.level || slugifyLevelName(levelName);
@@ -1363,7 +1404,7 @@ function importJSON(data) {
     
     renderGrid();
     generateExports();
-    showToast(`JSON map imported successfully! Level: ${levelId}`, "upload");
+    showToast(t("toast.jsonImported", { id: levelId }), "upload");
 }
 
 function importASCII(text) {
@@ -1420,7 +1461,7 @@ function importASCII(text) {
     }
     
     if (gridLines.length === 0) {
-        throw new Error("'[grid]' section not found or empty in pasted text.");
+        throw new Error(t("error.noGrid"));
     }
     
     // Establish dimensions
@@ -1456,7 +1497,7 @@ function importASCII(text) {
     renderGrid();
     updateDynamicTexts();
     generateExports();
-    showToast(`ASCII map imported successfully! Level: ${levelId}`, "upload");
+    showToast(t("toast.asciiImported", { id: levelId }), "upload");
 }
 
 // --- Utilities (Copy / Download / Notifications) ---
@@ -1483,11 +1524,11 @@ function copyToClipboard(elementId) {
     
     try {
         navigator.clipboard.writeText(textarea.value);
-        showToast("Copied to clipboard!", "check");
+        showToast(t("toast.copiedClipboard"), "check");
     } catch (err) {
         // Fallback
         document.execCommand("copy");
-        showToast("Copied!", "check");
+        showToast(t("toast.copiedShort"), "check");
     }
 }
 
@@ -1516,8 +1557,8 @@ function openMaps() {
     lucide.createIcons();
     const hint = document.getElementById("maps-savehint");
     hint.textContent = levelId
-        ? `Salvo no navegador como "${levelName}".`
-        : "Dê um nome à fase para salvar.";
+        ? t("maps.savedAs", { name: levelName })
+        : t("maps.needName");
     refreshMapsList();
 }
 
@@ -1532,7 +1573,8 @@ function onMapsBackdrop(e) {
 
 function formatMtime(epochSeconds) {
     try {
-        return new Date(epochSeconds * 1000).toLocaleString("en-US", {
+        return new Date(epochSeconds * 1000).toLocaleString(
+            (window.I18n && window.I18n.lang) || "en-US", {
             day: "2-digit", month: "2-digit", year: "numeric",
             hour: "2-digit", minute: "2-digit"
         });
@@ -1546,7 +1588,7 @@ function refreshMapsList() {
     const store = readMapsStore();
     const ids = Object.keys(store).sort((a, b) => (store[b].mtime || 0) - (store[a].mtime || 0));
     if (!ids.length) {
-        list.innerHTML = '<p class="tab-note">Nenhuma fase salva ainda. Desenhe e clique em "Salvar fase".</p>';
+        list.innerHTML = `<p class="tab-note">${escapeHtml(t("maps.empty"))}</p>`;
         return;
     }
     list.innerHTML = "";
@@ -1554,7 +1596,7 @@ function refreshMapsList() {
         const m = store[id];
         const row = document.createElement("div");
         row.className = "map-row";
-        const name = m.name ? m.name : "(sem nome)";
+        const name = m.name ? m.name : t("maps.noname");
         row.innerHTML = `
             <div class="map-meta">
                 <span class="map-badge">${escapeHtml(m.theme || "forest").slice(0, 3)}</span>
@@ -1564,8 +1606,8 @@ function refreshMapsList() {
                 </div>
             </div>
             <div class="map-actions">
-                <button class="btn btn-sm btn-secondary" title="Abrir para editar"><i data-lucide="pencil"></i> Editar</button>
-                <button class="btn btn-sm btn-danger-outline" title="Excluir"><i data-lucide="trash-2"></i></button>
+                <button class="btn btn-sm btn-secondary" title="${escapeHtml(t("maps.editTitle"))}"><i data-lucide="pencil"></i> ${escapeHtml(t("maps.edit"))}</button>
+                <button class="btn btn-sm btn-danger-outline" title="${escapeHtml(t("maps.deleteTitle"))}"><i data-lucide="trash-2"></i></button>
             </div>
         `;
         const [editBtn, delBtn] = row.querySelectorAll("button");
@@ -1577,7 +1619,7 @@ function refreshMapsList() {
 }
 
 function saveCurrentMap() {
-    if (!levelId) { showToast("Dê um nome à fase primeiro!", "alert-triangle"); return; }
+    if (!levelId) { showToast(t("toast.needNameFirst"), "alert-triangle"); return; }
     const store = readMapsStore();
     store[levelId] = {
         name: levelName,
@@ -1589,17 +1631,17 @@ function saveCurrentMap() {
     };
     try {
         writeMapsStore(store);
-        showToast(`Fase "${levelName}" salva no navegador`, "save");
+        showToast(t("toast.mapSaved", { name: levelName }), "save");
         refreshMapsList();
     } catch (err) {
-        showToast("Não foi possível salvar (armazenamento cheio?)", "alert-triangle");
+        showToast(t("toast.saveFail"), "alert-triangle");
     }
 }
 
 function openMap(id) {
     const store = readMapsStore();
     const m = store[id];
-    if (!m) { showToast("Fase não encontrada", "alert-triangle"); return; }
+    if (!m) { showToast(t("toast.mapNotFound"), "alert-triangle"); return; }
     if (m.format === "json") {
         importJSON(typeof m.content === "string" ? JSON.parse(m.content) : m.content);
     } else {
@@ -1607,15 +1649,15 @@ function openMap(id) {
     }
     setLevelDifficulty(m.difficulty || "normal");
     closeMaps();
-    showToast(`Fase "${m.name || id}" carregada`, "pencil");
+    showToast(t("toast.mapLoaded", { name: m.name || id }), "pencil");
 }
 
 function deleteMap(id, name) {
-    if (!confirm(`Excluir a fase${name ? ` "${name}"` : ""}? Esta ação não pode ser desfeita.`)) return;
+    if (!confirm(t("confirm.deleteMap", { name: name ? ` "${name}"` : "" }))) return;
     const store = readMapsStore();
     delete store[id];
     writeMapsStore(store);
-    showToast(`Fase excluída`, "trash-2");
+    showToast(t("toast.mapDeleted"), "trash-2");
     refreshMapsList();
 }
 
@@ -1639,11 +1681,11 @@ const API_BASE = "/api";                  // community levels Worker
 // Builds the level, checks it has the essentials, and returns it (or null after
 // showing a toast). `soft` downgrades the missing-goal error to a warning.
 function prepareLevelForPlay() {
-    if (!levelId) { showToast("Dê um nome à fase primeiro!", "alert-triangle"); return null; }
+    if (!levelId) { showToast(t("toast.needNameFirst"), "alert-triangle"); return null; }
     const map = buildStructuredMap();
     const hasTerrain = (map.platforms.length + map.ramps_up.length + map.ramps_down.length) > 0;
-    if (!hasTerrain) { showToast("Desenhe ao menos uma plataforma", "alert-triangle"); return null; }
-    if (!map.goals.length) showToast("Aviso: a fase não tem chegada (G)", "alert-triangle");
+    if (!hasTerrain) { showToast(t("toast.needTerrain"), "alert-triangle"); return null; }
+    if (!map.goals.length) showToast(t("toast.noGoal"), "alert-triangle");
     return map;
 }
 
@@ -1654,10 +1696,10 @@ function testLevel() {
     try {
         localStorage.setItem(TEST_MAP_KEY, JSON.stringify(map));
     } catch (err) {
-        showToast("Não foi possível preparar o teste (armazenamento cheio?)", "alert-triangle");
+        showToast(t("toast.testFail"), "alert-triangle");
         return;
     }
-    showToast("Abrindo a fase no navegador…", "gamepad-2");
+    showToast(t("toast.opening"), "gamepad-2");
     window.open(GAME_URL + "?custom=1", "_blank");
 }
 
@@ -1726,12 +1768,12 @@ async function onGoogleCredential(response) {
         if (resp.ok && data.user) {
             currentUser = data.user;
             renderAuth();
-            showToast(`Bem-vindo, ${data.user.name || "jogador"}!`, "check");
+            showToast(t("toast.welcome", { name: data.user.name || t("auth.player") }), "check");
         } else {
-            showToast(data.error || "Falha no login", "alert-triangle");
+            showToast(data.error || t("toast.loginFail"), "alert-triangle");
         }
     } catch (err) {
-        showToast("Não foi possível entrar (backend offline?)", "alert-triangle");
+        showToast(t("toast.loginOffline"), "alert-triangle");
     }
 }
 
@@ -1750,14 +1792,14 @@ function renderAuth() {
     const nameEl = document.getElementById("user-name");
     const publishBtn = document.getElementById("btn-publish");
     if (currentUser) {
-        if (nameEl) nameEl.textContent = currentUser.name || "Você";
+        if (nameEl) nameEl.textContent = currentUser.name || t("auth.you");
         if (chip) chip.hidden = false;
         if (gsi) gsi.style.display = "none";
-        if (publishBtn) { publishBtn.disabled = false; publishBtn.title = "Publicar a fase para a comunidade"; }
+        if (publishBtn) { publishBtn.disabled = false; publishBtn.title = t("publish.title"); }
     } else {
         if (chip) chip.hidden = true;
         if (gsi) gsi.style.display = "";
-        if (publishBtn) { publishBtn.disabled = false; publishBtn.title = "Entre com Google para publicar"; }
+        if (publishBtn) { publishBtn.disabled = false; publishBtn.title = t("publish.needLoginTitle"); }
     }
 }
 
@@ -1771,11 +1813,11 @@ async function maybeLoadEditTarget() {
         const resp = await fetch(`${API_BASE}/levels/${encodeURIComponent(id)}`, { credentials: "same-origin" });
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok) {
-            showToast(data.error === "not found" ? "Fase não encontrada" : "Não foi possível abrir a fase", "alert-triangle");
+            showToast(data.error === "not found" ? t("toast.mapNotFound") : t("toast.openFail"), "alert-triangle");
             return;
         }
         if (!data.can_edit) {
-            showToast("Você só pode editar as fases que publicou. Entre com a conta certa.", "alert-triangle");
+            showToast(t("toast.notOwner"), "alert-triangle");
             return;
         }
         if (data.source) {
@@ -1786,9 +1828,9 @@ async function maybeLoadEditTarget() {
         setLevelDifficulty(data.difficulty || "normal");
         editingId = id;
         updatePublishButtonLabel();
-        showToast(`Editando "${data.name || "fase"}" — Publicar salva as alterações`, "edit-3");
+        showToast(t("toast.editing", { name: data.name || t("level.fallback") }), "edit-3");
     } catch (err) {
-        showToast("Backend indisponível para abrir a fase", "alert-triangle");
+        showToast(t("toast.editBackendOff"), "alert-triangle");
     }
 }
 
@@ -1799,16 +1841,16 @@ function updatePublishButtonLabel() {
     const btn = document.getElementById("btn-publish");
     if (btn) {
         btn.innerHTML = editing
-            ? '<i data-lucide="save"></i> Salvar alterações'
-            : '<i data-lucide="upload-cloud"></i> Publicar';
-        btn.title = editing ? "Salvar as alterações desta fase" : "Publicar a fase para a comunidade";
+            ? `<i data-lucide="save"></i> ${escapeHtml(t("publish.saveChanges"))}`
+            : `<i data-lucide="upload-cloud"></i> ${escapeHtml(t("action.publish"))}`;
+        btn.title = editing ? t("publish.saveChanges.title") : t("publish.title");
     }
     const shareBtn = document.getElementById("btn-share");
     if (shareBtn) {
         shareBtn.disabled = !editing;
         shareBtn.title = editing
-            ? "Compartilhar o link desta fase"
-            : "Publique a fase para gerar o link de compartilhamento";
+            ? t("share.editTitle")
+            : t("action.share.title");
     }
     if (window.lucide && lucide.createIcons) lucide.createIcons();
 }
@@ -1817,21 +1859,21 @@ function updatePublishButtonLabel() {
 // mobile, clipboard elsewhere). Only available once the level has been published.
 function shareLevel() {
     if (!editingId) {
-        showToast("Publique a fase primeiro para gerar o link", "alert-triangle");
+        showToast(t("toast.shareNeedPublish"), "alert-triangle");
         return;
     }
     const url = `${location.origin}/l/${editingId}`;
-    const title = levelName ? `Paçoca — ${levelName}` : "Fase da comunidade Paçoca";
+    const title = levelName ? t("share.shareTitle", { name: levelName }) : t("share.shareTitleDefault");
     if (navigator.share) {
-        navigator.share({ title: title, text: "Jogue esta fase do Paçoca:", url: url }).catch(() => {});
+        navigator.share({ title: title, text: t("share.shareText"), url: url }).catch(() => {});
         return;
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url)
-            .then(() => showToast("Link copiado para a área de transferência", "check"))
-            .catch(() => window.prompt("Copie o link da fase:", url));
+            .then(() => showToast(t("toast.linkCopied"), "check"))
+            .catch(() => window.prompt(t("share.copyPrompt"), url));
     } else {
-        window.prompt("Copie o link da fase:", url);
+        window.prompt(t("share.copyPrompt"), url);
     }
 }
 
@@ -1839,7 +1881,7 @@ function shareLevel() {
 // author comes from the session, so it's never sent from the client.
 async function publishLevel() {
     if (!currentUser) {
-        showToast("Entre com Google para publicar sua fase", "alert-triangle");
+        showToast(t("toast.needLoginPublish"), "alert-triangle");
         return;
     }
     const map = prepareLevelForPlay();
@@ -1848,7 +1890,7 @@ async function publishLevel() {
     const editing = editingId != null;
     const btn = document.getElementById("btn-publish");
     if (btn) btn.disabled = true;
-    showToast(editing ? "Salvando…" : "Publicando…", "upload-cloud");
+    showToast(editing ? t("toast.saving") : t("toast.publishing"), "upload-cloud");
     // Keep the exported ASCII in sync, then send it as `source` so the level can
     // be reopened for editing later (faithful to the current editor state).
     generateASCIIExport();
@@ -1874,16 +1916,16 @@ async function publishLevel() {
             const url = `${location.origin}/l/${data.id}`;
             if (!editing) editingId = data.id; // subsequent saves edit in place
             updatePublishButtonLabel();
-            showToast(editing ? "Alterações salvas!" : "Publicada! Link copiado para a área de transferência", "check");
+            showToast(editing ? t("toast.savedChanges") : t("toast.published"), "check");
             if (!editing) navigator.clipboard && navigator.clipboard.writeText(url).catch(() => {});
         } else if (resp.status === 401) {
             currentUser = null; renderAuth();
-            showToast("Sua sessão expirou — entre novamente", "alert-triangle");
+            showToast(t("toast.sessionExpired"), "alert-triangle");
         } else {
-            showToast(data.error || `Falha ao ${editing ? "salvar" : "publicar"} (HTTP ${resp.status})`, "alert-triangle");
+            showToast(data.error || t(editing ? "toast.failSave" : "toast.failPublish", { status: resp.status }), "alert-triangle");
         }
     } catch (err) {
-        showToast("Backend da comunidade indisponível", "alert-triangle");
+        showToast(t("toast.backendOff"), "alert-triangle");
     } finally {
         if (btn) btn.disabled = false;
     }
@@ -1920,7 +1962,7 @@ function downloadFile(format) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        showToast(`Download of '${filename}' started!`, "download");
+        showToast(t("toast.downloadStarted", { file: filename }), "download");
     }
 }
 

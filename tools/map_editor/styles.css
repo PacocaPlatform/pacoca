@@ -319,6 +319,8 @@ body {
 }
 .icon-btn i { width: 16px; height: 16px; }
 .icon-btn:hover { background: var(--ov-strong); color: var(--text-primary); }
+/* Language toggle (EN/PT) reuses the icon button but shows a short text label. */
+.icon-btn.lang-toggle { font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em; }
 .icon-btn.active {
     background: var(--accent-glow);
     border-color: var(--accent);
