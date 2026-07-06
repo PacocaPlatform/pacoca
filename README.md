@@ -98,7 +98,7 @@ testing, and saving levels in the browser all work offline. See
 
 ## Project Structure
 
-> Note the nested `src` directory: the git repository root is at the top level, but the **Godot project** is in `src/`, and the **C# scripts** are located in `src/src/`.
+> Note the nested `src` directory: the git repository root is at the top level, but the **Godot project** is in `src/`, and the **GDScript files** are located in `src/src/`.
 
 ```
 Paçoca/
@@ -115,7 +115,6 @@ Paçoca/
 │   └── map_editor/         # Visual map editor (fully client-side; deploys at /editor/)
 └── src/                    # Godot project root (res://)
     ├── project.godot
-    ├── Paçoca.csproj
     ├── scenes/             # Scenes: menu, main, hud, player, enemies, levels...
     │   └── levels/         # Generated level_XX.tscn + levels.json manifest
     ├── scripts/            # Level pipeline (convert_map.py, generate_level.py)
@@ -188,9 +187,9 @@ Each **column** of the grid equals 2 m (X) and each **row** is 3 m (Y, `ystep`);
 
 ## Architecture
 
-- **`Main.cs`** is the gameplay coordinator (root of `main.tscn`): it reads `GameSettings.LevelToLoad`, instantiates the level inside a `LevelWrapper` node, and positions the player at the level's `SpawnPoint` (`Marker3D`). Levels are interchangeable scenes in `scenes/levels/`.
-- **`GameSettings.cs`** is a global static state that stores the selected level and joystick, persisting between scene changes.
+- **`main.gd`** is the gameplay coordinator (root of `main.tscn`): it reads `GameSettings.level_to_load`, instantiates the level inside a `LevelWrapper` node, and positions the player at the level's `SpawnPoint` (`Marker3D`). Levels are interchangeable scenes in `scenes/levels/`.
+- **`game_settings.gd`** is a global static state that stores the selected level and gamepad, persisting between scene changes.
 - **Scene Flow**: `menu.tscn` → `main.tscn` → `game_over.tscn` → `menu.tscn`, with `pause_menu.tscn` overlaid during gameplay.
-- **UI Communication**: the `Player` emits the `PlayerStatsChanged(rings, score, speed, lives)` signal, to which `HUD` connects. Objects like `Ring`, `Spring`, `DashPad`, and `Enemy` call public methods on `Player` (`CollectRing()`, `ApplyBoost()`, `Hurt()`).
+- **UI Communication**: the `Player` emits the `player_stats_changed(rings, score, speed, lives)` signal, to which `HUD` connects. Objects like `Ring`, `Spring`, `DashPad`, and `Enemy` call public methods on `Player` (`collect_ring()`, `apply_boost()`, `hurt()`).
 
 For development details, see `src/CLAUDE.md`.
