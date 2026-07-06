@@ -59,30 +59,39 @@ hands the level to the game through `localStorage` (only shared across `/editor/
 and `/play/` when they share an origin). So you never deploy `site/` or
 `build/web/` alone — you deploy a folder that combines all three as siblings.
 
+> Build/deploy scripts live in [`scripts/`](scripts/), split by OS: **`scripts/unix/`**
+> (`.sh`, macOS/Linux) and **`scripts/windows/`** (`.ps1`, Windows). The commands
+> below use the Unix variant; the Windows equivalents (same names, `.ps1`) and
+> their flags are in [`scripts/README.md`](scripts/README.md). Run from the repo root.
+
 **1. Export the game** (needs the **standard**, non‑Mono Godot 4.6+ and the Web
 export templates — the Mono edition cannot export to Web):
 
 ```bash
-GODOT=/path/to/Godot ./tools/export_web.sh      # writes build/web/
+GODOT=/path/to/Godot ./scripts/unix/export_web.sh          # writes build/web/
+# Windows: .\scripts\windows\export_web.ps1 -Godot C:\path\to\Godot.exe
 ```
 
 **2a. Preview locally** — assembles the layout and serves it on one origin:
 
 ```bash
-./preview.sh            # http://localhost:8000  (/, /play/, /editor/)
+./scripts/unix/preview.sh          # http://localhost:8000  (/, /play/, /editor/)
+# Windows: .\scripts\windows\preview.ps1
 ```
 
 **2b. Build the deploy bundle** — real copies, one folder:
 
 ```bash
-./build_dist.sh         # writes build/dist/
+./scripts/unix/build_dist.sh       # writes build/dist/
+# Windows: .\scripts\windows\build_dist.ps1
 ```
 
 **3. Host it.** The recommended target is Cloudflare, where **one Worker serves
 both the static site (from R2) and `/api/*` (from D1)** on a single origin:
 
 ```bash
-./deploy_r2.sh                      # upload build/dist/ to the R2 bucket
+./scripts/unix/deploy_r2.sh         # upload build/dist/ to the R2 bucket
+# Windows: .\scripts\windows\deploy_r2.ps1
 (cd backend && npm run deploy)      # deploy the Worker
 ```
 
@@ -102,16 +111,16 @@ testing, and saving levels in the browser all work offline. See
 
 ```
 Paçoca/
-├── preview.sh              # Local web preview (landing + game + editor, one origin)
-├── build_dist.sh           # Assemble build/dist/ (the deploy bundle)
-├── deploy_r2.sh            # Upload build/dist/ to the Cloudflare R2 bucket
+├── scripts/                # Build/preview/deploy, split by OS (see scripts/README.md)
+│   ├── preview_server.py   # Shared local-preview HTTP server (used by both OSes)
+│   ├── unix/               # macOS/Linux: export_web.sh, preview.sh, build_dist.sh, deploy_r2.sh
+│   └── windows/            # Windows:     export_web.ps1, preview.ps1, build_dist.ps1, deploy_r2.ps1
 ├── site/                   # Landing page (static; deploys at /)
 ├── build/web/              # Exported WASM game (generated; deploys at /play/)
 ├── backend/                # Community-levels API (Cloudflare Worker; /api/*)
 ├── assets/                 # Raw assets (exported models, etc.)
 ├── docs/                   # Documentation (e.g., map_syntax.md)
 ├── tools/
-│   ├── export_web.sh       # Exports the game to build/web/ (standard Godot)
 │   └── map_editor/         # Visual map editor (fully client-side; deploys at /editor/)
 └── src/                    # Godot project root (res://)
     ├── project.godot

@@ -8,14 +8,15 @@
 #   # game exported: GODOT=/path/to/Godot ./tools/export_web.sh
 #
 # Usage:
-#   ./deploy_r2.sh                 # rebuilds build/dist/ then uploads to pacoca-site
-#   ./deploy_r2.sh my-bucket       # custom bucket name
-#   SKIP_BUILD=1 ./deploy_r2.sh    # upload the existing build/dist/ as-is
-#   LOCAL=1 ./deploy_r2.sh         # seed the LOCAL R2 (for `wrangler dev`), not remote
+#   ./scripts/unix/deploy_r2.sh              # rebuilds build/dist/ then uploads to pacoca-site
+#   ./scripts/unix/deploy_r2.sh my-bucket    # custom bucket name
+#   SKIP_BUILD=1 ./scripts/unix/deploy_r2.sh # upload the existing build/dist/ as-is
+#   LOCAL=1 ./scripts/unix/deploy_r2.sh      # seed the LOCAL R2 (for `wrangler dev`), not remote
 set -euo pipefail
 
 BUCKET="${1:-pacoca-site}"
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$HERE/../.." && pwd)"
 DIST="$ROOT/build/dist"
 # wrangler r2 object put/get default to the LOCAL bucket, so target the remote
 # bucket explicitly unless LOCAL=1 is set (which seeds the local R2 for dev).
@@ -23,10 +24,10 @@ LOCAL_FLAG="--remote"
 [ -n "${LOCAL:-}" ] && LOCAL_FLAG="--local"
 
 if [ -z "${SKIP_BUILD:-}" ]; then
-  "$ROOT/build_dist.sh"
+  "$HERE/build_dist.sh"
 fi
 if [ ! -d "$DIST" ]; then
-  echo "ERROR: $DIST not found. Run ./build_dist.sh first." >&2
+  echo "ERROR: $DIST not found. Run ./scripts/unix/build_dist.sh first." >&2
   exit 1
 fi
 

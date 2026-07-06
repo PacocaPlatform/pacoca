@@ -64,12 +64,12 @@ cd backend
 npm install
 npm run types                 # generate worker-configuration.d.ts (Env)
 npm run db:local              # create the D1 tables locally (fixes /api)
-LOCAL=1 ../deploy_r2.sh       # seed the LOCAL R2 with build/dist/ (fixes the site)
+LOCAL=1 ../scripts/unix/deploy_r2.sh       # seed the LOCAL R2 with build/dist/ (fixes the site)
 npm run dev                   # http://127.0.0.1:8787 — serves site + /api together
 ```
 
 > Just iterating on the **site/game/editor** (no live API)? Skip all this and use
-> `./preview.sh` from the repo root — a plain static server on one origin, no
+> `./scripts/unix/preview.sh` from the repo root — a plain static server on one origin, no
 > seeding. Only **Publicar** and the community feed need the Worker's `/api`.
 
 API smoke test:
@@ -99,14 +99,14 @@ cd ..
 (cd backend && npx wrangler r2 bucket create pacoca-site)
 
 # 4. Export the game + build the bundle + upload it to R2
-GODOT=/path/to/Godot ./tools/export_web.sh
-./deploy_r2.sh                           # runs build_dist.sh, uploads build/dist/ -> R2
+GODOT=/path/to/Godot ./scripts/unix/export_web.sh
+./scripts/unix/deploy_r2.sh                           # runs build_dist.sh, uploads build/dist/ -> R2
 
 # 5. Deploy the Worker (serves /api from D1 and everything else from R2)
 (cd backend && npm run deploy)
 ```
 
-Re-run `./deploy_r2.sh` after changing the site/game, and `npm run deploy` after
+Re-run `./scripts/unix/deploy_r2.sh` after changing the site/game, and `npm run deploy` after
 changing the Worker code.
 
 **Custom domain:** add a route in `wrangler.jsonc` (or the dashboard) so the

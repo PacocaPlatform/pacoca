@@ -273,7 +273,7 @@ async function requireAdmin(request: Request, env: Env): Promise<
 // --- Static assets from R2 -------------------------------------------------
 //
 // The deploy bundle (build/dist/) is uploaded to the R2 bucket bound as ASSETS
-// (see deploy_r2.sh). This keeps everything — site, game and API — on one origin,
+// (see scripts/unix/deploy_r2.sh). This keeps everything — site, game and API — on one origin,
 // which the editor's localStorage handoff and the same-origin /api both need.
 
 const CONTENT_TYPES: Record<string, string> = {

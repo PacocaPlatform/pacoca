@@ -11,14 +11,14 @@
 # (backend/, a Cloudflare Worker) is deployed separately and answers /api/*.
 #
 # Prereq: export the game first so build/web/ exists:
-#   GODOT=/path/to/Godot ./tools/export_web.sh
+#   GODOT=/path/to/Godot ./scripts/unix/export_web.sh
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DIST="$ROOT/build/dist"
 
 if [ ! -d "$ROOT/build/web" ]; then
-  echo "ERROR: build/web/ not found. Run ./tools/export_web.sh first." >&2
+  echo "ERROR: build/web/ not found. Run ./scripts/unix/export_web.sh first." >&2
   exit 1
 fi
 

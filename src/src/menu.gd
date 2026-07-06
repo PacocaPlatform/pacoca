@@ -88,6 +88,11 @@ var _animated_buttons: Array[Button] = []
 
 
 func _ready() -> void:
+	# Web: inherit the site's language (English site -> English game, etc.).
+	# Must run before the custom-map jump below so community/editor levels that
+	# skip the menu still pick up the right language.
+	GameSettings.apply_web_language()
+
 	# Web: the map editor can hand a level to the WASM build via localStorage
 	# (opened as play/?custom=1). Jump straight into it, skipping the menu.
 	if GameSettings.consume_web_custom_map():
@@ -396,6 +401,7 @@ func _on_sfx_theme_selected(index: int) -> void:
 func _on_language_selected(index: int) -> void:
 	var lang: String = _lang_option_button.get_item_metadata(index)
 	GameSettings.language = lang
+	GameSettings.persist_web_language() # keep the website in sync (web only)
 	_translate_ui()
 	_play_menu_sound("forward", 587.33, 0.1, 0.3) # D5 note sound
 

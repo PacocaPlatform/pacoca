@@ -20,14 +20,18 @@ Por que mesma origem: os links são relativos e o botão **Testar** do editor pa
 a fase pro jogo via `localStorage` (só compartilhado entre `/editor/` e `/play/`
 no mesmo domínio); o `/api` também é chamado same-origin.
 
-Scripts principais (raiz):
+Scripts principais em [`scripts/`](../scripts/), divididos por SO — **`scripts/unix/`**
+(`.sh`, macOS/Linux) e **`scripts/windows/`** (`.ps1`, Windows). Os comandos abaixo
+usam a variante Unix; a equivalente no Windows tem o mesmo nome com `.ps1` e as
+opções viram parâmetros (ex.: `-Godot`, `-Port`, `-Local`). Detalhes e tabela de
+equivalência em [`scripts/README.md`](../scripts/README.md).
 
 | Script | Faz |
 | --- | --- |
-| `tools/export_web.sh` | exporta o jogo Godot → `build/web/` |
-| `preview.sh` | monta e serve tudo localmente em uma origem (`:8000`) |
-| `build_dist.sh` | monta o bundle de deploy (cópias reais) → `build/dist/` |
-| `deploy_r2.sh` | sobe `build/dist/` pro bucket R2 (remoto ou local) |
+| `scripts/unix/export_web.sh` | exporta o jogo Godot → `build/web/` |
+| `scripts/unix/preview.sh` | monta e serve tudo localmente em uma origem (`:8000`) |
+| `scripts/unix/build_dist.sh` | monta o bundle de deploy (cópias reais) → `build/dist/` |
+| `scripts/unix/deploy_r2.sh` | sobe `build/dist/` pro bucket R2 (remoto ou local) |
 
 ---
 
@@ -89,7 +93,7 @@ próprias fases.
 Exporta o Godot para `build/web/` (index.html, index.wasm, index.pck, …):
 
 ```bash
-GODOT=/Applications/Godot.app/Contents/MacOS/Godot ./tools/export_web.sh
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot ./scripts/unix/export_web.sh
 ```
 
 - O preset "Web" (`src/export_presets.cfg`) é **multi-thread**
@@ -116,7 +120,7 @@ Há dois modos, conforme o que você quer exercitar.
 ### Modo A — só site/jogo/editor (rápido, o dia a dia)
 
 ```bash
-./preview.sh                 # http://localhost:8000
+./scripts/unix/preview.sh                 # http://localhost:8000
 ```
 
 Monta `/`, `/play/` e `/editor/` numa origem só e serve estático. Recarregar o
@@ -143,15 +147,15 @@ npm run dev                  # Worker/API em http://localhost:8787
 
 ```bash
 # terminal 2 — o site (proxy de /api -> :8787)
-./preview.sh                 # http://localhost:8000
+./scripts/unix/preview.sh                 # http://localhost:8000
 ```
 
 Abra **http://localhost:8000**. O `preview.sh` serve os estáticos e repassa
 `/api/*` para o Worker em `:8787`, então **Publicar** grava no D1 local. Backend
-em outra porta? `API=http://localhost:8799 ./preview.sh`.
+em outra porta? `API=http://localhost:8799 ./scripts/unix/preview.sh`.
 
 > Alternativa: servir o site pelo próprio Worker (como em produção). Aí é preciso
-> semear o R2 **local**: `LOCAL=1 ./deploy_r2.sh` e depois `cd backend && npm run
+> semear o R2 **local**: `LOCAL=1 ./scripts/unix/deploy_r2.sh` e depois `cd backend && npm run
 > dev` → tudo em `:8787`. Isso re-sobe o `.pck` de ~137MB toda vez, então para só
 > visualizar prefira o Modo A.
 
@@ -186,10 +190,10 @@ cd ..
 
 ```bash
 # 1. Exporte o jogo (se mudou)
-GODOT=/Applications/Godot.app/Contents/MacOS/Godot ./tools/export_web.sh
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot ./scripts/unix/export_web.sh
 
 # 2. Monte o bundle e suba para o R2
-./deploy_r2.sh                           # roda build_dist.sh e envia build/dist/ -> R2
+./scripts/unix/deploy_r2.sh                           # roda build_dist.sh e envia build/dist/ -> R2
 
 # 3. Publique o Worker (serve /api do D1 e o resto do R2)
 (cd backend && npm run deploy)
@@ -212,8 +216,8 @@ Aí `/`, `/play/`, `/editor/` e `/api/*` ficam todos nesse domínio (mesma orige
 
 | Mudou… | Rode |
 | --- | --- |
-| landing / editor (arquivos estáticos) | `./deploy_r2.sh` |
-| jogo (GDScript, cenas, assets) | `./tools/export_web.sh` **depois** `./deploy_r2.sh` |
+| landing / editor (arquivos estáticos) | `./scripts/unix/deploy_r2.sh` |
+| jogo (GDScript, cenas, assets) | `./scripts/unix/export_web.sh` **depois** `./scripts/unix/deploy_r2.sh` |
 | lógica do Worker (`backend/src/`) | `(cd backend && npm run deploy)` |
 | schema do banco (`backend/schema.sql`) | `(cd backend && npm run db:remote)` |
 
@@ -224,12 +228,12 @@ Aí `/`, `/play/`, `/editor/` e `/api/*` ficam todos nesse domínio (mesma orige
 | Sintoma | Causa | Correção |
 | --- | --- | --- |
 | Export falha / sem botão "Web" | templates de export Web ausentes ou edição **Mono** | instale os templates; use a Godot **standard** |
-| `wrangler dev`: `GET / → 404` | R2 **local** vazio (nada pra servir em `/`) | use `./preview.sh` para o site; ou semeie o R2 local: `LOCAL=1 ./deploy_r2.sh` |
+| `wrangler dev`: `GET / → 404` | R2 **local** vazio (nada pra servir em `/`) | use `./scripts/unix/preview.sh` para o site; ou semeie o R2 local: `LOCAL=1 ./scripts/unix/deploy_r2.sh` |
 | `GET /api/levels → 500` · `D1_ERROR: no such table: levels` | D1 **local** sem tabelas | `cd backend && npm run db:local` (funciona sem reiniciar o `dev`) |
 | Publicar → `501 Unsupported method ('POST')` | `preview.sh` sozinho é estático, não tem `/api` | suba o Worker (Modo B) — o `preview.sh` passa a repassar o `/api` |
 | Publicar no site → "API offline em …" | Worker (`:8787`) não está rodando | `cd backend && npm run dev` |
 | Deploy no Pages recusa arquivo > 25 MiB | limite de 25 MiB por arquivo | use o Worker + R2 (seção 4), não o Pages |
-| Jogo no `/play/` desatualizado | `build/web/` é o último export | re-exporte: `./tools/export_web.sh` |
+| Jogo no `/play/` desatualizado | `build/web/` é o último export | re-exporte: `./scripts/unix/export_web.sh` |
 
 ---
 

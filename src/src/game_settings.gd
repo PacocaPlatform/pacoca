@@ -27,6 +27,46 @@ static var sound_theme := "procedural"
 const WEB_TEST_MAP_KEY := "pacoca_test_map"
 
 
+# Key the website writes its selected language into (window.localStorage).
+# Mirrors STORAGE_KEY in site/i18n.js. Values are "pt-BR" or "en-US".
+const WEB_LANG_KEY := "pacoca_lang"
+
+# Guard so the site language is adopted only once per game session — otherwise
+# returning to the menu after an in-game language switch would revert the choice.
+static var _web_language_applied := false
+
+
+# Web only: adopt the language the website is showing (stored by site/i18n.js in
+# localStorage) so launching the game inherits the site's language — English site
+# -> English game, Portuguese site -> Portuguese game. Runs once per session; a
+# later in-game language switch is respected. No-op on native builds.
+static func apply_web_language() -> void:
+	if _web_language_applied or not OS.has_feature("web"):
+		return
+	_web_language_applied = true
+
+	var raw: Variant = JavaScriptBridge.eval(
+			"window.localStorage.getItem('%s')" % WEB_LANG_KEY, true)
+	if raw == null:
+		return
+
+	var site_lang := str(raw)
+	if site_lang.begins_with("en"):
+		language = "en"
+	elif site_lang.begins_with("pt"):
+		language = "pt"
+
+
+# Web only: mirror an in-game language choice back into the website's localStorage
+# (as "en-US"/"pt-BR") so the site and game stay in sync. No-op on native builds.
+static func persist_web_language() -> void:
+	if not OS.has_feature("web"):
+		return
+	var site_lang := "en-US" if language == "en" else "pt-BR"
+	JavaScriptBridge.eval(
+			"window.localStorage.setItem('%s', '%s')" % [WEB_LANG_KEY, site_lang], true)
+
+
 # Web only: if the game was opened by the map editor's "Testar" button
 # (play/?custom=1), read the structured level it stashed in localStorage and load
 # it via RuntimeLevelBuilder. Returns true if a custom map was consumed, in which

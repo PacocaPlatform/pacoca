@@ -32,31 +32,32 @@ and `/play/` share an origin.
 Web):
 
 ```bash
-GODOT=/path/to/Godot_v4.6.3-stable_console ./tools/export_web.sh
+GODOT=/path/to/Godot_v4.6.3-stable_console ./scripts/unix/export_web.sh
 ```
 
 ### Assembling & hosting
 
-`build_dist.sh` (repo root) assembles the layout above with real copies into
-`build/dist/`:
+`scripts/unix/build_dist.sh` (or `scripts/windows/build_dist.ps1`) assembles the
+layout above with real copies into `build/dist/`:
 
 ```bash
-./build_dist.sh                   # from the repo root -> build/dist/
+./scripts/unix/build_dist.sh                   # from the repo root -> build/dist/
 ```
 
 Host it on Cloudflare, where a single Worker serves the static files from R2 and
-`/api/*` from D1 on one origin — `deploy_r2.sh` uploads the bundle. Plain
+`/api/*` from D1 on one origin — `scripts/unix/deploy_r2.sh` uploads the bundle. Plain
 Cloudflare Pages won't work: it rejects files over 25 MiB, and the game's
 `index.pck`/`index.wasm` exceed that. Full steps:
 [`../backend/README.md`](../backend/README.md).
 
 ## Local preview
 
-`preview.sh` (repo root) assembles the same layout and serves it on one origin,
+`scripts/unix/preview.sh` (or `scripts/windows/preview.ps1`) assembles the same
+layout and serves it on one origin,
 so `/`, `/play/` and `/editor/` all work (including the **Testar** handoff):
 
 ```bash
-./preview.sh                      # http://localhost:8000
+./scripts/unix/preview.sh                      # http://localhost:8000
 ```
 
 ## Community levels feed

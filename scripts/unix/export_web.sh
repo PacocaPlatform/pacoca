@@ -5,7 +5,7 @@
 # export templates installed (the Mono edition cannot export to Web). Point
 # GODOT at the standard editor binary, or put it on PATH as `godot`.
 #
-#   GODOT=/path/to/Godot_v4.6.3-stable_win64_console.exe ./tools/export_web.sh
+#   GODOT=/path/to/Godot_v4.6.3-stable_win64_console.exe ./scripts/unix/export_web.sh
 #
 # The Web preset (src/export_presets.cfg) is multi-threaded (thread_support=true)
 # so Godot runs the audio mixer off the main thread (smooth music). This REQUIRES
@@ -16,7 +16,7 @@
 set -euo pipefail
 
 GODOT="${GODOT:-godot}"
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PROJECT="$ROOT/src"
 OUT="$ROOT/build/web"
 

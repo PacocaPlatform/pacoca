@@ -27,7 +27,7 @@
 		}
 	],
 	// The static site (landing + game + editor) is served from this R2 bucket by
-	// the Worker (src/index.ts serveStatic + deploy_r2.sh). R2 has no per-file size
+	// the Worker (src/index.ts serveStatic + scripts/unix/deploy_r2.sh). R2 has no per-file size
 	// limit, so the game's index.pck (~137MB) / index.wasm (~38MB) upload fine.
 	"r2_buckets": [
 		{
