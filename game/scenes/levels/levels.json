@@ -8,66 +8,10 @@
       "builtin": true
     },
     {
-      "id": "02",
-      "name": "Emerald Marathon",
-      "theme": "forest",
-      "scene": "res://scenes/levels/level_02.tscn",
-      "builtin": true
-    },
-    {
-      "id": "03",
-      "name": "Ruínas Celestes",
-      "theme": "forest",
-      "scene": "res://scenes/levels/level_03.tscn",
-      "builtin": true
-    },
-    {
-      "id": "04",
-      "name": "Sky Ruins",
-      "theme": "forest",
-      "scene": "res://scenes/levels/level_04.tscn",
-      "builtin": true
-    },
-    {
-      "id": "41",
-      "name": "Sky Ruins 2",
-      "theme": "forest",
-      "scene": "res://scenes/levels/level_41.tscn",
-      "builtin": true
-    },
-    {
-      "id": "50",
-      "name": "Minha Fase Expandida",
-      "theme": "forest",
-      "scene": "res://scenes/levels/level_50.tscn",
-      "builtin": false
-    },
-    {
       "id": "caverna_01",
       "name": "Caverna 1",
       "theme": "caverna",
       "scene": "res://scenes/levels/level_caverna_01.tscn",
-      "builtin": true
-    },
-    {
-      "id": "caverna_02",
-      "name": "Caverna 2",
-      "theme": "caverna",
-      "scene": "res://scenes/levels/level_caverna_02.tscn",
-      "builtin": true
-    },
-    {
-      "id": "caverna_03",
-      "name": "Caverna 3",
-      "theme": "caverna",
-      "scene": "res://scenes/levels/level_caverna_03.tscn",
-      "builtin": true
-    },
-    {
-      "id": "caverna_04",
-      "name": "Caverna 4",
-      "theme": "caverna",
-      "scene": "res://scenes/levels/level_caverna_04.tscn",
       "builtin": true
     },
     {
@@ -78,52 +22,10 @@
       "builtin": true
     },
     {
-      "id": "cidade_02",
-      "name": "Cidade 2",
-      "theme": "cidade",
-      "scene": "res://scenes/levels/level_cidade_02.tscn",
-      "builtin": true
-    },
-    {
-      "id": "cidade_03",
-      "name": "Cidade 3",
-      "theme": "cidade",
-      "scene": "res://scenes/levels/level_cidade_03.tscn",
-      "builtin": true
-    },
-    {
-      "id": "cidade_04",
-      "name": "Cidade 4",
-      "theme": "cidade",
-      "scene": "res://scenes/levels/level_cidade_04.tscn",
-      "builtin": true
-    },
-    {
       "id": "glacial_01",
       "name": "Glacial 1",
       "theme": "glacial",
       "scene": "res://scenes/levels/level_glacial_01.tscn",
-      "builtin": true
-    },
-    {
-      "id": "glacial_02",
-      "name": "Glacial 2",
-      "theme": "glacial",
-      "scene": "res://scenes/levels/level_glacial_02.tscn",
-      "builtin": true
-    },
-    {
-      "id": "glacial_03",
-      "name": "Glacial 3",
-      "theme": "glacial",
-      "scene": "res://scenes/levels/level_glacial_03.tscn",
-      "builtin": true
-    },
-    {
-      "id": "glacial_04",
-      "name": "Glacial 4",
-      "theme": "glacial",
-      "scene": "res://scenes/levels/level_glacial_04.tscn",
       "builtin": true
     }
   ]

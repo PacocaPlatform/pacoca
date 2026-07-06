@@ -43,8 +43,8 @@ func _ready() -> void:
 
 
 # Lets the map editor's "Testar fase" button launch straight into a level:
-#   Godot --path src scenes/main.tscn -- --level=04
-#   Godot --path src scenes/main.tscn -- --level=res://scenes/levels/level_04.tscn
+#   Godot --path src scenes/main.tscn -- --level=01
+#   Godot --path src scenes/main.tscn -- --level=res://scenes/levels/level_01.tscn
 func _apply_cmdline_level_override() -> void:
 	for arg in OS.get_cmdline_user_args():
 		# --custom-map=<path.json>: build a structured JSON map at runtime (used
