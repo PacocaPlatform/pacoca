@@ -62,13 +62,18 @@ var _jump_buffer_timer := 0.0
 var _was_on_floor := true
 var _camera: Node3D # CameraController (duck-typed to avoid a class cycle with Main)
 
-# Live telemetry to the map editor (enabled only when launched with --telemetry=<url>,
-# which the editor's "Test Level" button passes). Throttled so HTTP never stalls physics.
+# Live telemetry to the map editor so it can follow the player on the drawn map.
+# Two transports: native uses HTTP (--telemetry=<url>, passed by the desktop
+# editor's "Test Level"); the web export has no server, so it broadcasts on a
+# same-origin BroadcastChannel the editor listens on (armed by play/?telemetry=1).
+# Throttled either way so it never stalls physics.
 var _telemetry_enabled := false
+var _telemetry_web := false
 var _telemetry_url := ""
 var _telemetry_level := ""
 var _telemetry_timer := 0.0
 const TELEMETRY_INTERVAL := 0.06 # ~15 Hz
+const TELEMETRY_CHANNEL := "pacoca-telemetry" # mirrored in tools/map_editor/app.js
 var _telemetry_http: HTTPRequest
 
 # Node references
@@ -157,14 +162,48 @@ func _configure_telemetry() -> void:
 		_telemetry_http = HTTPRequest.new()
 		add_child(_telemetry_http)
 		print("player.gd: live telemetry -> %s" % _telemetry_url)
+		return
+
+	# Web has no cmdline args; the editor's "Testar" opens play/?custom=1&telemetry=1.
+	_configure_web_telemetry()
+
+
+# Web only: if the editor asked for telemetry (?telemetry=1), open a BroadcastChannel
+# and stream the player's position to it each tick. No-op on native builds.
+func _configure_web_telemetry() -> void:
+	if not OS.has_feature("web"):
+		return
+	var search := str(JavaScriptBridge.eval("window.location.search || ''", true))
+	if not search.contains("telemetry=1"):
+		return
+	# Create the channel once; reuse it if another node already made it this session.
+	JavaScriptBridge.eval(
+		"window._pacocaTel = window._pacocaTel || new BroadcastChannel('%s');" % TELEMETRY_CHANNEL,
+		true)
+	_telemetry_web = true
+	_telemetry_enabled = true
+	print("player.gd: live telemetry -> BroadcastChannel('%s')" % TELEMETRY_CHANNEL)
 
 
 func _send_telemetry() -> void:
-	# Fire-and-forget; skip when the previous request is still in flight so
-	# telemetry never interferes with gameplay.
+	var p := global_position
+	if _telemetry_web:
+		# A JSON object literal is valid JS, so post it straight to the channel;
+		# the editor reads the fields off event.data.
+		var payload := JSON.stringify({
+			"x": snappedf(p.x, 0.001),
+			"y": snappedf(p.y, 0.001),
+			"on_floor": is_on_floor(),
+			"speed": snappedf(velocity.length(), 0.001),
+		})
+		JavaScriptBridge.eval(
+			"window._pacocaTel && window._pacocaTel.postMessage(%s);" % payload, true)
+		return
+
+	# Native: fire-and-forget HTTP; skip when the previous request is still in
+	# flight so telemetry never interferes with gameplay.
 	if _telemetry_http == null or _telemetry_http.get_http_client_status() != HTTPClient.STATUS_DISCONNECTED:
 		return
-	var p := global_position
 	var json := JSON.stringify({
 		"level": _telemetry_level,
 		"x": snappedf(p.x, 0.001),

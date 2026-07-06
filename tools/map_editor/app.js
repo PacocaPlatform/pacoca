@@ -1836,7 +1836,10 @@ function testLevel() {
         return;
     }
     showToast(t("toast.opening"), "gamepad-2");
-    window.open(GAME_URL + "?custom=1", "_blank");
+    // telemetry=1 tells the game to broadcast the player's position so the live
+    // marker below can follow it (same-origin BroadcastChannel; see startLiveView).
+    window.open(GAME_URL + "?custom=1&telemetry=1", "_blank");
+    startLiveView();
 }
 
 // "Jogar" — open the game's main menu.
@@ -2067,13 +2070,125 @@ async function publishLevel() {
     }
 }
 
-// Removed with the Python server (native compile/run/telemetry). Kept as no-ops
-// so any stray references stay harmless.
+// Removed with the Python server (native compile/run). Kept as no-ops so any
+// stray references stay harmless.
 function stopGame() {}
 function setStopButtonState() {}
-function startLiveView() {}
-function stopLiveView() {}
-function toggleLiveView() {}
+
+// --- Live View: follow the running player on the drawn map ---------------- //
+//
+// The desktop editor relayed telemetry through the Python server (game POSTs
+// /api/telemetry, editor polls GET). On the web there is no server: the game
+// (../play/) and this editor (../editor/) are the same origin, so the game
+// broadcasts the player's position on a same-origin BroadcastChannel and we
+// listen here. "Testar" arms this automatically (see testLevel), passing
+// telemetry=1 so the game knows to broadcast. Coordinate mapping matches the
+// editor's own grid (col = X / X_STEP, visual row = (gridHeight-1) - Y / Y_STEP).
+
+const LIVE_CHANNEL = "pacoca-telemetry"; // mirrored in game/scripts/player.gd
+let liveMarker = null;
+let liveActive = false;
+let liveChannel = null;
+let liveStaleTimer = null;
+let liveLastTs = 0;
+
+function getCellSize() {
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--grid-cell-size");
+    const n = parseFloat(v);
+    return isNaN(n) ? 38 : n;
+}
+
+// The marker lives inside #map-grid so it inherits the grid's zoom transform.
+// renderGrid() wipes the grid's children, so we (re)create it on demand.
+function ensureLiveMarker() {
+    const mapGrid = document.getElementById("map-grid");
+    if (!liveMarker || !liveMarker.isConnected) {
+        liveMarker = document.createElement("div");
+        liveMarker.className = "live-player";
+        liveMarker.innerHTML = '<span class="live-player-dot"></span><span class="live-player-label">P</span>';
+    }
+    if (liveMarker.parentElement !== mapGrid) mapGrid.appendChild(liveMarker);
+    return liveMarker;
+}
+
+function markLiveWaiting() {
+    const ind = document.getElementById("live-indicator");
+    if (ind) ind.textContent = t("live.waiting");
+    if (liveMarker) liveMarker.style.display = "none";
+}
+
+function drawLiveSample(data) {
+    liveLastTs = performance.now();
+    const cell = getCellSize();
+    const c = data.x / X_STEP;
+    const r = (gridHeight - 1) - (data.y / Y_STEP);
+
+    const marker = ensureLiveMarker();
+    marker.style.display = "block";
+    marker.style.left = ((c + 0.5) * cell) + "px";
+    marker.style.top = ((r + 0.5) * cell) + "px";
+    marker.classList.toggle("airborne", !data.on_floor);
+
+    const ind = document.getElementById("live-indicator");
+    if (ind) {
+        ind.textContent = t("live.tracking", {
+            x: data.x.toFixed(1),
+            y: data.y.toFixed(1),
+            speed: (data.speed || 0).toFixed(1),
+        });
+    }
+
+    // Auto-follow horizontally so the player stays centered in the viewport.
+    const container = document.getElementById("grid-container");
+    if (container) {
+        container.scrollLeft = (c + 0.5) * cell * zoomLevel - container.clientWidth / 2;
+    }
+}
+
+// BroadcastChannel gives us no "tab closed" event, so treat a gap in samples as
+// the game being gone and fall back to the waiting state.
+function checkLiveStale() {
+    if (liveActive && liveLastTs && performance.now() - liveLastTs > 1000) {
+        markLiveWaiting();
+    }
+}
+
+function startLiveView() {
+    if (liveActive || typeof BroadcastChannel === "undefined") return;
+    liveActive = true;
+    liveLastTs = 0;
+
+    liveChannel = new BroadcastChannel(LIVE_CHANNEL);
+    liveChannel.onmessage = (e) => {
+        const d = e.data;
+        if (!d || d.exited) { markLiveWaiting(); return; }
+        drawLiveSample(d);
+    };
+
+    const ind = document.getElementById("live-indicator");
+    if (ind) { ind.hidden = false; ind.textContent = t("live.waiting"); }
+    const btn = document.getElementById("btn-live");
+    if (btn) btn.classList.add("active");
+
+    liveStaleTimer = setInterval(checkLiveStale, 500);
+}
+
+function stopLiveView() {
+    liveActive = false;
+    if (liveChannel) { liveChannel.close(); liveChannel = null; }
+    if (liveStaleTimer) { clearInterval(liveStaleTimer); liveStaleTimer = null; }
+
+    const ind = document.getElementById("live-indicator");
+    if (ind) ind.hidden = true;
+    const btn = document.getElementById("btn-live");
+    if (btn) btn.classList.remove("active");
+    if (liveMarker) liveMarker.style.display = "none";
+}
+
+function toggleLiveView() {
+    if (liveActive) stopLiveView();
+    else startLiveView();
+}
 
 function downloadFile(format) {
     const levelIdSanitized = levelId.padStart(2, '0');
