@@ -1,6 +1,6 @@
 # Paçoca
 
-A fast-paced 2.5D momentum platformer built with **Godot 4.6** and **GDScript**.
+A fast-paced 2.5D momentum platformer built with **Godot 4.7** and **GDScript**.
 
 The player controls Paçoca through fast-paced levels: running, jumping, rolling, charging spin dash, performing air dashes, collecting rings (coins), and dodging enemies — all powered by custom physics for acceleration, friction, and slope mechanics.
 
@@ -26,7 +26,7 @@ The player controls Paçoca through fast-paced levels: running, jumping, rolling
 
 ## Requirements
 
-- **Godot 4.6** (standard edition — the project is pure GDScript, no .NET/Mono required)
+- **Godot 4.7** (standard edition — the project is pure GDScript, no .NET/Mono required)
 
 ## How to Run
 
@@ -64,7 +64,7 @@ and `/play/` when they share an origin). So you never deploy `site/` or
 > below use the Unix variant; the Windows equivalents (same names, `.ps1`) and
 > their flags are in [`scripts/README.md`](scripts/README.md). Run from the repo root.
 
-**1. Export the game** (needs the **standard**, non‑Mono Godot 4.6+ and the Web
+**1. Export the game** (needs the **standard**, non‑Mono Godot 4.7+ and the Web
 export templates — the Mono edition cannot export to Web):
 
 ```bash

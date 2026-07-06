@@ -39,7 +39,7 @@ equivalência em [`scripts/README.md`](../scripts/README.md).
 
 ### Godot
 
-- **Godot 4.6+ edição padrão (standard), NÃO a Mono/.NET.** A edição Mono **não
+- **Godot 4.7+ edição padrão (standard), NÃO a Mono/.NET.** A edição Mono **não
   exporta para Web**. O projeto é GDScript puro, então a standard basta.
 - App standard no macOS: `/Applications/Godot.app` → binário em
   `/Applications/Godot.app/Contents/MacOS/Godot`.

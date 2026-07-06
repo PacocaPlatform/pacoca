@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Paçoca is a 2.5D momentum platformer built with **Godot 4.6** and **GDScript** (pure — no .NET/Mono). UI text is in Portuguese (e.g. "MOEDAS" = rings, "VIDAS" = lives, "JOGAR" = play).
+Paçoca is a 2.5D momentum platformer built with **Godot 4.7** and **GDScript** (pure — no .NET/Mono). UI text is in Portuguese (e.g. "MOEDAS" = rings, "VIDAS" = lives, "JOGAR" = play).
 
 ## Directory layout
 
@@ -28,7 +28,7 @@ godot --path . scenes/menu.tscn
 python3 -m unittest discover -s levelgen/tests
 ```
 
-Running the game requires the **Godot 4.6 editor** (standard edition is fine). The main scene is `res://scenes/menu.tscn` (set in `project.godot`).
+Running the game requires the **Godot 4.7 editor** (standard edition is fine). The main scene is `res://scenes/menu.tscn` (set in `project.godot`).
 
 ## Scene / flow architecture
 

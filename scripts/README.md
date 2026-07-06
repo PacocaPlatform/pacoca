@@ -44,7 +44,7 @@ Opções equivalentes (env var no Bash ↔ parâmetro no PowerShell):
 
 ## Pré-requisitos
 
-- **Godot 4.6+ standard** (não Mono) + templates de export Web — para
+- **Godot 4.7+ standard** (não Mono) + templates de export Web — para
   `export_web`.
 - **Python 3** na PATH (`python`, `py` ou `python3`) — para `preview`.
 - **Node 18+** e `npx wrangler` autenticado — para `deploy_r2` e o backend.

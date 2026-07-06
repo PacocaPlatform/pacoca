@@ -231,7 +231,7 @@ This command will:
 4. Call `generate_level.py`, which compiles the geometry and distributes items/enemies in the scene (retargeting theme materials on recompiles).
 5. Register the level in `game/scenes/levels/levels.json` — the game menu reads this manifest, so the level appears automatically. New levels are registered with `"builtin": false` and show up in the menu's **Custom Levels** list; levels flagged `"builtin": true` (shipped with the game) stay grouped by theme, and recompiling one keeps the flag.
 
-Afterwards, open/reload the project in Godot 4.6 (Mono/.NET) to test.
+Afterwards, open/reload the project in Godot 4.7 (standard, non-Mono) to test.
 
 ### Re-generation is Idempotent
 
