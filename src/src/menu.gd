@@ -115,9 +115,13 @@ func _ready() -> void:
 	GameSettings.ensure_music_bus()
 	_music_player = AudioStreamPlayer.new()
 	_music_player.bus = "Music"
+	# Force real-stream playback: on the Web export the default playback type is
+	# "Sample", which only supports WAV. MP3 streams "cannot be sampled" and stay
+	# silent, so decode/stream them instead.
+	_music_player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	add_child(_music_player)
-	var menu_music := GameSettings.load_music("res://audio/menu.mp3")
-	if menu_music is AudioStreamMP3:
+	var menu_music := GameSettings.load_music("res://audio/menu.ogg")
+	if menu_music is AudioStreamOggVorbis or menu_music is AudioStreamMP3:
 		menu_music.loop = true
 	_music_player.stream = menu_music
 	_music_player.volume_db = MUSIC_SILENT_DB
@@ -842,7 +846,10 @@ func _toggle_buttons_disabled(disabled: bool) -> void:
 func _on_exit_pressed() -> void:
 	_play_menu_sound("backward", 261.63, 0.2, 0.3) # C4 note quit sound
 	GameSettings.finalize_telemetry(self)
-	get_tree().create_timer(0.25).timeout.connect(func() -> void: get_tree().quit())
+	# Web: return to the site page the player came from. Native: quit.
+	get_tree().create_timer(0.25).timeout.connect(func() -> void:
+		if not GameSettings.exit_to_site():
+			get_tree().quit())
 
 
 func _on_music_volume_changed(value: float) -> void:

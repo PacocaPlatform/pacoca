@@ -117,6 +117,8 @@ a { color: inherit; text-decoration: none; }
     box-shadow: 0 3px 0 #9a6420;
 }
 .nav-cta:hover { transform: translateY(-1px); }
+.nav-github { display: inline-flex; align-items: center; color: var(--text-soft); }
+.nav-github svg { display: block; }
 .nav-links > a:not(.nav-cta):not(.nav-auth) { display: none; }
 /* :not([hidden]) so JS-toggled links (auth/admin) stay hidden — an author
    `display` rule would otherwise beat the UA `[hidden]` display:none. */
@@ -139,6 +141,9 @@ a { color: inherit; text-decoration: none; }
 }
 .nav-login:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
 
+/* Language toggle — compact square that shows the language you'd switch to. */
+.nav-lang { min-width: 2.6em; text-align: center; letter-spacing: .04em; }
+
 /* ---------- Hero ---------- */
 .hero {
     max-width: var(--maxw);
@@ -149,9 +154,18 @@ a { color: inherit; text-decoration: none; }
     align-items: center;
     grid-template-columns: 1fr;
 }
+.hero-copy { display: flex; flex-direction: column; }
 @media (min-width: 900px) {
     .hero { grid-template-columns: 1.05fr 0.95fr; }
     .hero-art { order: 2; }
+}
+/* On mobile, surface the CTA buttons near the top: headline + buttons first,
+   the lede and the big hero image below. */
+@media (max-width: 899px) {
+    .hero-art { order: 2; }
+    .hero-copy .cta-row { order: 0; }
+    .hero-copy .lede { order: 1; }
+    .hero-copy .hero-note { order: 2; }
 }
 
 .hero-art img {

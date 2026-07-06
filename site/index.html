@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paçoca — Plataforma 2.5D de ação veloz</title>
-    <meta name="description" content="Paçoca é um platformer 2.5D de ação veloz. Jogue direto no navegador, crie suas fases no Map Editor visual e publique para a comunidade.">
+    <title data-i18n="meta.title">Paçoca — Plataforma 2.5D de ação veloz</title>
+    <meta name="description" data-i18n-attr="content:meta.description" content="Paçoca é um platformer 2.5D de ação veloz. Jogue direto no navegador, crie suas fases no Map Editor visual e publique para a comunidade.">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Paçoca — Plataforma 2.5D de ação veloz">
-    <meta property="og:description" content="Corra, pule e crie suas próprias fases. Jogue no navegador ou abra o Map Editor.">
+    <meta property="og:title" data-i18n-attr="content:og.title" content="Paçoca — Plataforma 2.5D de ação veloz">
+    <meta property="og:description" data-i18n-attr="content:og.description" content="Corra, pule e crie suas próprias fases. Jogue no navegador ou abra o Map Editor.">
     <meta property="og:image" content="assets/hero.png">
     <meta property="og:type" content="website">
 
@@ -22,6 +22,8 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <link rel="stylesheet" href="styles.css">
+    <!-- i18n first so app.js / app-nav.js read from the same dictionary -->
+    <script src="i18n.js"></script>
 </head>
 <body>
     <!-- Decorative sunset sky -->
@@ -37,27 +39,32 @@
             <span class="nav-name">Paçoca</span>
         </a>
         <nav class="nav-links">
-            <a href="#recursos">Recursos</a>
-            <a href="#temas">Temas</a>
-            <a href="#comunidade">Comunidade</a>
-            <a href="fases/">Fases</a>
-            <a data-auth-link hidden href="minhas/">Minhas fases</a>
-            <a data-admin-link hidden href="admin/">Moderação</a>
-            <a class="nav-cta nav-editor" data-link="editor" href="#">Map Editor</a>
+            <a href="#recursos" data-i18n="nav.recursos">Recursos</a>
+            <a href="#temas" data-i18n="nav.temas">Temas</a>
+            <a href="#comunidade" data-i18n="nav.comunidade">Comunidade</a>
+            <a href="fases/" data-i18n="nav.fases">Fases</a>
+            <a data-auth-link hidden href="minhas/" data-i18n="nav.minhas">Minhas fases</a>
+            <a data-admin-link hidden href="admin/" data-i18n="nav.moderacao">Moderação</a>
+            <a class="nav-github" href="https://github.com/ricardoborges/pacoca" target="_blank" rel="noopener" data-i18n-attr="title:nav.codigo.title" aria-label="GitHub">
+                <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
             <span class="nav-auth" data-auth-slot></span>
+            <button class="nav-login nav-lang" type="button" data-lang-toggle>EN</button>
         </nav>
     </header>
 
     <!-- HERO -->
     <main id="top" class="hero">
         <div class="hero-art">
-            <img src="assets/hero.png" alt="Paçoca, o dinossauro, correndo por um vale ao pôr do sol" fetchpriority="high">
+            <img src="assets/hero.png" data-i18n-attr="alt:hero.imgalt" alt="Paçoca, o dinossauro, correndo por um vale ao pôr do sol" fetchpriority="high">
         </div>
 
         <div class="hero-copy">
-            <p class="eyebrow">Platformer 2.5D · ação veloz · jogue no navegador</p>
-            <h1>Corra rápido.<br>Pule alto.<br><span class="hl">Crie seu mundo.</span></h1>
-            <p class="lede">
+            <p class="eyebrow" data-i18n="hero.eyebrow">Platformer 2.5D · ação veloz · jogue no navegador</p>
+            <h1 data-i18n-html="hero.h1">Corra rápido.<br>Pule alto.<br><span class="hl">Crie seu mundo.</span></h1>
+            <p class="lede" data-i18n-html="hero.lede">
                 Controle o <strong>Paçoca</strong> por fases velozes: giro carregado, investida
                 no ar, moedas, molas e inimigos — com física própria de aceleração e rampas.
                 Depois desenhe suas próprias fases e publique para a comunidade.
@@ -67,15 +74,15 @@
                 <a class="btn btn-play" data-link="play" href="#">
                     <span class="btn-icon">▶</span>
                     <span class="btn-text">
-                        <strong>Jogar agora</strong>
-                        <small>Roda no navegador</small>
+                        <strong data-i18n="hero.play.title">Jogar agora</strong>
+                        <small data-i18n="hero.play.sub">Roda no navegador</small>
                     </span>
                 </a>
                 <a class="btn btn-editor" data-link="editor" href="#">
                     <span class="btn-icon">✎</span>
                     <span class="btn-text">
-                        <strong>Map Editor</strong>
-                        <small>Crie suas fases</small>
+                        <strong data-i18n="hero.editor.title">Map Editor</strong>
+                        <small data-i18n="hero.editor.sub">Crie suas fases</small>
                     </span>
                 </a>
             </div>
@@ -86,101 +93,101 @@
 
     <!-- FEATURES -->
     <section id="recursos" class="section">
-        <h2 class="section-title">O que tem em Paçoca</h2>
+        <h2 class="section-title" data-i18n="features.title">O que tem em Paçoca</h2>
         <div class="feature-grid">
             <article class="feature">
                 <div class="feature-emoji">🏃</div>
-                <h3>Física com momentum</h3>
-                <p>Aceleração, atrito, força de rampa, giro carregável, investida diagonal no ar, coyote time e jump buffering.</p>
+                <h3 data-i18n="feature.physics.title">Física com momentum</h3>
+                <p data-i18n="feature.physics.desc">Aceleração, atrito, força de rampa, giro carregável, investida diagonal no ar, coyote time e jump buffering.</p>
             </article>
             <article class="feature">
                 <div class="feature-emoji">🗺️</div>
-                <h3>Map Editor visual</h3>
-                <p>Pinte plataformas, rampas, moedas, molas e inimigos. Ferramentas de linha, retângulo, balde e seleção — com undo/redo completo.</p>
+                <h3 data-i18n="feature.editor.title">Map Editor visual</h3>
+                <p data-i18n="feature.editor.desc">Pinte plataformas, rampas, moedas, molas e inimigos. Ferramentas de linha, retângulo, balde e seleção — com undo/redo completo.</p>
             </article>
             <article class="feature">
                 <div class="feature-emoji">🎮</div>
-                <h3>Teste em um clique</h3>
-                <p>Jogue sua fase direto no navegador — o jogo a monta na hora. Sem instalar nada, sem download.</p>
+                <h3 data-i18n="feature.test.title">Teste em um clique</h3>
+                <p data-i18n="feature.test.desc">Jogue sua fase direto no navegador — o jogo a monta na hora. Sem instalar nada, sem download.</p>
             </article>
             <article class="feature">
                 <div class="feature-emoji">🌍</div>
-                <h3>Fases da comunidade</h3>
-                <p>Publique o que você criou e jogue as fases de outras pessoas — carregadas direto no motor do jogo.</p>
+                <h3 data-i18n="feature.community.title">Fases da comunidade</h3>
+                <p data-i18n="feature.community.desc">Publique o que você criou e jogue as fases de outras pessoas — carregadas direto no motor do jogo.</p>
             </article>
         </div>
     </section>
 
     <!-- THEMES -->
     <section id="temas" class="section">
-        <h2 class="section-title">Quatro mundos, um dinossauro</h2>
-        <p class="section-sub">Cada fase escolhe um tema com materiais de terreno e parallax próprios.</p>
+        <h2 class="section-title" data-i18n="themes.title">Quatro mundos, um dinossauro</h2>
+        <p class="section-sub" data-i18n="themes.sub">Cada fase escolhe um tema com materiais de terreno e parallax próprios.</p>
         <div class="theme-strip">
             <figure class="theme-card">
-                <img src="assets/themes/forest.png" alt="Tema Floresta" loading="lazy">
-                <figcaption>Floresta</figcaption>
+                <img src="assets/themes/forest.png" data-i18n-attr="alt:theme.forest" alt="Floresta" loading="lazy">
+                <figcaption data-i18n="theme.forest">Floresta</figcaption>
             </figure>
             <figure class="theme-card">
-                <img src="assets/themes/glacial.png" alt="Tema Glacial" loading="lazy">
-                <figcaption>Glacial</figcaption>
+                <img src="assets/themes/glacial.png" data-i18n-attr="alt:theme.glacial" alt="Glacial" loading="lazy">
+                <figcaption data-i18n="theme.glacial">Glacial</figcaption>
             </figure>
             <figure class="theme-card">
-                <img src="assets/themes/city.png" alt="Tema Cidade" loading="lazy">
-                <figcaption>Cidade</figcaption>
+                <img src="assets/themes/city.png" data-i18n-attr="alt:theme.city" alt="Cidade" loading="lazy">
+                <figcaption data-i18n="theme.city">Cidade</figcaption>
             </figure>
             <figure class="theme-card">
-                <img src="assets/themes/cave.png" alt="Tema Caverna" loading="lazy">
-                <figcaption>Caverna</figcaption>
+                <img src="assets/themes/cave.png" data-i18n-attr="alt:theme.cave" alt="Caverna" loading="lazy">
+                <figcaption data-i18n="theme.cave">Caverna</figcaption>
             </figure>
         </div>
     </section>
 
     <!-- COMMUNITY -->
     <section id="comunidade" class="section">
-        <h2 class="section-title">Feitas pela comunidade</h2>
-        <p class="section-sub">Fases publicadas por outros jogadores. Abra a fase e jogue no navegador.</p>
+        <h2 class="section-title" data-i18n="community.title">Feitas pela comunidade</h2>
+        <p class="section-sub" data-i18n="community.sub">Fases publicadas por outros jogadores. Abra a fase e jogue no navegador.</p>
 
         <p class="feed-browse-cta">
             <a class="btn btn-editor" href="fases/">
                 <span class="btn-icon">🗂️</span>
-                <span class="btn-text"><strong>Ver todas as fases</strong><small>Filtre por autor, dificuldade e data</small></span>
+                <span class="btn-text"><strong data-i18n="community.browse.title">Ver todas as fases</strong><small data-i18n="community.browse.sub">Filtre por autor, dificuldade e data</small></span>
             </a>
         </p>
 
-        <h3 class="feed-title">🔥 Mais jogadas</h3>
+        <h3 class="feed-title" data-i18n="community.feed.popular">🔥 Mais jogadas</h3>
         <div class="community" data-feed="popular">
-            <p class="community-empty">Carregando fases…</p>
+            <p class="community-empty" data-i18n="community.loadingLevels">Carregando fases…</p>
         </div>
 
-        <h3 class="feed-title">❤ Mais curtidas</h3>
+        <h3 class="feed-title" data-i18n="community.feed.liked">❤ Mais curtidas</h3>
         <div class="community" data-feed="liked">
-            <p class="community-empty">Carregando fases…</p>
+            <p class="community-empty" data-i18n="community.loadingLevels">Carregando fases…</p>
         </div>
 
-        <h3 class="feed-title">🏆 Autores em destaque</h3>
+        <h3 class="feed-title" data-i18n="community.feed.authors">🏆 Autores em destaque</h3>
         <div class="community" data-feed="authors">
-            <p class="community-empty">Carregando autores…</p>
+            <p class="community-empty" data-i18n="community.loadingAuthors">Carregando autores…</p>
         </div>
     </section>
 
     <!-- CTA BAND -->
     <section class="cta-band">
-        <h2>Pronto pra correr?</h2>
+        <h2 data-i18n="cta.title">Pronto pra correr?</h2>
         <div class="cta-row cta-row--center">
             <a class="btn btn-play" data-link="play" href="#">
                 <span class="btn-icon">▶</span>
-                <span class="btn-text"><strong>Jogar agora</strong><small>Roda no navegador</small></span>
+                <span class="btn-text"><strong data-i18n="cta.play.title">Jogar agora</strong><small data-i18n="cta.play.sub">Roda no navegador</small></span>
             </a>
             <a class="btn btn-editor" data-link="editor" href="#">
                 <span class="btn-icon">✎</span>
-                <span class="btn-text"><strong>Abrir o Map Editor</strong><small>Crie suas fases</small></span>
+                <span class="btn-text"><strong data-i18n="cta.editor.title">Abrir o Map Editor</strong><small data-i18n="cta.editor.sub">Crie suas fases</small></span>
             </a>
         </div>
     </section>
 
     <footer class="footer">
-        <p><span class="nav-badge">2.5D</span> <strong>Paçoca</strong> — platformer de ação veloz com editor de fases.</p>
-        <p class="footer-muted">Interface em português · Suporte a gamepad · Física própria</p>
+        <p data-i18n-html="footer.tagline"><span class="nav-badge">2.5D</span> <strong>Paçoca</strong> — platformer de ação veloz com editor de fases.</p>
+        <p class="footer-muted" data-i18n-html="footer.muted">Interface em português · Suporte a gamepad · Física própria</p>
     </footer>
 
     <script src="auth.js"></script>

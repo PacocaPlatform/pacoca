@@ -344,6 +344,18 @@ async function serveStatic(request: Request, env: Env, url: URL): Promise<Respon
 				: "public, max-age=3600",
 	);
 
+	// Cross-origin isolation for the game page (play/) so SharedArrayBuffer is
+	// available — Godot's threaded web export needs it to run the audio mixer on
+	// a worker thread (otherwise music stutters on the main thread). Scoped to
+	// play/ only: the marketing site / editor may load cross-origin subresources
+	// that COEP: require-corp would block. The game loads as a top-level document
+	// (site/l/play.html does location.replace), so no parent iframe needs these.
+	if (key.startsWith("play/")) {
+		headers.set("cross-origin-opener-policy", "same-origin");
+		headers.set("cross-origin-embedder-policy", "require-corp");
+		headers.set("cross-origin-resource-policy", "same-origin");
+	}
+
 	// Honor conditional requests so `no-cache` revalidation is a cheap 304 instead
 	// of re-streaming the (large) payload when the client already has the current
 	// version. Etags here are the strong R2 object etags.

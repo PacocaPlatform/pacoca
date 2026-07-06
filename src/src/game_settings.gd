@@ -137,14 +137,20 @@ static func get_theme_display_name(theme: String, is_pt: bool) -> String:
 
 
 # Loads a music track. Prefers the imported resource, but falls back to reading
-# the raw file directly so it works even when the .mp3 has no .import sidecar yet.
+# the raw file directly so it works even when the .ogg/.mp3 has no .import sidecar yet.
 static func load_music(path: String) -> AudioStream:
 	if ResourceLoader.exists(path):
 		var res := load(path) as AudioStream
 		if res != null:
 			return res
 
-	if path.to_lower().ends_with(".mp3") and FileAccess.file_exists(path):
+	var lower := path.to_lower()
+	if lower.ends_with(".ogg") and FileAccess.file_exists(path):
+		var ogg := AudioStreamOggVorbis.load_from_file(path)
+		if ogg != null:
+			return ogg
+
+	if lower.ends_with(".mp3") and FileAccess.file_exists(path):
 		var f := FileAccess.open(path, FileAccess.READ)
 		if f != null:
 			var mp3 := AudioStreamMP3.new()
@@ -236,3 +242,18 @@ static func finalize_telemetry(node: Node) -> void:
 	var req := HTTPRequest.new()
 	node.get_tree().root.add_child(req)
 	req.request(telemetry_url, ["Content-Type: application/json"], HTTPClient.METHOD_POST, "{\"exit\":true}")
+
+
+# Leaving the game via a "Sair"/"Exit" button. On the web build the game is
+# embedded at /play/ (opened by a full-page navigation from the site), so
+# get_tree().quit() does nothing useful — instead send the browser back to the
+# site page the player came from (history), falling back to the site root.
+# Returns true if it handled the exit (web); false on native so the caller can
+# fall back to get_tree().quit().
+static func exit_to_site() -> bool:
+	if not OS.has_feature("web"):
+		return false
+	JavaScriptBridge.eval(
+		"(function(){ if (window.history.length > 1) { window.history.back(); }" +
+		" else { window.location.href = '../'; } })();", true)
+	return true
