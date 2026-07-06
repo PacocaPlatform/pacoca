@@ -6,26 +6,24 @@ extends Control
 ## Feeds the game's existing input actions (move_left/move_right/move_down,
 ## jump, dash, pause), so player.gd and everything else need NO changes.
 ##
-## Layout: a floating analog joystick on the left half (movement) and JUMP /
-## DASH / PAUSE buttons on the right. Everything is drawn in code and scales
-## with the viewport, so it works across phone sizes and orientations.
+## Layout: a directional d-pad on the LEFT (LEFT / RIGHT side by side, DOWN
+## centered below) and JUMP / PAUSE buttons on the RIGHT. Everything is drawn
+## in code and scales with the viewport, so it works across phone sizes and
+## orientations.
+##
+## We use discrete arrow BUTTONS (not a floating analog joystick) because touch
+## drag events are unreliable across mobile browsers — plain press/release
+## touches are rock-solid.
 ##
 ## Only shown on touchscreen devices (DisplayServer.is_touchscreen_available()).
 ## Set `force_visible` in the inspector to preview/test with a mouse on desktop.
 
 @export var force_visible := false
 
-# Movement tuning ------------------------------------------------------------
-const JOY_DEADZONE := 0.2      # stick travel below this = no move (0..1)
-const DOWN_THRESHOLD := 0.55   # pushing the stick down past this presses move_down
-
 # A finger (or the emulated mouse, index -1) currently owning a control.
-enum Role { NONE, JOY, JUMP, DASH, PAUSE }
+enum Role { NONE, LEFT, RIGHT, DOWN, JUMP, PAUSE }
 
 var _fingers: Dictionary = {}  # touch index -> Role
-var _joy_index := -999         # which finger drives the joystick (-999 = none)
-var _joy_origin := Vector2.ZERO
-var _joy_knob := Vector2.ZERO
 var _was_hidden := false
 
 var _finish_screen: Control
@@ -84,25 +82,15 @@ func _input(event: InputEvent) -> void:
 		else:
 			_release(t.index)
 		return
-	if event is InputEventScreenDrag:
-		var d := event as InputEventScreenDrag
-		if d.index == _joy_index:
-			_update_joystick(d.position)
-		return
 
 	# Mouse emulation for desktop testing (force_visible). Finger index -1.
-	if force_visible:
-		if event is InputEventMouseButton:
-			var mb := event as InputEventMouseButton
-			if mb.button_index == MOUSE_BUTTON_LEFT:
-				if mb.pressed:
-					_press(-1, mb.position)
-				else:
-					_release(-1)
-		elif event is InputEventMouseMotion:
-			var mm := event as InputEventMouseMotion
-			if _joy_index == -1 and (mm.button_mask & MOUSE_BUTTON_MASK_LEFT):
-				_update_joystick(mm.position)
+	if force_visible and event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_LEFT:
+			if mb.pressed:
+				_press(-1, mb.position)
+			else:
+				_release(-1)
 
 
 func _press(index: int, pos: Vector2) -> void:
@@ -113,17 +101,17 @@ func _press(index: int, pos: Vector2) -> void:
 		return
 	_fingers[index] = role
 	match role:
+		Role.LEFT:
+			Input.action_press("move_left")
+		Role.RIGHT:
+			Input.action_press("move_right")
+		Role.DOWN:
+			Input.action_press("move_down")
 		Role.JUMP:
 			Input.action_press("jump")
-		Role.DASH:
-			Input.action_press("dash")
 		Role.PAUSE:
 			_fire_pause()
-		Role.JOY:
-			_joy_index = index
-			_joy_origin = _clamp_joy_origin(pos)
-			_joy_knob = _joy_origin
-			queue_redraw()
+	queue_redraw()
 
 
 func _release(index: int) -> void:
@@ -132,58 +120,31 @@ func _release(index: int) -> void:
 	var role: int = _fingers[index]
 	_fingers.erase(index)
 	match role:
+		Role.LEFT:
+			Input.action_release("move_left")
+		Role.RIGHT:
+			Input.action_release("move_right")
+		Role.DOWN:
+			Input.action_release("move_down")
 		Role.JUMP:
 			Input.action_release("jump")
-		Role.DASH:
-			Input.action_release("dash")
-		Role.JOY:
-			_joy_index = -999
-			Input.action_release("move_left")
-			Input.action_release("move_right")
-			Input.action_release("move_down")
-			queue_redraw()
+	queue_redraw()
 
 
 func _hit_test(pos: Vector2) -> int:
+	# Right-side action buttons first (they sit on the right half).
 	if _in_circle(pos, _jump_center(), _r_big()):
 		return Role.JUMP
-	if _in_circle(pos, _dash_center(), _r_small()):
-		return Role.DASH
 	if _in_circle(pos, _pause_center(), _r_pause() * 1.4):
 		return Role.PAUSE
-	if pos.x < size.x * 0.5:
-		return Role.JOY
+	# Left-side direction pad.
+	if _in_circle(pos, _left_center(), _r_dir()):
+		return Role.LEFT
+	if _in_circle(pos, _right_center(), _r_dir()):
+		return Role.RIGHT
+	if _in_circle(pos, _down_center(), _r_dir_small()):
+		return Role.DOWN
 	return Role.NONE
-
-
-func _update_joystick(pos: Vector2) -> void:
-	var jr := _joy_radius()
-	var off := pos - _joy_origin
-	if off.length() > jr:
-		off = off.normalized() * jr
-	_joy_knob = _joy_origin + off
-
-	var nx := off.x / jr
-	var ny := off.y / jr  # down is +y in screen space
-
-	if absf(nx) < JOY_DEADZONE:
-		Input.action_release("move_left")
-		Input.action_release("move_right")
-	else:
-		var strength := (absf(nx) - JOY_DEADZONE) / (1.0 - JOY_DEADZONE)
-		if nx > 0.0:
-			Input.action_release("move_left")
-			Input.action_press("move_right", strength)
-		else:
-			Input.action_release("move_right")
-			Input.action_press("move_left", strength)
-
-	if ny > DOWN_THRESHOLD:
-		Input.action_press("move_down")
-	else:
-		Input.action_release("move_down")
-
-	queue_redraw()
 
 
 func _fire_pause() -> void:
@@ -195,10 +156,9 @@ func _fire_pause() -> void:
 
 
 func _release_all() -> void:
-	for action in ["move_left", "move_right", "move_down", "jump", "dash"]:
+	for action in ["move_left", "move_right", "move_down", "jump"]:
 		Input.action_release(action)
 	_fingers.clear()
-	_joy_index = -999
 
 
 # --- Geometry (recomputed from current size, so it stays responsive) --------
@@ -209,30 +169,42 @@ func _ui_scale() -> float:
 func _margin() -> float: return 46.0 * _ui_scale()
 func _gap() -> float: return 26.0 * _ui_scale()
 func _r_big() -> float: return 72.0 * _ui_scale()
-func _r_small() -> float: return 54.0 * _ui_scale()
 func _r_pause() -> float: return 30.0 * _ui_scale()
-func _joy_radius() -> float: return 96.0 * _ui_scale()
+func _r_dir() -> float: return 62.0 * _ui_scale()
+func _r_dir_small() -> float: return 50.0 * _ui_scale()
+
+# Right side ---------------------------------------------------------------
 
 func _jump_center() -> Vector2:
 	var r := _r_big()
 	var m := _margin()
 	return Vector2(size.x - m - r, size.y - m - r)
 
-func _dash_center() -> Vector2:
-	var jc := _jump_center()
-	return Vector2(jc.x - _r_big() - _gap() - _r_small(), jc.y - _r_big() * 0.55)
-
 func _pause_center() -> Vector2:
 	var r := _r_pause()
 	var m := _margin()
 	return Vector2(size.x - m - r, m + r)
 
-func _clamp_joy_origin(pos: Vector2) -> Vector2:
-	var jr := _joy_radius() + 8.0
-	return Vector2(
-		clampf(pos.x, jr, size.x * 0.5),
-		clampf(pos.y, jr, size.y - jr)
-	)
+# Left side: d-pad — LEFT / RIGHT side by side, DOWN centered below them. ---
+
+func _down_center() -> Vector2:
+	var r := _r_dir_small()
+	var m := _margin()
+	var lc := _left_center()
+	var rc := _right_center()
+	return Vector2((lc.x + rc.x) * 0.5, size.y - m - r)
+
+func _left_center() -> Vector2:
+	var r := _r_dir()
+	var m := _margin()
+	# Sit above the DOWN button so the trio forms a d-pad cross.
+	var y := size.y - m - _r_dir_small() * 2.0 - _gap() - r
+	return Vector2(m + r, y)
+
+func _right_center() -> Vector2:
+	var lc := _left_center()
+	return Vector2(lc.x + _r_dir() * 2.0 + _gap(), lc.y)
+
 
 func _in_circle(p: Vector2, center: Vector2, radius: float) -> bool:
 	return p.distance_to(center) <= radius
@@ -241,43 +213,46 @@ func _in_circle(p: Vector2, center: Vector2, radius: float) -> bool:
 # --- Drawing ---------------------------------------------------------------
 
 const COL_FILL := Color(0.02, 0.05, 0.09, 0.4)
+const COL_FILL_ON := Color(0.0, 0.831, 1.0, 0.28)
 const COL_CYAN := Color(0.0, 0.831, 1.0, 0.85)
-const COL_GREEN := Color(0.0, 1.0, 0.529, 0.9)
 const COL_WHITE := Color(1.0, 1.0, 1.0, 0.7)
 
 func _draw() -> void:
 	if _is_blocked():
 		return
 
+	# Direction pad (left): LEFT / RIGHT / DOWN arrows.
+	var lc := _left_center()
+	var rc := _right_center()
+	var dc := _down_center()
+	var rd := _r_dir()
+	var rds := _r_dir_small()
+	_draw_button_bg(lc, rd, COL_WHITE, _is_pressed(Role.LEFT))
+	_draw_chevron_left(lc, rd, COL_WHITE.lightened(0.2))
+	_draw_button_bg(rc, rd, COL_WHITE, _is_pressed(Role.RIGHT))
+	_draw_chevron_right(rc, rd, COL_WHITE.lightened(0.2))
+	_draw_button_bg(dc, rds, COL_WHITE, _is_pressed(Role.DOWN))
+	_draw_chevron_down(dc, rds, COL_WHITE.lightened(0.2))
+
 	# Jump (cyan, up chevron)
 	var jc := _jump_center()
 	var rb := _r_big()
-	_draw_button_bg(jc, rb, COL_CYAN)
+	_draw_button_bg(jc, rb, COL_CYAN, _is_pressed(Role.JUMP))
 	_draw_chevron_up(jc, rb, COL_CYAN.lightened(0.15))
-
-	# Dash (green, double chevron right)
-	var dc := _dash_center()
-	var rs := _r_small()
-	_draw_button_bg(dc, rs, COL_GREEN)
-	_draw_chevron_right(dc, rs, COL_GREEN.lightened(0.15))
 
 	# Pause (white, two bars)
 	var pc := _pause_center()
 	var rp := _r_pause()
-	_draw_button_bg(pc, rp, COL_WHITE)
+	_draw_button_bg(pc, rp, COL_WHITE, false)
 	_draw_pause_bars(pc, rp, COL_WHITE)
 
-	# Joystick (only while a finger is on it)
-	if _joy_index != -999:
-		var jr := _joy_radius()
-		draw_circle(_joy_origin, jr, Color(1, 1, 1, 0.06))
-		draw_arc(_joy_origin, jr, 0.0, TAU, 48, Color(0, 0.831, 1, 0.5), 3.0, true)
-		draw_circle(_joy_knob, jr * 0.42, Color(0, 0.831, 1, 0.55))
-		draw_arc(_joy_knob, jr * 0.42, 0.0, TAU, 32, Color(1, 1, 1, 0.85), 3.0, true)
+
+func _is_pressed(role: int) -> bool:
+	return _fingers.values().has(role)
 
 
-func _draw_button_bg(center: Vector2, r: float, ring: Color) -> void:
-	draw_circle(center, r, COL_FILL)
+func _draw_button_bg(center: Vector2, r: float, ring: Color, pressed: bool) -> void:
+	draw_circle(center, r, COL_FILL_ON if pressed else COL_FILL)
 	draw_arc(center, r, 0.0, TAU, 48, ring, maxf(2.5, r * 0.06), true)
 
 func _draw_chevron_up(center: Vector2, r: float, col: Color) -> void:
@@ -290,17 +265,35 @@ func _draw_chevron_up(center: Vector2, r: float, col: Color) -> void:
 	])
 	draw_polyline(pts, col, maxf(3.0, r * 0.1), true)
 
-func _draw_chevron_right(center: Vector2, r: float, col: Color) -> void:
-	var w := r * 0.32
+func _draw_chevron_down(center: Vector2, r: float, col: Color) -> void:
+	var w := r * 0.5
 	var h := r * 0.42
-	var tw := maxf(3.0, r * 0.1)
-	for dx in [-r * 0.2, r * 0.2]:
-		var c := center + Vector2(dx, 0)
-		draw_polyline(PackedVector2Array([
-			c + Vector2(-w, -h),
-			c + Vector2(w, 0),
-			c + Vector2(-w, h),
-		]), col, tw, true)
+	var pts := PackedVector2Array([
+		center + Vector2(-w, -h * 0.6),
+		center + Vector2(0, h),
+		center + Vector2(w, -h * 0.6),
+	])
+	draw_polyline(pts, col, maxf(3.0, r * 0.1), true)
+
+func _draw_chevron_left(center: Vector2, r: float, col: Color) -> void:
+	var w := r * 0.42
+	var h := r * 0.5
+	var pts := PackedVector2Array([
+		center + Vector2(w * 0.6, -h),
+		center + Vector2(-w, 0),
+		center + Vector2(w * 0.6, h),
+	])
+	draw_polyline(pts, col, maxf(3.0, r * 0.1), true)
+
+func _draw_chevron_right(center: Vector2, r: float, col: Color) -> void:
+	var w := r * 0.42
+	var h := r * 0.5
+	var pts := PackedVector2Array([
+		center + Vector2(-w * 0.6, -h),
+		center + Vector2(w, 0),
+		center + Vector2(-w * 0.6, h),
+	])
+	draw_polyline(pts, col, maxf(3.0, r * 0.1), true)
 
 func _draw_pause_bars(center: Vector2, r: float, col: Color) -> void:
 	var bw := r * 0.22

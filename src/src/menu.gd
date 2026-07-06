@@ -842,7 +842,10 @@ func _toggle_buttons_disabled(disabled: bool) -> void:
 func _on_exit_pressed() -> void:
 	_play_menu_sound("backward", 261.63, 0.2, 0.3) # C4 note quit sound
 	GameSettings.finalize_telemetry(self)
-	get_tree().create_timer(0.25).timeout.connect(func() -> void: get_tree().quit())
+	# Web: return to the site page the player came from. Native: quit.
+	get_tree().create_timer(0.25).timeout.connect(func() -> void:
+		if not GameSettings.exit_to_site():
+			get_tree().quit())
 
 
 func _on_music_volume_changed(value: float) -> void:

@@ -236,3 +236,18 @@ static func finalize_telemetry(node: Node) -> void:
 	var req := HTTPRequest.new()
 	node.get_tree().root.add_child(req)
 	req.request(telemetry_url, ["Content-Type: application/json"], HTTPClient.METHOD_POST, "{\"exit\":true}")
+
+
+# Leaving the game via a "Sair"/"Exit" button. On the web build the game is
+# embedded at /play/ (opened by a full-page navigation from the site), so
+# get_tree().quit() does nothing useful — instead send the browser back to the
+# site page the player came from (history), falling back to the site root.
+# Returns true if it handled the exit (web); false on native so the caller can
+# fall back to get_tree().quit().
+static func exit_to_site() -> bool:
+	if not OS.has_feature("web"):
+		return false
+	JavaScriptBridge.eval(
+		"(function(){ if (window.history.length > 1) { window.history.back(); }" +
+		" else { window.location.href = '../'; } })();", true)
+	return true
