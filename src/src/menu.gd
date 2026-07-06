@@ -120,8 +120,8 @@ func _ready() -> void:
 	# silent, so decode/stream them instead.
 	_music_player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	add_child(_music_player)
-	var menu_music := GameSettings.load_music("res://audio/menu.mp3")
-	if menu_music is AudioStreamMP3:
+	var menu_music := GameSettings.load_music("res://audio/menu.ogg")
+	if menu_music is AudioStreamOggVorbis or menu_music is AudioStreamMP3:
 		menu_music.loop = true
 	_music_player.stream = menu_music
 	_music_player.volume_db = MUSIC_SILENT_DB

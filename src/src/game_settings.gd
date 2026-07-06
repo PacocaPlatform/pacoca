@@ -137,14 +137,20 @@ static func get_theme_display_name(theme: String, is_pt: bool) -> String:
 
 
 # Loads a music track. Prefers the imported resource, but falls back to reading
-# the raw file directly so it works even when the .mp3 has no .import sidecar yet.
+# the raw file directly so it works even when the .ogg/.mp3 has no .import sidecar yet.
 static func load_music(path: String) -> AudioStream:
 	if ResourceLoader.exists(path):
 		var res := load(path) as AudioStream
 		if res != null:
 			return res
 
-	if path.to_lower().ends_with(".mp3") and FileAccess.file_exists(path):
+	var lower := path.to_lower()
+	if lower.ends_with(".ogg") and FileAccess.file_exists(path):
+		var ogg := AudioStreamOggVorbis.load_from_file(path)
+		if ogg != null:
+			return ogg
+
+	if lower.ends_with(".mp3") and FileAccess.file_exists(path):
 		var f := FileAccess.open(path, FileAccess.READ)
 		if f != null:
 			var mp3 := AudioStreamMP3.new()

@@ -7,8 +7,12 @@
 #
 #   GODOT=/path/to/Godot_v4.6.3-stable_win64_console.exe ./tools/export_web.sh
 #
-# The Web preset (src/export_presets.cfg) is single-threaded, so the output can
-# be served from any static host without COOP/COEP cross-origin-isolation headers.
+# The Web preset (src/export_presets.cfg) is multi-threaded (thread_support=true)
+# so Godot runs the audio mixer off the main thread (smooth music). This REQUIRES
+# the host to send cross-origin-isolation headers so SharedArrayBuffer is available:
+#   Cross-Origin-Opener-Policy: same-origin
+#   Cross-Origin-Embedder-Policy: require-corp
+# The Worker sets these for the play/ path (backend/src/index.ts, serveStatic).
 set -euo pipefail
 
 GODOT="${GODOT:-godot}"

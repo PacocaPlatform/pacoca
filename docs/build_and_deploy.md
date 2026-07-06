@@ -92,8 +92,15 @@ Exporta o Godot para `build/web/` (index.html, index.wasm, index.pck, …):
 GODOT=/Applications/Godot.app/Contents/MacOS/Godot ./tools/export_web.sh
 ```
 
-- O preset "Web" (`src/export_presets.cfg`) é **single-thread**, então o build
-  roda em qualquer host estático, sem headers COOP/COEP.
+- O preset "Web" (`src/export_presets.cfg`) é **multi-thread**
+  (`thread_support=true`) — o Godot roda o mixer de áudio fora da thread
+  principal (música sem travar). Isso **exige** que o host envie headers de
+  cross-origin isolation (`Cross-Origin-Opener-Policy: same-origin` +
+  `Cross-Origin-Embedder-Policy: require-corp`) para o `SharedArrayBuffer` ficar
+  disponível — sem eles o jogo **nem inicia**. O Worker já envia esses headers
+  para o caminho `play/` (`backend/src/index.ts`, `serveStatic`), e o
+  `preview.sh` faz o mesmo localmente. Renderizador no Web: `gl_compatibility`
+  (WebGL2), definido em `src/project.godot`.
 - Refaça esse export **sempre que mudar o jogo** (`src/**/*.gd`, cenas, assets).
   `preview.sh` e `build_dist.sh` apenas reaproveitam o último `build/web/`; eles
   **não** recompilam o jogo a partir do fonte.

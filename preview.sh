@@ -90,6 +90,17 @@ class Handler(SimpleHTTPRequestHandler):
         p = self.path.split("?", 1)[0]
         return re.match(r"^/l/[^/.]+/?$", p) is not None
 
+    # Cross-origin isolation for the threaded Godot build under /play/ so
+    # SharedArrayBuffer is available — without it the multi-threaded WASM export
+    # won't boot at all locally. Mirrors the Worker's headers for play/ in prod.
+    def end_headers(self):
+        p = self.path.split("?", 1)[0]
+        if p == "/play" or p.startswith("/play/"):
+            self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+            self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
+            self.send_header("Cross-Origin-Resource-Policy", "same-origin")
+        super().end_headers()
+
     def do_GET(self):
         if self.path.startswith("/api/"):
             return self._proxy()
