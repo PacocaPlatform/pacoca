@@ -1226,6 +1226,24 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--ov-strong); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--ov-strong); }
 
+/* ===================== AUTH (Google Sign-In) ===================== */
+.auth-area { display: flex; align-items: center; gap: 0.5rem; }
+#gsi-button { display: flex; align-items: center; }
+.user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    max-width: 220px;
+}
+.user-chip #user-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 720px) {
     .inp-name { width: 110px; }

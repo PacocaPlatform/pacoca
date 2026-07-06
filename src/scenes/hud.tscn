@@ -1,12 +1,12 @@
 [gd_scene load_steps=15 format=3]
 
-[ext_resource type="Script" path="res://src/HUD.cs" id="1_HUDScript"]
+[ext_resource type="Script" path="res://src/hud.gd" id="1_HUDScript"]
 [ext_resource type="FontFile" path="res://textures/ui/Oxanium-Bold.ttf" id="2_OxaniumBold"]
 [ext_resource type="FontFile" path="res://textures/ui/Oxanium-Regular.ttf" id="3_OxaniumRegular"]
 [ext_resource type="Texture2D" path="res://textures/ui/hud_ring.png" id="4_HudRing"]
 [ext_resource type="Texture2D" path="res://textures/ui/hud_stopwatch.png" id="5_HudStopwatch"]
 [ext_resource type="Texture2D" path="res://textures/ui/hud_dino_head.png" id="6_HudDinoHead"]
-[ext_resource type="Script" path="res://src/SlantedPanel.cs" id="7_SlantedPanelScript"]
+[ext_resource type="Script" path="res://src/slanted_panel.gd" id="7_SlantedPanelScript"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_rings"]
 font = ExtResource("2_OxaniumBold")

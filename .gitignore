@@ -2,16 +2,11 @@
 .godot/
 .tmp/
 .import/
-export_presets.cfg
 
-# Mono/C# build artifacts
-.mono/
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
-[Bb]in/
-[Oo]bj/
+# Web/export build output (generated, ~170MB — not versioned)
+build/
+
+# IDE/editor scratch (kept from the old C# setup)
 *.csproj.user
 *.suo
 *.user

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" path="res://src/Spikes.cs" id="1_SpikesScript"]
+[ext_resource type="Script" path="res://src/spikes.gd" id="1_SpikesScript"]
 [ext_resource type="PackedScene" path="res://models/platform_kit/trap-spikes.glb" id="2_SpikesModel"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_spikes"]

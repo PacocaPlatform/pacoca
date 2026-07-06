@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://src/GameOver.cs" id="1_GameOverScript"]
+[ext_resource type="Script" path="res://src/game_over.gd" id="1_GameOverScript"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.03, 0.04, 0.07, 1)

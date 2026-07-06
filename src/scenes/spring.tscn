@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://src/Spring.cs" id="1_SpringScript"]
+[ext_resource type="Script" path="res://src/spring.gd" id="1_SpringScript"]
 [ext_resource type="Material" path="res://materials/tech_metal.tres" id="2_TechMetal"]
 [ext_resource type="Material" path="res://materials/neon_red.tres" id="3_NeonRed"]
 

@@ -1,12 +1,12 @@
 # Paçoca
 
-A 2.5D Sonic-style platformer built with **Godot 4.6** and **C# (.NET 8)**.
+A fast-paced 2.5D momentum platformer built with **Godot 4.6** and **GDScript**.
 
 The player controls Paçoca through fast-paced levels: running, jumping, rolling, charging spin dash, performing air dashes, collecting rings (coins), and dodging enemies — all powered by custom physics for acceleration, friction, and slope mechanics.
 
 ## Features
 
-- **Sonic-style Physics**: acceleration/deceleration, friction, manual gravity, slope force, chargeable spin dash, diagonal air dash, variable jump height, coyote time, and jump buffering.
+- **Momentum Physics**: acceleration/deceleration, friction, manual gravity, slope force, chargeable spin dash, diagonal air dash, variable jump height, coyote time, and jump buffering.
 - **3D Rendering on a 2D Plane (2.5D)**: the player is a `CharacterBody3D` locked to the XY plane, using animated 3D models.
 - **Procedural Sound Effects + Music**: SFX are generated in real-time as sine waves; background music tracks live in `src/audio/`.
 - **HUD**: score, time, rings, lives, and speed (km/h).
@@ -26,34 +26,95 @@ The player controls Paçoca through fast-paced levels: running, jumping, rolling
 
 ## Requirements
 
-- **Godot 4.6** - **.NET / Mono** edition (required for C# projects)
-- **.NET SDK 8.0**
+- **Godot 4.6** (standard edition — the project is pure GDScript, no .NET/Mono required)
 
 ## How to Run
 
 1. Open the project in the Godot editor by pointing it to `src/project.godot`.
-2. Godot will automatically compile the C# assembly.
-3. Run the project (F5). The initial scene is `res://scenes/menu.tscn`.
+2. Run the project (F5). The initial scene is `res://scenes/menu.tscn`.
 
-To just compile the C# project via command line (from `src/`, where `Paçoca.csproj` is located):
+To run headless from the command line (from `src/`, the Godot project root):
 
 ```bash
-dotnet build
+godot --path . scenes/menu.tscn
 ```
+
+## Play on the Web (WebAssembly)
+
+> Full operational runbook (build, local dev, Cloudflare deploy, troubleshooting):
+> [`docs/build_and_deploy.md`](docs/build_and_deploy.md).
+
+Paçoca runs entirely in the browser — no install. The public site is **three
+static pieces served from the same origin**, plus the community backend:
+
+| Source | Served at | What it is |
+| --- | --- | --- |
+| `site/` | `/` | landing page |
+| `build/web/` | `/play/` | the exported WASM game |
+| `tools/map_editor/` | `/editor/` | the visual map editor |
+| `backend/` | `/api/*` | Cloudflare Worker (community levels) |
+
+Same origin matters: the links are relative, and the editor's **Testar** button
+hands the level to the game through `localStorage` (only shared across `/editor/`
+and `/play/` when they share an origin). So you never deploy `site/` or
+`build/web/` alone — you deploy a folder that combines all three as siblings.
+
+**1. Export the game** (needs the **standard**, non‑Mono Godot 4.6+ and the Web
+export templates — the Mono edition cannot export to Web):
+
+```bash
+GODOT=/path/to/Godot ./tools/export_web.sh      # writes build/web/
+```
+
+**2a. Preview locally** — assembles the layout and serves it on one origin:
+
+```bash
+./preview.sh            # http://localhost:8000  (/, /play/, /editor/)
+```
+
+**2b. Build the deploy bundle** — real copies, one folder:
+
+```bash
+./build_dist.sh         # writes build/dist/
+```
+
+**3. Host it.** The recommended target is Cloudflare, where **one Worker serves
+both the static site (from R2) and `/api/*` (from D1)** on a single origin:
+
+```bash
+./deploy_r2.sh                      # upload build/dist/ to the R2 bucket
+(cd backend && npm run deploy)      # deploy the Worker
+```
+
+> ⚠️ Don't use plain Cloudflare Pages: it (and Workers Static Assets) rejects
+> files over **25 MiB**, and the game's `index.pck` (~137MB) and `index.wasm`
+> (~38MB) exceed that. R2 has no per-file limit, which is why the Worker serves
+> the static files from an R2 bucket. Full steps: [`backend/README.md`](backend/README.md).
+
+The backend is optional for the game itself: without it, only **Publicar** and
+the community levels list are unavailable (with a friendly message) — playing,
+testing, and saving levels in the browser all work offline. See
+[`site/README.md`](site/README.md) for the layout details.
 
 ## Project Structure
 
-> Note the nested `src` directory: the git repository root is at the top level, but the **Godot project** is in `src/`, and the **C# scripts** are located in `src/src/`.
+> Note the nested `src` directory: the git repository root is at the top level, but the **Godot project** is in `src/`, and the **GDScript files** are located in `src/src/`.
 
 ```
 Paçoca/
+├── preview.sh              # Local web preview (landing + game + editor, one origin)
+├── build_dist.sh           # Assemble build/dist/ (the deploy bundle)
+├── deploy_r2.sh            # Upload build/dist/ to the Cloudflare R2 bucket
+├── site/                   # Landing page (static; deploys at /)
+├── build/web/              # Exported WASM game (generated; deploys at /play/)
+├── backend/                # Community-levels API (Cloudflare Worker; /api/*)
 ├── assets/                 # Raw assets (exported models, etc.)
 ├── docs/                   # Documentation (e.g., map_syntax.md)
 ├── tools/
-│   └── map_editor/         # Visual map editor (web + server.py)
+│   ├── export_web.sh       # Exports the game to build/web/ (standard Godot)
+│   └── map_editor/         # Visual map editor (fully client-side; deploys at /editor/)
 └── src/                    # Godot project root (res://)
     ├── project.godot
-    ├── Paçoca.csproj
     ├── scenes/             # Scenes: menu, main, hud, player, enemies, levels...
     │   └── levels/         # Generated level_XX.tscn + levels.json manifest
     ├── scripts/            # Level pipeline (convert_map.py, generate_level.py)
@@ -62,13 +123,13 @@ Paçoca/
     ├── models/             # Animated FBX models (Mixamo)
     ├── materials/
     ├── textures/
-    └── src/                # C# scripts (res://src/*.cs)
-        ├── Main.cs         # Coordinates gameplay and loads levels
-        ├── Player.cs       # Player (CharacterBody3D) and physics
-        ├── GameSettings.cs # Global state across scenes (level, gamepad)
-        ├── CameraController.cs
-        ├── HUD.cs, Menu.cs, PauseMenu.cs, GameOver.cs
-        └── Ring.cs, Spring.cs, DashPad.cs, Enemy.cs
+    └── src/                # GDScript scripts (res://src/*.gd)
+        ├── main.gd         # Coordinates gameplay and loads levels
+        ├── player.gd       # Player (CharacterBody3D) and physics
+        ├── game_settings.gd # Global static state across scenes (level, gamepad)
+        ├── camera_controller.gd
+        ├── hud.gd, menu.gd, pause_menu.gd, game_over.gd
+        └── ring.gd, spring.gd, dash_pad.gd, enemy.gd
 ```
 
 ## Level Creation (Map Editor)
@@ -77,22 +138,28 @@ Levels are drawn as **maps** (ASCII grid or JSON) and converted into Godot scene
 
 ### Visual Editor (`tools/map_editor/`)
 
+The editor is a **fully client-side, online tool** — no Python server, no local
+Godot. The level you draw is handed to the WebAssembly build of the game, which
+builds it at runtime (`RuntimeLevelBuilder`). Serve it statically:
+
 ```bash
-python tools/map_editor/server.py     # open http://localhost:8000
+python -m http.server 8000        # from the repo root
+# open http://localhost:8000/tools/map_editor/
 ```
 
 - **Palette Dock** (platforms, ramps, rings, springs, enemies, spikes, spawn, level finish).
 - **Tools**: paint, erase, line, rectangle, fill bucket, and select (with copy/cut/paste), plus full undo/redo.
 - **Preview minimap** — a live render of the whole level under the canvas; click it to navigate.
 - **Theme selector** — forest / glacial / city / cave terrain materials per level.
-- **Compile** — generates the level `.tscn` from the drawing, with validation warnings (missing spawn/goal, buried objects).
-- **Test Level** (`F5`) — compiles the current level and opens Godot **directly in it**, with live player tracking on the map.
-- **Run** — opens the game starting from the main menu.
-- **Settings Gear** — configures the Godot executable path (automatically detected in PATH; specify manually if not found).
+- **Fases** — save / open / delete maps, stored in the browser (`localStorage`).
+- **Testar** (`F5`) — opens the game in the browser (`/play/?custom=1`) and plays the current drawing, passed via `localStorage`. No compile step.
+- **Jogar** — opens the game's main menu (`/play/`).
+- **Publicar** — submits the level to the community backend (`POST /api/levels`).
 - Shortcuts: `B` paint · `E` erase · `L` line · `R` rectangle · `G` fill · `M` select · `Ctrl+Z/Y` undo/redo · `Ctrl+C/X/V` copy/cut/paste · `F5` test · `Esc` close.
-- Source maps are saved under `tools/map_editor/levels/` (single canonical folder).
 
-> The editor also works when opened directly (`file://`) to draw and export, but buttons that run Godot/compile require the local server.
+> **Testar**/**Jogar** need the game reachable at `../play/` on the same origin
+> (see [`site/README.md`](site/README.md) for the deploy layout).
+> `server.py` is kept only for the legacy offline/native compile pipeline.
 
 ### Command Line Compiling
 
@@ -120,9 +187,9 @@ Each **column** of the grid equals 2 m (X) and each **row** is 3 m (Y, `ystep`);
 
 ## Architecture
 
-- **`Main.cs`** is the gameplay coordinator (root of `main.tscn`): it reads `GameSettings.LevelToLoad`, instantiates the level inside a `LevelWrapper` node, and positions the player at the level's `SpawnPoint` (`Marker3D`). Levels are interchangeable scenes in `scenes/levels/`.
-- **`GameSettings.cs`** is a global static state that stores the selected level and joystick, persisting between scene changes.
+- **`main.gd`** is the gameplay coordinator (root of `main.tscn`): it reads `GameSettings.level_to_load`, instantiates the level inside a `LevelWrapper` node, and positions the player at the level's `SpawnPoint` (`Marker3D`). Levels are interchangeable scenes in `scenes/levels/`.
+- **`game_settings.gd`** is a global static state that stores the selected level and gamepad, persisting between scene changes.
 - **Scene Flow**: `menu.tscn` → `main.tscn` → `game_over.tscn` → `menu.tscn`, with `pause_menu.tscn` overlaid during gameplay.
-- **UI Communication**: the `Player` emits the `PlayerStatsChanged(rings, score, speed, lives)` signal, to which `HUD` connects. Objects like `Ring`, `Spring`, `DashPad`, and `Enemy` call public methods on `Player` (`CollectRing()`, `ApplyBoost()`, `Hurt()`).
+- **UI Communication**: the `Player` emits the `player_stats_changed(rings, score, speed, lives)` signal, to which `HUD` connects. Objects like `Ring`, `Spring`, `DashPad`, and `Enemy` call public methods on `Player` (`collect_ring()`, `apply_boost()`, `hurt()`).
 
 For development details, see `src/CLAUDE.md`.

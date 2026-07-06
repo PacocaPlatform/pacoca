@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons for premium visual indicator icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Identity Services (Sign in with Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="styles.css">
     <!-- Apply saved theme before paint to avoid a flash of the wrong theme -->
     <script>
@@ -42,6 +44,13 @@
                     <option value="cidade">City</option>
                     <option value="caverna">Cave</option>
                 </select>
+                <select id="level-difficulty" class="inp inp-theme" title="Grau de dificuldade da fase">
+                    <option value="infantil">Infantil</option>
+                    <option value="iniciante">Iniciante</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Difícil</option>
+                    <option value="impossible">Impossível</option>
+                </select>
             </div>
 
             <div class="topbar-field">
@@ -68,32 +77,37 @@
                 <button class="icon-btn" onclick="adjustZoom(0, true)" title="Reset Zoom"><i data-lucide="maximize-2"></i></button>
                 <button class="icon-btn active" id="btn-toggle-grid" onclick="toggleGridlines()" title="Toggle gridlines"><i data-lucide="grid-3x3"></i></button>
                 <button class="icon-btn active" id="btn-toggle-preview" onclick="togglePreview()" title="Toggle level preview (minimap)"><i data-lucide="map"></i></button>
-                <button class="icon-btn" id="btn-live" onclick="toggleLiveView()" title="Live view: follow the player from the running game"><i data-lucide="radio"></i></button>
                 <button class="icon-btn" id="btn-toggle-theme" onclick="toggleTheme()" title="Toggle light/dark theme"><i data-lucide="moon"></i></button>
             </div>
 
             <div class="topbar-actions">
-                <button class="icon-btn" onclick="openSettings()" title="Configure Godot path">
-                    <i data-lucide="settings"></i>
+                <button class="btn btn-secondary" onclick="openMaps()" title="Salvar, abrir e gerenciar fases (no navegador)">
+                    <i data-lucide="folder"></i> Fases
                 </button>
-                <button class="btn btn-secondary" onclick="openMaps()" title="Save, open and manage maps">
-                    <i data-lucide="folder"></i> Maps
+                <button class="btn btn-secondary" id="btn-toggle-output" onclick="toggleOutput()" title="Exportar código (ASCII / JSON)">
+                    <i data-lucide="code-2"></i> Código
                 </button>
-                <button class="btn btn-secondary" id="btn-toggle-output" onclick="toggleOutput()" title="Export code (ASCII / JSON)">
-                    <i data-lucide="code-2"></i> Code
+                <button class="btn btn-primary" id="btn-test-level" onclick="testLevel()" title="Testar a fase no navegador (WebAssembly, F5)">
+                    <i data-lucide="flask-conical"></i> Testar
                 </button>
-                <button class="btn btn-secondary" onclick="openDrawerTab('tab-instructions')" title="Compile for Godot">
-                    <i data-lucide="hammer"></i> Compile
+                <button class="btn btn-run" onclick="runGame()" title="Abrir o jogo pelo menu">
+                    <i data-lucide="gamepad-2"></i> Jogar
                 </button>
-                <button class="btn btn-primary" id="btn-test-level" onclick="testLevel()" title="Compile the current level and open directly in Godot (F5)">
-                    <i data-lucide="flask-conical"></i> Test Level
+                <button class="btn btn-publish" id="btn-publish" onclick="publishLevel()" title="Publicar a fase para a comunidade">
+                    <i data-lucide="upload-cloud"></i> Publicar
                 </button>
-                <button class="btn btn-run" onclick="runGame()" title="Run game starting from menu">
-                    <i data-lucide="gamepad-2"></i> Run
+                <button class="btn btn-secondary" id="btn-share" onclick="shareLevel()" title="Publique a fase para gerar o link de compartilhamento" disabled>
+                    <i data-lucide="share-2"></i> Compartilhar
                 </button>
-                <button class="btn btn-stop" id="btn-stop-game" onclick="stopGame()" title="Stop the running game process" disabled>
-                    <i data-lucide="square"></i> Stop
-                </button>
+                <!-- Auth: login button (logged out) OR user chip (logged in) -->
+                <div id="auth-area" class="auth-area">
+                    <div id="gsi-button" title="Entrar com Google"></div>
+                    <span id="user-chip" class="user-chip" hidden>
+                        <span id="user-name"></span>
+                        <a class="btn btn-secondary btn-sm" href="../minhas/" title="Minhas fases">Minhas fases</a>
+                        <button class="btn btn-secondary btn-sm" onclick="logout()" title="Sair">Sair</button>
+                    </span>
+                </div>
             </div>
         </header>
 
@@ -157,14 +171,14 @@
             <!-- RIGHT DRAWER (overlay): exports / imports / compile -->
             <aside class="drawer" id="drawer">
                 <div class="drawer-head">
-                    <span class="drawer-title">Code & Compile</span>
+                    <span class="drawer-title">Código & Publicar</span>
                     <button class="icon-btn" onclick="toggleOutput()" title="Close (Esc)"><i data-lucide="x"></i></button>
                 </div>
                 <div class="tabs-header">
                     <button class="tab-btn active" onclick="switchTab('tab-ascii')">ASCII</button>
                     <button class="tab-btn" onclick="switchTab('tab-json')">JSON</button>
                     <button class="tab-btn" onclick="switchTab('tab-import')">Import</button>
-                    <button class="tab-btn" onclick="switchTab('tab-instructions')">Compile</button>
+                    <button class="tab-btn" onclick="switchTab('tab-instructions')">Publicar</button>
                 </div>
 
                 <div class="tabs-content">
@@ -205,44 +219,35 @@
                         </div>
                     </div>
 
-                    <!-- Compile Tab -->
+                    <!-- Publish Tab -->
                     <div class="tab-panel" id="tab-instructions">
                         <div class="instructions-guide">
-                            <h4>Compile this level for Godot</h4>
+                            <h4>Publicar para a comunidade</h4>
 
                             <div class="live-compile-card">
-                                <p>With the local server running, compile directly from here: saves the map to the project and generates the <code>.tscn</code> ready to open in Godot.</p>
-                                <button class="btn btn-primary" id="btn-compile-live" onclick="compileLevel()">
-                                    <i data-lucide="play"></i> Compile now
-                                </button>
-                                <pre id="compile-result" class="compile-result" hidden></pre>
-                                <p class="tab-note">
-                                    Requires the local server: <code>python tools/map_editor/server.py</code> and opening
-                                    <code>http://localhost:8000</code> (does not work via <code>file://</code>).
-                                </p>
+                                <p>Publique a fase direto do navegador. Ela vira JSON estruturado que o jogo monta em tempo real — jogável na hora, sem compilar nada.</p>
+                                <label for="author-name">Seu nome (opcional)</label>
+                                <input type="text" id="author-name" class="inp" spellcheck="false"
+                                       placeholder="Anônimo" maxlength="80"
+                                       oninput="localStorage.setItem('pacoca_author', this.value)">
+                                <div class="tab-actions justify-end" style="margin-top:.6rem">
+                                    <button class="btn btn-secondary" onclick="testLevel()" title="Testar antes de publicar">
+                                        <i data-lucide="flask-conical"></i> Testar
+                                    </button>
+                                    <button class="btn btn-primary" onclick="publishLevel()">
+                                        <i data-lucide="upload-cloud"></i> Publicar agora
+                                    </button>
+                                </div>
                             </div>
 
-                            <details class="manual-steps">
-                                <summary>Compile manually (without server)</summary>
-                                <ol>
-                                    <li>Download the file as <code class="highlight">level_<span class="dynamic-level-id">04</span>_map.txt</code>.</li>
-                                    <li>Place it in <code>tools/map_editor/levels/</code>.</li>
-                                    <li>In the terminal, from the <code>src/</code> folder, run:</li>
-                                </ol>
-                                <div class="command-box">
-                                    <code id="compile-command">python scripts/convert_map.py --input scripts/levels/level_04_map.txt --level 04</code>
-                                    <button class="btn-copy-icon" onclick="copyCommand()" title="Copy Command"><i data-lucide="copy"></i></button>
-                                </div>
-                            </details>
-
                             <div class="metrics-card">
-                                <h5>Important Metrics (Platformer Kit)</h5>
+                                <h5>Métricas importantes (Platformer Kit)</h5>
                                 <ul>
-                                    <li><strong>X Grid (Width)</strong>: Each block <code>#</code> or ramp <code>/</code> measures <strong>2m</strong>.</li>
-                                    <li><strong>Y Grid (Height)</strong>: Each row measures <strong>3m</strong> (saved as <code>ystep: 3.0</code> in the file).</li>
-                                    <li><strong>Average Jump</strong>: 4m horizontally (standing), up to 15m (at maximum speed).</li>
-                                    <li><strong>Springs</strong>: Vertical ones launch up to 22m high. Diagonal ones for fast crossings.</li>
-                                    <li><strong>Fatal Fall</strong>: Avoid platforms at Y &lt; -15m.</li>
+                                    <li><strong>Grade X (largura)</strong>: cada bloco <code>#</code> ou rampa <code>/</code> mede <strong>2m</strong>.</li>
+                                    <li><strong>Grade Y (altura)</strong>: cada linha mede <strong>3m</strong> (<code>ystep: 3.0</code>).</li>
+                                    <li><strong>Pulo médio</strong>: 4m na horizontal (parado), até 15m (em velocidade máxima).</li>
+                                    <li><strong>Molas</strong>: verticais lançam até 22m; diagonais para travessias rápidas.</li>
+                                    <li><strong>Queda fatal</strong>: evite plataformas em Y &lt; -15m.</li>
                                 </ul>
                             </div>
                         </div>
@@ -252,51 +257,22 @@
             <div class="drawer-scrim" id="drawer-scrim" onclick="toggleOutput()"></div>
         </main>
 
-        <!-- SETTINGS MODAL (Godot path) -->
-        <div class="modal-overlay" id="settings-modal" hidden onclick="onSettingsBackdrop(event)">
-            <div class="modal">
-                <div class="modal-head">
-                    <span><i data-lucide="settings"></i> Godot Configuration</span>
-                    <button class="icon-btn" onclick="closeSettings()" title="Close (Esc)"><i data-lucide="x"></i></button>
-                </div>
-                <div class="modal-body">
-                    <label for="godot-path">Path to the Godot executable</label>
-                    <input type="text" id="godot-path" class="inp" spellcheck="false"
-                           placeholder="C:\\path\\to\\Godot_mono.exe">
-                    <p class="settings-status" id="godot-status">Loading...</p>
-                    <p class="tab-note">
-                        Used by the <strong>Test Level</strong> and <strong>Run</strong> buttons.
-                        If Godot is in your PATH, it is automatically detected and filled —
-                        provide the path manually only if it is not.
-                    </p>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="detectGodot()" title="Search Godot in the system PATH">
-                        <i data-lucide="search"></i> Detect in PATH
-                    </button>
-                    <button class="btn btn-primary" onclick="saveGodotPath()">
-                        <i data-lucide="check"></i> Save
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MAPS MODAL (save / open / manage) -->
+        <!-- MAPS MODAL (save / open / manage — stored in the browser) -->
         <div class="modal-overlay" id="maps-modal" hidden onclick="onMapsBackdrop(event)">
             <div class="modal modal-lg">
                 <div class="modal-head">
-                    <span><i data-lucide="folder"></i> My maps</span>
-                    <button class="icon-btn" onclick="closeMaps()" title="Close (Esc)"><i data-lucide="x"></i></button>
+                    <span><i data-lucide="folder"></i> Minhas fases</span>
+                    <button class="icon-btn" onclick="closeMaps()" title="Fechar (Esc)"><i data-lucide="x"></i></button>
                 </div>
                 <div class="modal-body">
                     <div class="maps-savebar">
                         <button class="btn btn-primary" onclick="saveCurrentMap()">
-                            <i data-lucide="save"></i> Save current map
+                            <i data-lucide="save"></i> Salvar fase
                         </button>
                         <span class="tab-note" id="maps-savehint"></span>
                     </div>
                     <div class="maps-list" id="maps-list">
-                        <p class="tab-note">Loading...</p>
+                        <p class="tab-note">Carregando…</p>
                     </div>
                 </div>
             </div>
