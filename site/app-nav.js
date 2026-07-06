@@ -13,16 +13,31 @@
 (function () {
   "use strict";
 
+  // This widget is shared by pages that don't (yet) load i18n.js. When I18n is
+  // absent, fall back to the original Portuguese labels so nothing breaks.
+  var FALLBACK = { "auth.login": "Entrar", "auth.logout": "Sair", "auth.you": "Você" };
+  var I18N = window.I18n ||
+    { t: function (k) { return FALLBACK[k] || k; }, onChange: function () {} };
+  function t(k) { return I18N.t(k); }
+
   var slot = document.querySelector("[data-auth-slot]");
   var authLinks = document.querySelectorAll("[data-auth-link]");
   var adminLink = document.querySelector("[data-admin-link]");
 
+  var currentUser = null;
   var ready = (window.PacocaAuth ? PacocaAuth.getMe() : Promise.resolve(null))
     .then(function (user) {
+      currentUser = user;
       if (user) renderSignedIn(user);
       else renderSignedOut();
       return user;
     });
+
+  // Re-render the widget in the new language on a language switch.
+  I18N.onChange(function () {
+    if (currentUser) renderSignedIn(currentUser);
+    else renderSignedOut();
+  });
 
   function renderSignedIn(user) {
     authLinks.forEach(function (l) { l.hidden = false; });
@@ -31,11 +46,11 @@
     slot.innerHTML = "";
     var name = document.createElement("span");
     name.className = "nav-user";
-    name.textContent = user.name || "Você";
+    name.textContent = user.name || t("auth.you");
     var out = document.createElement("button");
     out.className = "nav-login";
     out.type = "button";
-    out.textContent = "Sair";
+    out.textContent = t("auth.logout");
     out.addEventListener("click", function () {
       PacocaAuth.logout().then(function () { location.reload(); });
     });
@@ -53,7 +68,7 @@
     var btn = document.createElement("button");
     btn.className = "nav-login";
     btn.type = "button";
-    btn.textContent = "Entrar";
+    btn.textContent = t("auth.login");
     var gsiHost = document.createElement("span");
     gsiHost.style.display = "none";
     btn.addEventListener("click", function () {

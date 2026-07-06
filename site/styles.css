@@ -139,6 +139,9 @@ a { color: inherit; text-decoration: none; }
 }
 .nav-login:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
 
+/* Language toggle — compact square that shows the language you'd switch to. */
+.nav-lang { min-width: 2.6em; text-align: center; letter-spacing: .04em; }
+
 /* ---------- Hero ---------- */
 .hero {
     max-width: var(--maxw);
