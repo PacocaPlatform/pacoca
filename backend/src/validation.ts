@@ -11,6 +11,7 @@ export const DEFAULT_DIFFICULTY = "normal";
 
 export const MAX_NAME_LEN = 80;
 export const MAX_JSON_BYTES = 512 * 1024; // 512 KB raw map JSON
+export const MAX_SOURCE_BYTES = 512 * 1024; // 512 KB editor ASCII source
 export const MAX_TERRAIN = 6000; // platforms + ramps
 export const MAX_OBJECTS = 12000; // rings + springs + pads + enemies + spikes + goals
 export const SCHEMA_VERSION = 1;
@@ -35,6 +36,7 @@ export interface CleanLevel {
 	author_name: string | null;
 	map: Record<string, unknown>;
 	map_json: string;
+	source_text: string | null; // editor's ASCII source (optional), for later editing
 }
 
 export type ValidationResult =
@@ -83,7 +85,17 @@ export function validatePublish(body: unknown): ValidationResult {
 		return { ok: false, error: `map too large (max ${MAX_JSON_BYTES} bytes)` };
 	}
 
-	return { ok: true, value: { name, theme, difficulty, author_name, map, map_json } };
+	// Optional ASCII source: the editor's native format, kept so the author can
+	// reopen and edit the level later. Never used to build the level (that's map).
+	let source_text: string | null = null;
+	if (typeof b.source === "string" && b.source.length > 0) {
+		if (byteLength(b.source) > MAX_SOURCE_BYTES) {
+			return { ok: false, error: `source too large (max ${MAX_SOURCE_BYTES} bytes)` };
+		}
+		source_text = b.source;
+	}
+
+	return { ok: true, value: { name, theme, difficulty, author_name, map, map_json, source_text } };
 }
 
 // Validates the structured map: every known collection must be an array, and
@@ -108,7 +120,7 @@ export function validateMap(map: Record<string, unknown>): ValidationResult {
 	}
 
 	// Cheap dummy result — callers that only need the counts ignore `value`.
-	return { ok: true, value: { name: "", theme: DEFAULT_THEME, difficulty: DEFAULT_DIFFICULTY, author_name: null, map, map_json: "" } };
+	return { ok: true, value: { name: "", theme: DEFAULT_THEME, difficulty: DEFAULT_DIFFICULTY, author_name: null, map, map_json: "", source_text: null } };
 }
 
 function byteLength(s: string): number {

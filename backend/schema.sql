@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS levels (
     author_id      TEXT,                          -- users.id of the publisher
     author_name    TEXT,                          -- display name shown in listings
     map_json       TEXT NOT NULL,                 -- canonical structured level JSON
+    source_text    TEXT,                          -- editor's ASCII source, so the author can reopen & edit
     schema_version INTEGER NOT NULL DEFAULT 1,
     play_count     INTEGER NOT NULL DEFAULT 0,
     like_count     INTEGER NOT NULL DEFAULT 0,    -- denormalized count of likes rows

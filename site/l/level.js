@@ -73,12 +73,18 @@
             '<span class="btn-text"><strong>Jogar</strong><small>Roda no navegador</small></span>' +
           '</a>' +
           likeButtonHtml(lv) +
+          '<button class="btn btn-editor" data-share>' +
+            '<span class="btn-icon">↗</span>' +
+            '<span class="btn-text"><strong>Compartilhar</strong><small>Copiar o link</small></span>' +
+          '</button>' +
         '</div>' +
         '<p class="level-share"><a href="../editor/">Criar minha fase no Map Editor →</a></p>' +
       '</article>';
 
     var likeBtn = root.querySelector("[data-like]");
     if (likeBtn) likeBtn.addEventListener("click", function () { onLike(lv); });
+    var shareBtn = root.querySelector("[data-share]");
+    if (shareBtn) shareBtn.addEventListener("click", function () { PacocaShare.share(id, lv.name); });
   }
 
   function likeButtonHtml(lv) {

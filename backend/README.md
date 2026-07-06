@@ -31,8 +31,9 @@ and the `SESSION_SECRET` secret (see [build_and_deploy.md](../docs/build_and_dep
 | `GET` | `/api/admin/levels` | `?status=all\|active\|hidden\|removed` | **admin** | all levels for moderation |
 | `GET` | `/api/levels` | `?sort=new\|popular\|liked&limit=&offset=` | — | listing (no `map`) |
 | `GET` | `/api/authors` | `?limit=` | — | author leaderboard by total plays |
-| `GET` | `/api/levels/:id` | — | optional | full **active** level incl. `map`, `liked` |
-| `POST` | `/api/levels` | `{ name, theme, difficulty, map }` | **login** | `{ id }` |
+| `GET` | `/api/levels/:id` | — | optional | full **active** level incl. `map`, `liked`, `can_edit`, `source` (author only) |
+| `POST` | `/api/levels` | `{ name, theme, difficulty, map, source? }` | **login** | `{ id }` |
+| `PUT`·`PATCH` | `/api/levels/:id` | `{ name, theme, difficulty, map, source? }` | author | edit in place → `{ id }` |
 | `POST` | `/api/levels/:id/play` | — | — | `{ play_count }` |
 | `POST`·`DELETE` | `/api/levels/:id/like` | — | **login** | `{ liked, like_count }` |
 | `POST` | `/api/levels/:id/moderate` | `{ status }` | **admin** | `{ id, status }` |

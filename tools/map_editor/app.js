@@ -8,6 +8,9 @@ let levelName = "Nova Fase";
 let levelId = "novafase";
 let levelTheme = "forest"; // forest | glacial | cidade | caverna
 let levelDifficulty = "normal"; // infantil | iniciante | normal | hard | impossible
+// When set (via ?id=... on the URL), "Publicar" edits this existing community
+// level in place (PUT /api/levels/:id) instead of creating a new one.
+let editingId = null;
 let gridWidth = 100;
 let gridHeight = 15;
 let grid = []; // 2D array: grid[c][r] where c is column (X), r is visual row (Y-inverted)
@@ -1681,6 +1684,11 @@ async function initAuth() {
     } catch (err) { currentUser = null; }
     renderAuth();
 
+    // If the URL carries ?id=..., we're editing an existing community level.
+    // Load it now that the session is known (the ASCII source only comes back to
+    // the author). Waits for auth so `source` is available for the owner.
+    await maybeLoadEditTarget();
+
     if (currentUser) return; // already signed in — no button needed
 
     // Fetch the public Google client id and render the Sign-In button once the
@@ -1753,6 +1761,80 @@ function renderAuth() {
     }
 }
 
+// Reads ?id=... and, if present, loads that community level into the editor for
+// in-place editing. Uses the stored ASCII source (faithful to the editor state);
+// falls back to reconstructing from the structured map for legacy levels.
+async function maybeLoadEditTarget() {
+    const id = new URLSearchParams(location.search).get("id");
+    if (!id) return;
+    try {
+        const resp = await fetch(`${API_BASE}/levels/${encodeURIComponent(id)}`, { credentials: "same-origin" });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+            showToast(data.error === "not found" ? "Fase não encontrada" : "Não foi possível abrir a fase", "alert-triangle");
+            return;
+        }
+        if (!data.can_edit) {
+            showToast("Você só pode editar as fases que publicou. Entre com a conta certa.", "alert-triangle");
+            return;
+        }
+        if (data.source) {
+            importASCII(data.source);
+        } else if (data.map) {
+            importJSON(data.map);
+        }
+        setLevelDifficulty(data.difficulty || "normal");
+        editingId = id;
+        updatePublishButtonLabel();
+        showToast(`Editando "${data.name || "fase"}" — Publicar salva as alterações`, "edit-3");
+    } catch (err) {
+        showToast("Backend indisponível para abrir a fase", "alert-triangle");
+    }
+}
+
+// Reflects whether "Publicar" creates a new level or saves edits to an existing,
+// and enables "Compartilhar" once the level has an id (has been published).
+function updatePublishButtonLabel() {
+    const editing = editingId != null;
+    const btn = document.getElementById("btn-publish");
+    if (btn) {
+        btn.innerHTML = editing
+            ? '<i data-lucide="save"></i> Salvar alterações'
+            : '<i data-lucide="upload-cloud"></i> Publicar';
+        btn.title = editing ? "Salvar as alterações desta fase" : "Publicar a fase para a comunidade";
+    }
+    const shareBtn = document.getElementById("btn-share");
+    if (shareBtn) {
+        shareBtn.disabled = !editing;
+        shareBtn.title = editing
+            ? "Compartilhar o link desta fase"
+            : "Publique a fase para gerar o link de compartilhamento";
+    }
+    if (window.lucide && lucide.createIcons) lucide.createIcons();
+}
+
+// "Compartilhar" — copy the published level's public link (native share sheet on
+// mobile, clipboard elsewhere). Only available once the level has been published.
+function shareLevel() {
+    if (!editingId) {
+        showToast("Publique a fase primeiro para gerar o link", "alert-triangle");
+        return;
+    }
+    const url = `${location.origin}/l/${editingId}`;
+    const title = levelName ? `Paçoca — ${levelName}` : "Fase da comunidade Paçoca";
+    if (navigator.share) {
+        navigator.share({ title: title, text: "Jogue esta fase do Paçoca:", url: url }).catch(() => {});
+        return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url)
+            .then(() => showToast("Link copiado para a área de transferência", "check"))
+            .catch(() => window.prompt("Copie o link da fase:", url));
+    } else {
+        window.prompt("Copie o link da fase:", url);
+    }
+}
+
 // "Publicar" — submit the level to the community backend. Login required; the
 // author comes from the session, so it's never sent from the client.
 async function publishLevel() {
@@ -1763,31 +1845,42 @@ async function publishLevel() {
     const map = prepareLevelForPlay();
     if (!map) return;
 
+    const editing = editingId != null;
     const btn = document.getElementById("btn-publish");
     if (btn) btn.disabled = true;
-    showToast("Publicando…", "upload-cloud");
+    showToast(editing ? "Salvando…" : "Publicando…", "upload-cloud");
+    // Keep the exported ASCII in sync, then send it as `source` so the level can
+    // be reopened for editing later (faithful to the current editor state).
+    generateASCIIExport();
+    const source = document.getElementById("ascii-output").value;
     try {
-        const resp = await fetch(`${API_BASE}/levels`, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: levelName,
-                theme: levelTheme,
-                difficulty: levelDifficulty,
-                map: map
-            })
-        });
+        const resp = await fetch(
+            editing ? `${API_BASE}/levels/${encodeURIComponent(editingId)}` : `${API_BASE}/levels`,
+            {
+                method: editing ? "PUT" : "POST",
+                credentials: "same-origin",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: levelName,
+                    theme: levelTheme,
+                    difficulty: levelDifficulty,
+                    map: map,
+                    source: source
+                })
+            }
+        );
         const data = await resp.json().catch(() => ({}));
         if (resp.ok && data.id) {
             const url = `${location.origin}/l/${data.id}`;
-            showToast("Publicada! Link copiado para a área de transferência", "check");
-            navigator.clipboard && navigator.clipboard.writeText(url).catch(() => {});
+            if (!editing) editingId = data.id; // subsequent saves edit in place
+            updatePublishButtonLabel();
+            showToast(editing ? "Alterações salvas!" : "Publicada! Link copiado para a área de transferência", "check");
+            if (!editing) navigator.clipboard && navigator.clipboard.writeText(url).catch(() => {});
         } else if (resp.status === 401) {
             currentUser = null; renderAuth();
             showToast("Sua sessão expirou — entre novamente", "alert-triangle");
         } else {
-            showToast(data.error || `Falha ao publicar (HTTP ${resp.status})`, "alert-triangle");
+            showToast(data.error || `Falha ao ${editing ? "salvar" : "publicar"} (HTTP ${resp.status})`, "alert-triangle");
         }
     } catch (err) {
         showToast("Backend da comunidade indisponível", "alert-triangle");

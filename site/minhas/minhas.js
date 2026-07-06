@@ -53,6 +53,7 @@
       card.className = "level-card";
       var statusTag = lv.status !== "active"
         ? '<span class="level-diff diff-hard">' + esc(STATUS_LABEL[lv.status] || lv.status) + '</span>' : "";
+      card._level = lv;
       card.innerHTML =
         '<span class="level-badges">' +
           '<span class="level-theme">' + esc(THEME_LABEL[lv.theme] || lv.theme) + '</span>' +
@@ -63,12 +64,21 @@
         '<span class="level-meta">' + (lv.play_count || 0) + ' jogadas · ' + (lv.like_count || 0) + ' ❤</span>' +
         '<span class="my-actions">' +
           '<a class="btn btn-secondary btn-sm" href="../l/' + encodeURIComponent(lv.id) + '">Abrir</a>' +
+          '<a class="btn btn-secondary btn-sm" href="../editor/?id=' + encodeURIComponent(lv.id) + '">Editar</a>' +
+          '<button class="btn btn-secondary btn-sm" data-share="' + esc(lv.id) + '">Compartilhar</button>' +
           '<button class="btn btn-secondary btn-sm" data-del="' + esc(lv.id) + '">Excluir</button>' +
         '</span>';
       grid.appendChild(card);
     });
     grid.querySelectorAll("[data-del]").forEach(function (btn) {
       btn.addEventListener("click", function () { del(btn.getAttribute("data-del"), btn); });
+    });
+    grid.querySelectorAll("[data-share]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var card = btn.closest(".level-card");
+        var lv = card && card._level;
+        PacocaShare.share(btn.getAttribute("data-share"), lv ? lv.name : "");
+      });
     });
   }
 

@@ -17,7 +17,8 @@
 //   GET  /api/levels?sort=new|popular|liked&difficulty=&author=&limit=&offset=  -> listing (no map_json)
 //   GET  /api/authors?limit=                           -> author leaderboard by plays
 //   GET  /api/levels/:id                               -> full level incl. map, liked
-//   POST /api/levels        { name, theme, difficulty, map }  (login required) -> { id }
+//   POST /api/levels        { name, theme, difficulty, map, source? }  (login required) -> { id }
+//   PUT  /api/levels/:id     { name, theme, difficulty, map, source? }  (author only) -> { id }
 //   POST /api/levels/:id/play                          -> { play_count }
 //   POST|DELETE /api/levels/:id/like   (login required) -> { liked, like_count }
 //   POST|DELETE /api/levels/:id/collect (login required) -> { collected }
@@ -47,6 +48,7 @@ interface LevelRow {
 	author_id: string | null;
 	author_name: string | null;
 	map_json: string;
+	source_text: string | null;
 	play_count: number;
 	like_count: number;
 	created_at: number;
@@ -164,6 +166,11 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
 	const deleteMatch = path.match(/^\/api\/levels\/([^/]+)$/);
 	if (method === "DELETE" && deleteMatch) {
 		return deleteLevel(request, env, decodeURIComponent(deleteMatch[1]));
+	}
+
+	const updateMatch = path.match(/^\/api\/levels\/([^/]+)$/);
+	if ((method === "PUT" || method === "PATCH") && updateMatch) {
+		return updateLevel(request, env, decodeURIComponent(updateMatch[1]));
 	}
 
 	const itemMatch = path.match(/^\/api\/levels\/([^/]+)$/);
@@ -320,9 +327,30 @@ async function serveStatic(request: Request, env: Env, url: URL): Promise<Respon
 	// Trust our own extension map first so .wasm is always application/wasm.
 	headers.set("content-type", CONTENT_TYPES[ext] ?? obj.httpMetadata?.contentType ?? "application/octet-stream");
 	headers.set("etag", obj.httpEtag);
-	// index.html changes on every deploy; other assets keep the fixed names Godot
-	// emits, so revalidate them too but allow a short cache.
-	headers.set("cache-control", ext === "html" ? "public, max-age=60" : "public, max-age=3600");
+	// Cache policy by role:
+	//  - HTML: short cache, it changes every deploy.
+	//  - Game payload under play/ (index.pck/.wasm/.js): keep the FIXED names Godot
+	//    emits but change on every re-export, so a stale copy would silently run
+	//    old game code (e.g. a missing on-screen joystick). Force revalidation via
+	//    ETag (cheap 304 when unchanged) so a new build always wins immediately.
+	//  - Other static assets (fonts, images, editor): short cache is fine.
+	const isGamePayload = key.startsWith("play/") && ext !== "html";
+	headers.set(
+		"cache-control",
+		ext === "html"
+			? "public, max-age=60"
+			: isGamePayload
+				? "public, no-cache"
+				: "public, max-age=3600",
+	);
+
+	// Honor conditional requests so `no-cache` revalidation is a cheap 304 instead
+	// of re-streaming the (large) payload when the client already has the current
+	// version. Etags here are the strong R2 object etags.
+	const inm = request.headers.get("If-None-Match");
+	if (inm && inm === obj.httpEtag) {
+		return new Response(null, { status: 304, headers });
+	}
 
 	return new Response(request.method === "HEAD" ? null : obj.body, { headers });
 }
@@ -396,7 +424,7 @@ async function getLevel(request: Request, env: Env, id: string): Promise<Respons
 	// Only 'active' levels are publicly viewable/playable — 'hidden' (moderated or
 	// author-unlisted) and 'removed' both 404 here, killing their share links.
 	const row = await env.DB.prepare(
-		`SELECT id, name, theme, difficulty, author_id, author_name, map_json,
+		`SELECT id, name, theme, difficulty, author_id, author_name, map_json, source_text,
 		        play_count, like_count, created_at, updated_at
 		 FROM levels WHERE id = ? AND status = 'active'`,
 	)
@@ -423,6 +451,10 @@ async function getLevel(request: Request, env: Env, id: string): Promise<Respons
 		liked = like !== null;
 	}
 
+	// The editor's ASCII source is only handed back to the author, so they can
+	// reopen and edit their own level; other viewers never receive it.
+	const isOwner = user != null && row.author_id != null && row.author_id === user.id;
+
 	return json({
 		id: row.id,
 		name: row.name,
@@ -433,6 +465,8 @@ async function getLevel(request: Request, env: Env, id: string): Promise<Respons
 		play_count: row.play_count,
 		like_count: row.like_count,
 		liked,
+		can_edit: isOwner,
+		source: isOwner ? row.source_text : null,
 		created_at: row.created_at,
 		map,
 	});
@@ -533,19 +567,58 @@ async function publishLevel(request: Request, env: Env): Promise<Response> {
 
 	const now = Date.now();
 	const id = crypto.randomUUID();
-	const { name, theme, difficulty, map_json } = result.value;
+	const { name, theme, difficulty, map_json, source_text } = result.value;
 	const authorName = user.name ?? "Jogador";
 
 	await env.DB.prepare(
 		`INSERT INTO levels
-		 (id, name, theme, difficulty, author_id, author_name, map_json, schema_version,
+		 (id, name, theme, difficulty, author_id, author_name, map_json, source_text, schema_version,
 		  play_count, like_count, is_public, status, created_at, updated_at)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 1, 'active', ?, ?)`,
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 1, 'active', ?, ?)`,
 	)
-		.bind(id, name, theme, difficulty, user.id, authorName, map_json, SCHEMA_VERSION, now, now)
+		.bind(id, name, theme, difficulty, user.id, authorName, map_json, source_text, SCHEMA_VERSION, now, now)
 		.run();
 
 	return json({ id, name, theme, difficulty, created_at: now }, 201);
+}
+
+// PUT /api/levels/:id — the author edits one of their own levels in place. Same
+// validation as publishing; the id, author and counters are preserved. Only the
+// owner may edit (admins moderate via status, they don't rewrite content).
+async function updateLevel(request: Request, env: Env, id: string): Promise<Response> {
+	const user = await requireUser(request, env);
+	if (!user) return json({ error: "login required to edit" }, 401);
+
+	const row = await env.DB.prepare(`SELECT author_id, status FROM levels WHERE id = ?`)
+		.bind(id)
+		.first<{ author_id: string | null; status: string }>();
+	if (!row || row.status === "removed") return json({ error: "not found" }, 404);
+	if (row.author_id == null || row.author_id !== user.id) {
+		return json({ error: "forbidden" }, 403);
+	}
+
+	let body: unknown;
+	try {
+		body = await request.json();
+	} catch {
+		return json({ error: "invalid JSON body" }, 400);
+	}
+
+	const result = validatePublish(body);
+	if (!result.ok) return json({ error: result.error }, 400);
+
+	const now = Date.now();
+	const { name, theme, difficulty, map_json, source_text } = result.value;
+
+	await env.DB.prepare(
+		`UPDATE levels
+		 SET name = ?, theme = ?, difficulty = ?, map_json = ?, source_text = ?, updated_at = ?
+		 WHERE id = ?`,
+	)
+		.bind(name, theme, difficulty, map_json, source_text, now, id)
+		.run();
+
+	return json({ id, name, theme, difficulty, updated_at: now });
 }
 
 // POST /api/levels/:id/play — best-effort play counter.
@@ -714,7 +787,7 @@ function escapeLike(s: string): string {
 function corsHeaders(request: Request): Record<string, string> {
 	const origin = request.headers.get("Origin");
 	const headers: Record<string, string> = {
-		"access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+		"access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
 		"access-control-allow-headers": "content-type",
 		"access-control-max-age": "86400",
 		vary: "Origin",

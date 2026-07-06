@@ -140,10 +140,12 @@
         '<button class="btn btn-secondary btn-sm act-btn' + (isColl ? ' is-on' : '') + '" data-collect ' +
           'aria-pressed="' + isColl + '">' + (isColl ? '★' : '☆') + ' <span data-collect-label>' +
           (isColl ? 'Na coleção' : 'Coleção') + '</span></button>' +
+        '<button class="btn btn-secondary btn-sm act-btn" data-share title="Compartilhar link da fase">↗ Compartilhar</button>' +
       '</span>';
 
     card.querySelector("[data-like]").addEventListener("click", function () { onLike(lv, card); });
     card.querySelector("[data-collect]").addEventListener("click", function () { onCollect(lv, card); });
+    card.querySelector("[data-share]").addEventListener("click", function () { PacocaShare.share(lv.id, lv.name); });
     return card;
   }
 
