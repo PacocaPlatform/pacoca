@@ -81,6 +81,8 @@
       "hero.editor.title": "Map Editor",
       "hero.editor.sub": "Crie suas fases",
       "hero.note": "Roda 100% no navegador — sem instalação, sem download.",
+      "hero.badge.new": "NOVO!",
+      "hero.badge.free": "GRÁTIS!",
 
       "features.title": "O que tem em Paçoca",
       "feature.physics.title": "Física com momentum",
@@ -165,6 +167,8 @@
       "hero.editor.title": "Map Editor",
       "hero.editor.sub": "Build your levels",
       "hero.note": "Runs 100% in your browser — no install, no download.",
+      "hero.badge.new": "NEW!",
+      "hero.badge.free": "FREE!",
 
       "features.title": "What's inside Paçoca",
       "feature.physics.title": "Momentum-based physics",
