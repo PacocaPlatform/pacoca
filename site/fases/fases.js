@@ -121,6 +121,7 @@
     var isColl = !!collected[lv.id];
     var card = document.createElement("div");
     card.className = "level-card";
+    var ICON = "../assets/icons.svg#";
     card.innerHTML =
       '<span class="level-badges">' +
         '<span class="level-theme">' + esc(THEME_LABEL[lv.theme] || lv.theme || "custom") + '</span>' +
@@ -131,16 +132,23 @@
         esc(lv.name || "Fase sem nome") + '</a>' +
       '<span class="level-meta">por ' + esc(lv.author_name || "anônimo") + ' · ' +
         '<span data-plays>' + (lv.play_count || 0) + '</span> jogadas · ' +
-        '<span data-likes>' + (lv.like_count || 0) + '</span> ❤</span>' +
+        '<span data-likes>' + (lv.like_count || 0) + '</span> ' +
+        '<svg class="icon" aria-hidden="true"><use href="' + ICON + 'heart"/></svg></span>' +
       '<span class="my-actions">' +
-        '<a class="btn btn-play btn-sm" href="../l/play.html?id=' + encodeURIComponent(lv.id) + '">▶ Jogar</a>' +
+        '<a class="btn btn-play btn-sm" href="../l/play.html?id=' + encodeURIComponent(lv.id) + '">' +
+          '<svg class="icon" aria-hidden="true"><use href="' + ICON + 'play"/></svg> Jogar</a>' +
         '<button class="btn btn-secondary btn-sm act-btn' + (isLiked ? ' is-on' : '') + '" data-like ' +
-          'aria-pressed="' + isLiked + '">' + (isLiked ? '♥' : '♡') + ' <span data-like-label>' +
-          (isLiked ? 'Curtido' : 'Curtir') + '</span></button>' +
+          'aria-pressed="' + isLiked + '"><span class="icon-pair">' +
+          '<svg class="icon icon--o" aria-hidden="true"><use href="' + ICON + 'heart-o"/></svg>' +
+          '<svg class="icon icon--f" aria-hidden="true"><use href="' + ICON + 'heart"/></svg>' +
+          '</span> <span data-like-label>' + (isLiked ? 'Curtido' : 'Curtir') + '</span></button>' +
         '<button class="btn btn-secondary btn-sm act-btn' + (isColl ? ' is-on' : '') + '" data-collect ' +
-          'aria-pressed="' + isColl + '">' + (isColl ? '★' : '☆') + ' <span data-collect-label>' +
-          (isColl ? 'Na coleção' : 'Coleção') + '</span></button>' +
-        '<button class="btn btn-secondary btn-sm act-btn" data-share title="Compartilhar link da fase">↗ Compartilhar</button>' +
+          'aria-pressed="' + isColl + '"><span class="icon-pair">' +
+          '<svg class="icon icon--o" aria-hidden="true"><use href="' + ICON + 'star-o"/></svg>' +
+          '<svg class="icon icon--f" aria-hidden="true"><use href="' + ICON + 'star"/></svg>' +
+          '</span> <span data-collect-label>' + (isColl ? 'Na coleção' : 'Coleção') + '</span></button>' +
+        '<button class="btn btn-secondary btn-sm act-btn" data-share title="Compartilhar link da fase">' +
+          '<svg class="icon" aria-hidden="true"><use href="' + ICON + 'share"/></svg> Compartilhar</button>' +
       '</span>';
 
     card.querySelector("[data-like]").addEventListener("click", function () { onLike(lv, card); });
@@ -161,7 +169,6 @@
       liked[lv.id] = !!d.liked;
       btn.classList.toggle("is-on", liked[lv.id]);
       btn.setAttribute("aria-pressed", String(liked[lv.id]));
-      btn.firstChild.nodeValue = liked[lv.id] ? "♥ " : "♡ ";
       card.querySelector("[data-like-label]").textContent = liked[lv.id] ? "Curtido" : "Curtir";
       if (typeof d.like_count === "number") card.querySelector("[data-likes]").textContent = d.like_count;
     }).catch(function () {}).finally(function () { btn.disabled = false; });
@@ -179,7 +186,6 @@
       collected[lv.id] = !!d.collected;
       btn.classList.toggle("is-on", collected[lv.id]);
       btn.setAttribute("aria-pressed", String(collected[lv.id]));
-      btn.firstChild.nodeValue = collected[lv.id] ? "★ " : "☆ ";
       card.querySelector("[data-collect-label]").textContent = collected[lv.id] ? "Na coleção" : "Coleção";
       // If we're viewing the collection and just removed one, drop the card.
       if (!collected[lv.id] && scopeSel.value === "collection") card.remove();

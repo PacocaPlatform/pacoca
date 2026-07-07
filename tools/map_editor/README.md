@@ -31,7 +31,7 @@ python -m http.server 8000        # from the repo root
 - **Fases** — save / open / delete maps. Maps are stored **in the browser**
   (`localStorage`, key `pacoca_maps`); nothing is written to disk.
 - **Código** — export the level as ASCII grid or structured JSON, or import one back in.
-- **Testar** (**F5**) — opens the game in a new tab (`../play/?custom=1`) and plays
+- **Testar** — opens the game in a new tab (`../play/?custom=1`) and plays
   the current drawing. The level is passed via `localStorage` (key
   `pacoca_test_map`) and built in-engine — no compile step.
 - **Jogar** — opens the game's main menu (`../play/`).
@@ -40,7 +40,7 @@ python -m http.server 8000        # from the repo root
 
 ### Shortcuts
 
-- **B** = paint · **E** = erase · **L** = line · **R** = rectangle · **G** = fill · **M** = select · **F5** = test stage · **Esc** = cancel selection/paste or close the code drawer.
+- **B** = paint · **E** = erase · **L** = line · **R** = rectangle · **G** = fill · **M** = select · **Esc** = cancel selection/paste or close the code drawer.
 - **Ctrl/Cmd+Z** undo · **Ctrl/Cmd+Shift+Z** / **Ctrl+Y** redo · with a selection: **Ctrl/Cmd+C/X** copy/cut, **Del** clear, **Ctrl/Cmd+V** then click to paste.
 
 ## The level format

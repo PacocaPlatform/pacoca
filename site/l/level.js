@@ -69,12 +69,12 @@
         '</div>' +
         '<div class="cta-row">' +
           '<a class="btn btn-play" href="play.html?id=' + encodeURIComponent(id) + '">' +
-            '<span class="btn-icon">▶</span>' +
+            '<span class="btn-icon"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#play"/></svg></span>' +
             '<span class="btn-text"><strong>Jogar</strong><small>Roda no navegador</small></span>' +
           '</a>' +
           likeButtonHtml(lv) +
           '<button class="btn btn-editor" data-share>' +
-            '<span class="btn-icon">↗</span>' +
+            '<span class="btn-icon"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#share"/></svg></span>' +
             '<span class="btn-text"><strong>Compartilhar</strong><small>Copiar o link</small></span>' +
           '</button>' +
         '</div>' +
@@ -90,12 +90,15 @@
   function likeButtonHtml(lv) {
     if (!me) {
       return '<a class="btn btn-editor" href="../editor/#entrar" title="Entre para curtir">' +
-        '<span class="btn-icon">♡</span>' +
+        '<span class="btn-icon"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#heart-o"/></svg></span>' +
         '<span class="btn-text"><strong>Curtir</strong><small>Entre com Google</small></span></a>';
     }
     var liked = !!lv.liked;
-    return '<button class="btn btn-editor" data-like aria-pressed="' + liked + '">' +
-      '<span class="btn-icon" data-like-icon>' + (liked ? "♥" : "♡") + '</span>' +
+    return '<button class="btn btn-editor' + (liked ? ' is-on' : '') + '" data-like aria-pressed="' + liked + '">' +
+      '<span class="btn-icon"><span class="icon-pair">' +
+        '<svg class="icon icon--o" aria-hidden="true"><use href="../assets/icons.svg#heart-o"/></svg>' +
+        '<svg class="icon icon--f" aria-hidden="true"><use href="../assets/icons.svg#heart"/></svg>' +
+      '</span></span>' +
       '<span class="btn-text"><strong data-like-label>' + (liked ? "Curtido" : "Curtir") + '</strong>' +
       '<small>' + esc(me.name || "você") + '</small></span></button>';
   }
@@ -112,7 +115,7 @@
       var likesEl = root.querySelector("[data-likes]");
       if (likesEl && typeof data.like_count === "number") likesEl.textContent = data.like_count;
       btn.setAttribute("aria-pressed", String(lv.liked));
-      root.querySelector("[data-like-icon]").textContent = lv.liked ? "♥" : "♡";
+      btn.classList.toggle("is-on", lv.liked);
       root.querySelector("[data-like-label]").textContent = lv.liked ? "Curtido" : "Curtir";
     }).catch(function () {
       /* keep previous state on error */

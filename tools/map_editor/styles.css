@@ -1,54 +1,62 @@
-/* CSS Variable definitions for a premium theme */
+/* ============================================================
+   PAÇOCA MAP EDITOR — "Doce de Leite" theme
+   A warm caramel / peanut-gold identity inspired by the name
+   (paçoca = Brazilian peanut candy). Light = caramel cream,
+   dark = dark chocolate. Element palette stays consistent
+   across themes so the map always reads the same.
+   ============================================================ */
 :root {
-    /* ----- DARK THEME (default) ----- */
-    --bg-main: #0b0f19;
-    --bg-panel: rgba(17, 24, 39, 0.75);
-    --bg-card: rgba(31, 41, 55, 0.45);
-    --bg-input: #111827;
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-glow: rgba(99, 102, 241, 0.35);
+    /* ----- DARK THEME (chocolate) — base; light overrides below ----- */
+    --bg-main: #1f1610;
+    --bg-panel: rgba(38, 27, 18, 0.78);
+    --bg-card: rgba(58, 42, 28, 0.5);
+    --bg-input: #2a1d12;
+    --border-color: rgba(212, 160, 23, 0.14);
+    --border-glow: rgba(212, 160, 23, 0.4);
 
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
+    --text-primary: #f3e4c8;
+    --text-secondary: #c4a878;
+    --text-muted: #8a7355;
 
-    --accent: #6366f1; /* Indigo */
-    --accent-hover: #4f46e5;
-    --accent-glow: rgba(99, 102, 241, 0.25);
+    --accent: #d4a017; /* Peanut gold (pops on chocolate) */
+    --accent-hover: #e6b32a;
+    --accent-glow: rgba(212, 160, 23, 0.28);
+    --accent-2: #b8742a; /* Caramel */
 
     /* Page background radial glows */
-    --glow-1: rgba(99, 102, 241, 0.15);
-    --glow-2: rgba(236, 72, 153, 0.1);
+    --glow-1: rgba(212, 160, 23, 0.14);
+    --glow-2: rgba(184, 116, 42, 0.12);
 
     /* Canvas / grid surfaces */
-    --bg-canvas: #060913;            /* grid scroll viewport */
-    --bg-grid: #030712;              /* the map grid itself */
-    --grid-border: #374151;
-    --gridline: rgba(255, 255, 255, 0.02);
-    --cell-border: rgba(255, 255, 255, 0.03);
+    --bg-canvas: #15100a;
+    --bg-grid: #0d0906;
+    --grid-border: #4a3520;
+    --gridline: rgba(212, 160, 23, 0.03);
+    --cell-border: rgba(212, 160, 23, 0.05);
 
     /* Elevated overlay surfaces */
-    --bg-drawer: rgba(13, 18, 30, 0.97);
-    --bg-modal: rgba(15, 20, 32, 0.98);
-    --bg-tooltip: #0b1020;
-    --bg-toast: rgba(17, 24, 39, 0.95);
+    --bg-drawer: rgba(30, 22, 14, 0.97);
+    --bg-modal: rgba(34, 25, 16, 0.98);
+    --bg-tooltip: #f3e4c8;
+    --bg-tooltip-text: #2a1d12;
+    --bg-toast: rgba(38, 27, 18, 0.95);
     --bg-statusbar: rgba(0, 0, 0, 0.25);
-    --bg-terminal: #030712; /* code/command block, stays dark in both themes */
+    --bg-terminal: #0d0906; /* code/command block, stays dark in both themes */
 
-    /* Neutral overlay tokens (hover / subtle fills, light on dark) */
-    --ov-soft: rgba(255, 255, 255, 0.04);
-    --ov-medium: rgba(255, 255, 255, 0.06);
-    --ov-strong: rgba(255, 255, 255, 0.1);
+    /* Neutral overlay tokens (hover / subtle fills, warm cream on dark) */
+    --ov-soft: rgba(255, 230, 190, 0.04);
+    --ov-medium: rgba(255, 230, 190, 0.07);
+    --ov-strong: rgba(255, 230, 190, 0.12);
 
-    --shadow-soft: rgba(0, 0, 0, 0.45);
-    --shadow-strong: rgba(0, 0, 0, 0.5);
+    --shadow-soft: rgba(0, 0, 0, 0.5);
+    --shadow-strong: rgba(0, 0, 0, 0.6);
 
-    /* Elements Palette */
-    --color-empty: rgba(15, 23, 42, 0.6);
+    /* Elements Palette (shared with light theme) */
+    --color-empty: rgba(80, 55, 30, 0.6);
     --color-platform: #10b981; /* Emerald Grass */
-    --color-rock: #78350f; /* Brown Rock */
+    --color-rock: #8a4b1f; /* Caramelized brown rock */
     --color-slope: #34d399; /* Light Emerald */
-    --color-ring: #f59e0b; /* Amber Gold */
+    --color-ring: #f5b82e; /* Peanut gold */
     --color-spring-v: #f97316; /* Orange */
     --color-spring-d: #ef4444; /* Red */
     --color-dash: #06b6d4; /* Cyan */
@@ -66,46 +74,48 @@
     --drawer-width: 380px;
 }
 
-/* ----- LIGHT THEME ----- */
+/* ----- LIGHT THEME (caramel cream) ----- */
 [data-theme="light"] {
-    --bg-main: #eef1f6;
-    --bg-panel: rgba(255, 255, 255, 0.8);
-    --bg-card: rgba(255, 255, 255, 0.65);
-    --bg-input: #ffffff;
-    --border-color: rgba(15, 23, 42, 0.12);
-    --border-glow: rgba(99, 102, 241, 0.4);
+    --bg-main: #f5ead2; /* Creme de leite */
+    --bg-panel: rgba(255, 248, 235, 0.82);
+    --bg-card: rgba(255, 248, 235, 0.65);
+    --bg-input: #fff8eb;
+    --border-color: rgba(120, 80, 40, 0.18);
+    --border-glow: rgba(184, 116, 42, 0.4);
 
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --text-muted: #6b7280;
+    --text-primary: #3d2817; /* Cacau */
+    --text-secondary: #7a5a3a; /* Caramelo médio */
+    --text-muted: #a08866;
 
-    --accent: #4f46e5;
-    --accent-hover: #4338ca;
-    --accent-glow: rgba(79, 70, 229, 0.18);
+    --accent: #b8742a; /* Caramelo */
+    --accent-hover: #9c5e1e;
+    --accent-glow: rgba(184, 116, 42, 0.22);
+    --accent-2: #d4a017; /* Amendoim dourado */
 
-    --glow-1: rgba(99, 102, 241, 0.12);
-    --glow-2: rgba(236, 72, 153, 0.08);
+    --glow-1: rgba(212, 160, 23, 0.18);
+    --glow-2: rgba(184, 116, 42, 0.12);
 
-    --bg-canvas: #dde3ec;
-    --bg-grid: #f3f5f9;
-    --grid-border: #b8c0cf;
-    --gridline: rgba(15, 23, 42, 0.04);
-    --cell-border: rgba(15, 23, 42, 0.06);
+    --bg-canvas: #ece0c4;
+    --bg-grid: #fbf3df;
+    --grid-border: #c9a86a;
+    --gridline: rgba(120, 80, 40, 0.06);
+    --cell-border: rgba(120, 80, 40, 0.08);
 
-    --bg-drawer: rgba(248, 250, 252, 0.98);
-    --bg-modal: rgba(255, 255, 255, 0.99);
-    --bg-tooltip: #1f2937;
-    --bg-toast: rgba(255, 255, 255, 0.97);
-    --bg-statusbar: rgba(15, 23, 42, 0.04);
+    --bg-drawer: rgba(250, 240, 220, 0.98);
+    --bg-modal: rgba(252, 246, 232, 0.99);
+    --bg-tooltip: #3d2817;
+    --bg-tooltip-text: #f5ead2;
+    --bg-toast: rgba(252, 246, 232, 0.97);
+    --bg-statusbar: rgba(120, 80, 40, 0.06);
 
-    --ov-soft: rgba(15, 23, 42, 0.04);
-    --ov-medium: rgba(15, 23, 42, 0.06);
-    --ov-strong: rgba(15, 23, 42, 0.1);
+    --ov-soft: rgba(120, 80, 40, 0.05);
+    --ov-medium: rgba(120, 80, 40, 0.08);
+    --ov-strong: rgba(120, 80, 40, 0.14);
 
-    --shadow-soft: rgba(15, 23, 42, 0.15);
-    --shadow-strong: rgba(15, 23, 42, 0.2);
+    --shadow-soft: rgba(90, 50, 20, 0.18);
+    --shadow-strong: rgba(90, 50, 20, 0.28);
 
-    --color-empty: rgba(203, 213, 225, 0.5);
+    --color-empty: rgba(184, 140, 80, 0.32);
 }
 
 /* Reset and base styles */
@@ -118,9 +128,13 @@
 body {
     background-color: var(--bg-main);
     background-image:
-        radial-gradient(at 0% 0%, var(--glow-1) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, var(--glow-2) 0px, transparent 50%);
-    background-attachment: fixed;
+        /* warm corner glows */
+        radial-gradient(at 0% 0%, var(--glow-1) 0px, transparent 55%),
+        radial-gradient(at 100% 100%, var(--glow-2) 0px, transparent 55%),
+        /* subtle paper grain (dot pattern) so it reads crafty, not flat SaaS */
+        radial-gradient(var(--ov-soft) 1px, transparent 1px);
+    background-size: auto, auto, 14px 14px;
+    background-attachment: fixed, fixed, fixed;
     transition: background-color var(--transition-normal), color var(--transition-normal);
     color: var(--text-primary);
     font-family: 'Outfit', sans-serif;
@@ -174,8 +188,9 @@ body {
 }
 
 .topbar h1 .accent {
-    background: linear-gradient(135deg, var(--accent) 0%, #ec4899 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -288,6 +303,20 @@ body {
 }
 .btn-stop:hover { background: #b91c1c; }
 .btn-stop[disabled] {
+    background: var(--ov-soft);
+    color: var(--text-muted);
+    box-shadow: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-publish {
+    background: linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px var(--accent-glow);
+}
+.btn-publish:hover { filter: brightness(1.08); }
+.btn-publish[disabled] {
     background: var(--ov-soft);
     color: var(--text-muted);
     box-shadow: none;
@@ -416,9 +445,9 @@ body {
     border-color: var(--ov-strong);
 }
 .palette-chip.active {
-    background: rgba(99, 102, 241, 0.14);
+    background: var(--accent-glow);
     border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.18);
+    box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .palette-swatch {
@@ -438,7 +467,7 @@ body {
     pointer-events: none;
 }
 .palette-chip.active .palette-swatch {
-    background: rgba(99, 102, 241, 0.18);
+    background: var(--accent-glow);
     border-color: var(--accent);
 }
 
@@ -463,7 +492,7 @@ body {
     transform: translateY(-50%);
     background: var(--bg-tooltip);
     border: 1px solid var(--border-color);
-    color: #f3f4f6;
+    color: var(--bg-tooltip-text);
     font-size: 0.75rem;
     font-weight: 500;
     padding: 0.3rem 0.55rem;
@@ -649,7 +678,7 @@ body {
     transition: var(--transition-fast);
 }
 .quick-nav input[type="range"]::-webkit-slider-thumb:hover {
-    background: #818cf8;
+    background: var(--accent-hover);
     box-shadow: 0 0 8px var(--accent);
 }
 
