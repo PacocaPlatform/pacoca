@@ -116,14 +116,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {x:.2f}, {y:.2f}, 0)
         self.nodes.append(f"""
 [node name="{name}" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {x:.2f}, {y:.2f}, 0)
-LaunchForce = {force:.2f}
 """)
 
     def add_spring_diag(self, name, x, y, force=25.0, dx=1.2, dy=1.5, lock=0.6):
         self.nodes.append(f"""
 [node name="{name}" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
 transform = Transform3D(0.965926, -0.258819, 0, 0.258819, 0.965926, 0, 0, 0, 1, {x:.2f}, {y:.2f}, 0)
-LaunchForce = {force:.2f}
 LaunchDirection = Vector3({dx:.2f}, {dy:.2f}, 0)
 ControlLockDuration = {lock:.2f}
 """)

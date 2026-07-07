@@ -1,41 +1,40 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://jjxo6ueayhke"]
 
-[ext_resource type="Script" path="res://scripts/spring.gd" id="1_SpringScript"]
+[ext_resource type="Script" uid="uid://w70eia7qoa4f" path="res://scripts/spring.gd" id="1_SpringScript"]
 [ext_resource type="Material" path="res://materials/tech_metal.tres" id="2_TechMetal"]
-[ext_resource type="Material" path="res://materials/neon_red.tres" id="3_NeonRed"]
+[ext_resource type="Material" uid="uid://cfwduugx05pfi" path="res://materials/neon_red.tres" id="3_NeonRed"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_spring"]
-size = Vector3(1.2, 0.5, 1.2)
+size = Vector3(1.6, 0.5, 1.6)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_base"]
 material = ExtResource("2_TechMetal")
-top_radius = 0.5
-bottom_radius = 0.6
+top_radius = 0.8
+bottom_radius = 1.0
 height = 0.15
 radial_segments = 16
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_plate"]
 material = ExtResource("3_NeonRed")
-top_radius = 0.45
-bottom_radius = 0.45
+top_radius = 0.7
+bottom_radius = 0.7
 height = 0.08
 radial_segments = 16
 
-[node name="Spring" type="Area3D"]
+[node name="Spring" type="Area3D" unique_id=752312730]
 collision_mask = 2
 script = ExtResource("1_SpringScript")
-LaunchForce = 24.0
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=693502341]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
 shape = SubResource("BoxShape3D_spring")
 
-[node name="Mesh" type="Node3D" parent="."]
+[node name="Mesh" type="Node3D" parent="." unique_id=951089551]
 
-[node name="Base" type="MeshInstance3D" parent="Mesh"]
+[node name="Base" type="MeshInstance3D" parent="Mesh" unique_id=152404778]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.075, 0)
 mesh = SubResource("CylinderMesh_base")
 
-[node name="Plate" type="MeshInstance3D" parent="Mesh"]
+[node name="Plate" type="MeshInstance3D" parent="Mesh" unique_id=1403991832]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19, 0)
 mesh = SubResource("CylinderMesh_plate")

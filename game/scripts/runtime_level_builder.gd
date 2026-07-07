@@ -304,8 +304,6 @@ static func _build_objects(objects: Node3D, rings_group: Node3D, enemies_group: 
 	for s in _arr(data, "springs_vert"):
 		if s is Dictionary and spring_scene != null:
 			var inst := _place(spring_scene, objects, "SpringV_%d" % i, Vector2(_num(s, "x", 0.0), _num(s, "y", 0.0)))
-			if inst != null:
-				inst.set("LaunchForce", _num(s, "force", 22.0))
 		i += 1
 
 	i = 0
@@ -315,7 +313,6 @@ static func _build_objects(objects: Node3D, rings_group: Node3D, enemies_group: 
 			if _in_bounds(pos.x, pos.y):
 				var inst := spring_scene.instantiate()
 				inst.name = "SpringD_%d" % i
-				inst.set("LaunchForce", _num(s, "force", 25.0))
 				inst.set("LaunchDirection", Vector3(_num(s, "dx", 1.2), _num(s, "dy", 1.5), 0))
 				inst.set("ControlLockDuration", _num(s, "lock", 0.6))
 				inst.transform = Transform3D(DIAG_SPRING_BASIS, Vector3(pos.x, pos.y, 0))

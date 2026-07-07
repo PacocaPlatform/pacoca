@@ -1,7 +1,7 @@
 class_name Spring
 extends Area3D
 
-@export var LaunchForce := 22.0
+@export var LaunchForce := 44.0
 @export var LaunchDirection := Vector3.UP
 @export var ControlLockDuration := 0.5
 
