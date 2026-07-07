@@ -8,7 +8,8 @@ extends CharacterBody3D
 @export var MaxSpeedCap := 19.44
 @export var Acceleration := 18.0
 @export var Deceleration := 45.0
-@export var Friction := 30.0
+@export var Friction := 40.0
+@export var AirDrag := 10.0
 @export var Gravity := 35.0
 @export var JumpVelocity := 21.0
 @export var AirControl := 0.7
@@ -408,14 +409,16 @@ func _handle_inputs(delta: float, vel: Vector3) -> Vector3:
 					vel.x = move_toward(vel.x, move_input * MaxSpeed, Acceleration * 0.4 * delta)
 				else:
 					# Standard running movement
-					var target_speed := move_input * MaxSpeed
-					# Decelerate (brake) faster than accelerating
+					# Decelerate (brake) faster than accelerating - interrupt immediately
 					var is_braking := (move_input > 0 and vel.x < 0) or (move_input < 0 and vel.x > 0)
-					var rate := Deceleration if is_braking else Acceleration
-					vel.x = move_toward(vel.x, target_speed, rate * delta)
-
-					# Dust emission when turning rapidly (skidding)
-					_dust_particles.emitting = is_braking and absf(vel.x) > 5.0
+					if is_braking:
+						# Trigger skid dust burst
+						if absf(vel.x) > 5.0:
+							_dust_particles.restart()
+						vel.x = 0.0
+					else:
+						var target_speed := move_input * MaxSpeed
+						vel.x = move_toward(vel.x, target_speed, Acceleration * delta)
 			else:
 				# Apply Friction
 				var decel_rate := Friction * 0.25 if is_rolling else Friction
@@ -477,7 +480,15 @@ func _handle_inputs(delta: float, vel: Vector3) -> Vector3:
 			_dust_particles.restart()
 		else:
 			if move_input != 0:
-				vel.x = move_toward(vel.x, move_input * MaxSpeed, Acceleration * AirControl * delta)
+				# Check if we are braking in the air (pressing opposite to current velocity direction)
+				var is_braking_air := (move_input > 0 and vel.x < 0) or (move_input < 0 and vel.x > 0)
+				if is_braking_air:
+					vel.x = 0.0
+				else:
+					vel.x = move_toward(vel.x, move_input * MaxSpeed, Acceleration * AirControl * delta)
+			else:
+				# Apply air drag when no input is pressed in the air
+				vel.x = move_toward(vel.x, 0, AirDrag * delta)
 
 			# Adjust height if jump released early (variable jump height)
 			if not _has_air_dashed and vel.y > 0 and not Input.is_action_pressed("jump"):
