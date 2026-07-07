@@ -2,9 +2,9 @@
   "levels": [
     {
       "id": "01",
-      "name": "Nível 01",
+      "name": "Vale da Floresta",
       "theme": "forest",
-      "scene": "res://scenes/levels/level_01.tscn",
+      "scene": "res://scenes/levels/level_forestlevel01.tscn",
       "builtin": true
     },
     {

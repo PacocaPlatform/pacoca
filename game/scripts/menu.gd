@@ -633,9 +633,9 @@ func _level_button_text(entry: LevelEntry, is_pt: bool, custom_mode: bool) -> St
 		var title := entry.name.to_upper() if entry.name.length() > 0 else ("FASE " if is_pt else "LEVEL ") + entry.id.to_upper()
 		return "%s (%s)" % [title, _theme_display_name(entry.theme, is_pt)]
 
-	var label := ("FASE " if is_pt else "LEVEL ") + entry.id.to_upper()
+	var label := ("" if is_pt else "LEVEL ") + entry.id.to_upper()
 	if entry.name.length() > 0:
-		label += " · " + entry.name
+		label += "-" + entry.name
 	return label
 
 

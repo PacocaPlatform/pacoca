@@ -62,6 +62,9 @@
                 <button class="btn btn-publish" id="btn-publish" onclick="publishLevel()" data-i18n-attr="title:publish.title" title="Publicar a fase para a comunidade">
                     <i data-lucide="upload-cloud"></i> <span data-i18n="action.publish">Publicar</span>
                 </button>
+                <button class="btn btn-secondary" id="btn-promote-builtin" onclick="openPromoteModal()" style="display:none;" title="Promover fase a builtin localmente">
+                    <i data-lucide="star"></i> <span>Promover</span>
+                </button>
                 <button class="btn btn-secondary" id="btn-share" onclick="shareLevel()" data-i18n-attr="title:action.share.title" title="Publique a fase para gerar o link de compartilhamento" disabled>
                     <i data-lucide="share-2"></i> <span data-i18n="action.share">Compartilhar</span>
                 </button>
@@ -350,6 +353,52 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- PROMOTE TO BUILTIN MODAL (Localhost Admin only) -->
+        <div class="modal-overlay" id="promote-modal" hidden onclick="onPromoteBackdrop(event)">
+            <div class="modal">
+                <div class="modal-head">
+                    <span><i data-lucide="star"></i> <span>Promover a Built-in (Admin Localhost)</span></span>
+                    <button class="icon-btn" onclick="closePromoteModal()" title="Fechar (Esc)"><i data-lucide="x"></i></button>
+                </div>
+                <div class="modal-body settings-body">
+                    <p class="settings-intro">Esta ação compilará a fase localmente como um nível built-in do jogo, gerando a cena <code>.tscn</code>, o script Python <code>.py</code> e atualizando o arquivo <code>levels.json</code>.</p>
+                    
+                    <label class="settings-field">
+                        <span class="settings-label">ID do Nível (para arquivo e menu)</span>
+                        <input type="text" id="promote-level-id" class="inp" placeholder="Ex: 02, caverna_01">
+                        <span class="settings-hint">Determine a ordem no menu. Ex: "02" virá após "01".</span>
+                    </label>
+
+                    <label class="settings-field">
+                        <span class="settings-label">Nome da Fase</span>
+                        <input type="text" id="promote-level-name" class="inp" placeholder="Ex: Vale Gelado">
+                    </label>
+
+                    <label class="settings-field">
+                        <span class="settings-label">Tema da Fase</span>
+                        <select id="promote-level-theme" class="inp">
+                            <option value="forest">Floresta (Forest)</option>
+                            <option value="glacial">Glacial (Ice)</option>
+                            <option value="cidade">Cidade (City)</option>
+                            <option value="caverna">Caverna (Cave)</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closePromoteModal()">Cancelar</button>
+                    <button class="btn btn-primary" id="btn-promote-confirm" onclick="confirmPromoteLevel()">
+                        <i data-lucide="check"></i> <span>Confirmar e Compilar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOADING OVERLAY -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text" data-i18n="loading.text">Carregando fase...</div>
         </div>
 
         <!-- TOAST SYSTEM -->

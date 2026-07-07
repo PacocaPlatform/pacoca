@@ -13,6 +13,9 @@
 #   PREVIEW_PORT  port to listen on            (default 8000)
 #   PREVIEW_API   backend base URL for /api/*  (default http://localhost:8787)
 import os, re, urllib.request, urllib.error
+import sys
+import json
+import subprocess
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -20,8 +23,80 @@ OUT = os.environ["PREVIEW_DIR"]
 PORT = int(os.environ.get("PREVIEW_PORT", "8000"))
 API = os.environ.get("PREVIEW_API", "http://localhost:8787").rstrip("/")
 
+# For local level compilation / promotion to builtin
+REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+GODOT_ROOT = os.path.join(REPO_ROOT, "game")
+CONVERTER = os.path.join(GODOT_ROOT, "levelgen", "convert_map.py")
+MAPS_DIR = os.path.join(REPO_ROOT, "tools", "map_editor", "levels")
+
 
 class Handler(SimpleHTTPRequestHandler):
+    def _json(self, code: int, obj: dict) -> None:
+        body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _handle_compile(self):
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+            payload = json.loads(self.rfile.read(length) or b"{}")
+        except (ValueError, json.JSONDecodeError):
+            self._json(400, {"ok": False, "error": "invalid JSON body"})
+            return
+
+        level = str(payload.get("level", "")).strip()
+        fmt = payload.get("format", "txt")
+        content = payload.get("content", "")
+        builtin = bool(payload.get("builtin", False))
+
+        # Sanitize the level id so it can only ever be a filename-safe token.
+        safe_level = "".join(ch for ch in level if ch.isalnum())
+        if not safe_level:
+            self._json(400, {"ok": False, "error": "invalid level ID"})
+            return
+        if len(safe_level) < 2:
+            safe_level = safe_level.zfill(2)
+
+        if not str(content).strip():
+            self._json(400, {"ok": False, "error": "empty map"})
+            return
+
+        ext = "json" if fmt == "json" else "txt"
+        map_name = f"level_{safe_level}_map.{ext}"
+        map_path = os.path.join(MAPS_DIR, map_name)
+
+        os.makedirs(MAPS_DIR, exist_ok=True)
+        with open(map_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(content)
+
+        if not os.path.exists(CONVERTER):
+            self._json(500, {"ok": False, "error": f"converter not found at {CONVERTER}"})
+            return
+
+        cmd = [sys.executable, CONVERTER, "--input", map_path, "--level", safe_level]
+        if builtin:
+            cmd.append("--builtin")
+        try:
+            proc = subprocess.run(cmd, cwd=GODOT_ROOT, capture_output=True, text=True)
+        except Exception as exc:
+            self._json(500, {"ok": False, "error": f"failed to run converter: {exc}"})
+            return
+
+        scene_rel = f"game/scenes/levels/level_{safe_level}.tscn"
+        map_rel = os.path.relpath(map_path, REPO_ROOT).replace("\\", "/")
+        ok = proc.returncode == 0
+        self._json(200 if ok else 500, {
+            "ok": ok,
+            "level": safe_level,
+            "map_file": map_rel,
+            "scene_file": scene_rel,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
+        })
+
     # Forward /api/* to the local Worker (wrangler dev) so same-origin fetches
     # (community feed, Publicar) work through this preview server.
     def _proxy(self):
@@ -86,6 +161,8 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_HEAD()
 
     def do_POST(self):
+        if self.path == "/api/compile":
+            return self._handle_compile()
         return self._proxy() if self.path.startswith("/api/") else self.send_error(501)
 
     def do_DELETE(self):

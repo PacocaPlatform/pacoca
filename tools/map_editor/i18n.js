@@ -290,7 +290,8 @@
       "toast.failPublish": "Falha ao publicar (HTTP {status})",
       "toast.backendOff": "Backend da comunidade indisponível",
       "toast.downloadStarted": "Download de '{file}' iniciado!",
-      "level.fallback": "fase"
+      "level.fallback": "fase",
+      "loading.text": "Carregando fase..."
     },
 
     "en-US": {
@@ -514,7 +515,8 @@
       "toast.failPublish": "Failed to publish (HTTP {status})",
       "toast.backendOff": "Community backend unavailable",
       "toast.downloadStarted": "Download of '{file}' started!",
-      "level.fallback": "level"
+      "level.fallback": "level",
+      "loading.text": "Loading level..."
     }
   };
 

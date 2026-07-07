@@ -194,10 +194,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") {
             const maps = document.getElementById("maps-modal");
             const settings = document.getElementById("settings-modal");
+            const promote = document.getElementById("promote-modal");
             if (pasteMode) cancelPaste();
             else if (selection) clearSelection();
             else if (settings && !settings.hidden && !settingsFirstRun) closeSettings();
             else if (maps && !maps.hidden) closeMaps();
+            else if (promote && !promote.hidden) closePromoteModal();
             else setDrawer(false);
             return;
         }
@@ -251,7 +253,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (new URLSearchParams(location.search).get("id")) {
         revealEditor();
     } else {
+        const loader = document.getElementById("loading-overlay");
+        if (loader) loader.hidden = true;
         openSettings();
+    }
+
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocalhost) {
+        const btn = document.getElementById("btn-promote-builtin");
+        if (btn) btn.style.display = "";
     }
 });
 
@@ -1943,6 +1953,8 @@ function renderAuth() {
 async function maybeLoadEditTarget() {
     const id = new URLSearchParams(location.search).get("id");
     if (!id) return;
+    const loader = document.getElementById("loading-overlay");
+    if (loader) loader.hidden = false;
     try {
         const resp = await fetch(`${API_BASE}/levels/${encodeURIComponent(id)}`, { credentials: "same-origin" });
         const data = await resp.json().catch(() => ({}));
@@ -1965,6 +1977,8 @@ async function maybeLoadEditTarget() {
         showToast(t("toast.editing", { name: data.name || t("level.fallback") }), "edit-3");
     } catch (err) {
         showToast(t("toast.editBackendOff"), "alert-triangle");
+    } finally {
+        if (loader) loader.hidden = true;
     }
 }
 
@@ -2393,4 +2407,98 @@ function toggleOutput() {
 function openDrawerTab(tabId) {
     setDrawer(true);
     switchTab(tabId);
+}
+
+// --- Promote to Builtin (Localhost Admin only) ---
+
+function openPromoteModal() {
+    const modal = document.getElementById("promote-modal");
+    if (!modal) return;
+    
+    document.getElementById("promote-level-id").value = levelId;
+    document.getElementById("promote-level-name").value = levelName;
+    document.getElementById("promote-level-theme").value = levelTheme;
+
+    modal.hidden = false;
+    if (window.lucide && lucide.createIcons) lucide.createIcons();
+}
+
+function closePromoteModal() {
+    const modal = document.getElementById("promote-modal");
+    if (modal) modal.hidden = true;
+}
+
+function onPromoteBackdrop(e) {
+    if (e.target === document.getElementById("promote-modal")) closePromoteModal();
+}
+
+async function confirmPromoteLevel() {
+    const idInput = document.getElementById("promote-level-id");
+    const nameInput = document.getElementById("promote-level-name");
+    const themeInput = document.getElementById("promote-level-theme");
+
+    const promoteId = (idInput.value || "").trim().toLowerCase();
+    const promoteName = (nameInput.value || "").trim();
+    const promoteTheme = themeInput.value;
+
+    if (!promoteId) {
+        showToast("Por favor, digite um ID para a fase.", "alert-triangle");
+        return;
+    }
+
+    // Sanitize ID
+    const safeId = promoteId.replace(/[^a-z0-9_]/g, "");
+    if (!safeId) {
+        showToast("ID inválido. Use apenas letras minúsculas, números e sublinhados.", "alert-triangle");
+        return;
+    }
+
+    const map = prepareLevelForPlay();
+    if (!map) return;
+
+    // Temporarily set level settings so generateASCIIExport prints the chosen ID, name, theme
+    const oldId = levelId;
+    const oldName = levelName;
+    const oldTheme = levelTheme;
+
+    levelId = safeId;
+    levelName = promoteName || levelName;
+    levelTheme = promoteTheme;
+
+    generateASCIIExport();
+    const content = document.getElementById("ascii-output").value;
+
+    // Restore old settings
+    levelId = oldId;
+    levelName = oldName;
+    levelTheme = oldTheme;
+    generateExports(); // regenerate correct values for current editor state
+
+    const btn = document.getElementById("btn-promote-confirm");
+    if (btn) btn.disabled = true;
+    showToast("Promovendo e compilando nível...", "upload-cloud");
+
+    try {
+        const resp = await fetch("/api/compile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                level: safeId,
+                format: "txt",
+                content: content,
+                builtin: true
+            })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok && data.ok) {
+            showToast(`Fase promovida a builtin com sucesso! ID: ${safeId}`, "check");
+            closePromoteModal();
+        } else {
+            alert(`Erro ao promover fase: ${data.error || "Erro desconhecido"}\n\nStdout:\n${data.stdout || ""}\n\nStderr:\n${data.stderr || ""}`);
+        }
+    } catch (err) {
+        showToast("Erro de rede ao conectar com o servidor local.", "alert-triangle");
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }

@@ -531,7 +531,7 @@ def is_builtin_level(script_dir: str, level_id: str) -> bool:
     )
 
 
-def update_manifest(script_dir: str, level_id: str, level_name: str, theme: str) -> str:
+def update_manifest(script_dir: str, level_id: str, level_name: str, theme: str, force_builtin: bool = False) -> str:
     """Upsert this level in scenes/levels/levels.json (read by the game menu).
 
     Levels shipped with the game carry ``"builtin": true`` in the manifest.
@@ -556,11 +556,11 @@ def update_manifest(script_dir: str, level_id: str, level_name: str, theme: str)
         "name": level_name,
         "theme": theme,
         "scene": f"res://scenes/levels/level_{level_id}.tscn",
-        "builtin": False,
+        "builtin": force_builtin,
     }
     for i, existing in enumerate(levels):
         if existing.get("id") == level_id:
-            entry["builtin"] = bool(existing.get("builtin", False))
+            entry["builtin"] = force_builtin or bool(existing.get("builtin", False))
             levels[i] = entry
             break
     else:
@@ -586,6 +586,10 @@ def main() -> int:
     parser.add_argument(
         "--level", default=None,
         help="Level ID override (e.g. 03). If not provided, read from file settings or defaulted.",
+    )
+    parser.add_argument(
+        "--builtin", action="store_true",
+        help="Force registering the level as builtin in levels.json manifest.",
     )
     args = parser.parse_args()
     
@@ -700,7 +704,7 @@ def main() -> int:
     
     if result.returncode == 0:
         print(result.stdout.strip())
-        manifest_path = update_manifest(script_dir, level_id, level_name, theme)
+        manifest_path = update_manifest(script_dir, level_id, level_name, theme, force_builtin=args.builtin)
         print(f"Manifest updated: '{manifest_path}'")
         print(f"Success! Level {level_id} compiles correctly to '{tscn_scene_path}'")
         return 0

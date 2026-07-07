@@ -1,0 +1,1982 @@
+[gd_scene format=3 uid="uid://c33r1q6joc2lforestlevel01"]
+
+[ext_resource type="Material" path="res://materials/grass.tres" id="1_GrassMat"]
+[ext_resource type="Material" path="res://materials/rock.tres" id="2_RockMat"]
+[ext_resource type="Material" path="res://materials/water.tres" id="3_WaterMat"]
+[ext_resource type="Material" path="res://materials/bg_forest.tres" id="4_MountainMat"]
+[ext_resource type="PackedScene" path="res://scenes/ring.tscn" id="5_RingScene"]
+[ext_resource type="PackedScene" path="res://scenes/spring.tscn" id="6_SpringScene"]
+[ext_resource type="PackedScene" path="res://scenes/dash_pad.tscn" id="7_DashPadScene"]
+[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="8_EnemyScene"]
+[ext_resource type="PackedScene" path="res://scenes/cactus_enemy.tscn" id="9_CactusEnemyScene"]
+[ext_resource type="PackedScene" path="res://scenes/spikes.tscn" id="10_SpikesScene"]
+[ext_resource type="PackedScene" path="res://scenes/level_finish.tscn" id="11_LevelFinishScene"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_water"]
+material = ExtResource("3_WaterMat")
+size = Vector3(5000, 2, 8)
+
+[sub_resource type="QuadMesh" id="QuadMesh_mountain"]
+material = ExtResource("4_MountainMat")
+size = Vector2(5000, 120)
+
+[node name="Levelforestlevel01" type="Node3D"]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00, 1.50, 0)
+
+[node name="Level" type="Node3D" parent="."]
+
+[node name="TrackCSG" type="CSGCombiner3D" parent="Level"]
+use_collision = true
+
+[node name="WaterPlane" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, -7.5, 0)
+mesh = SubResource("BoxMesh_water")
+
+[node name="BG_Mountains" type="MeshInstance3D" parent="Level"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1000, 15, -22)
+mesh = SubResource("QuadMesh_mountain")
+
+[node name="InteractiveObjects" type="Node3D" parent="."]
+
+[node name="Rings" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Enemies" type="Node3D" parent="InteractiveObjects"]
+
+[node name="Platform_0" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.00, 0.00, 0)
+size = Vector3(48.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_0Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.00, -2.50, 0)
+size = Vector3(48.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_1" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62.00, 0.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_1Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62.00, -2.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_2" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83.00, 0.00, 0)
+size = Vector3(12.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_2Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 83.00, -2.50, 0)
+size = Vector3(12.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_3" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 0.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_3Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, -2.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_4" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.00, 0.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_4Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.00, -2.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_5" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 0.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_5Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, -2.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_6" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.00, 0.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_6Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.00, -2.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_7" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 0.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_7Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, -2.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_8" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108.00, 0.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_8Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108.00, -2.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_9" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.00, 0.00, 0)
+size = Vector3(46.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_9Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.00, -2.50, 0)
+size = Vector3(46.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_10" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 0.00, 0)
+size = Vector3(44.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_10Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, -2.50, 0)
+size = Vector3(44.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_11" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.00, 0.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_11Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.00, -2.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_12" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210.00, 0.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_12Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210.00, -2.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_13" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 216.00, 0.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_13Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 216.00, -2.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_14" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 222.00, 0.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_14Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 222.00, -2.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_15" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 0.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_15Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, -2.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_16" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 233.00, 0.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_16Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 233.00, -2.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_17" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 236.00, 0.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_17Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 236.00, -2.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_18" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 281.00, 0.00, 0)
+size = Vector3(88.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_18Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 281.00, -2.50, 0)
+size = Vector3(88.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_19" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 334.00, 0.00, 0)
+size = Vector3(18.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_19Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 334.00, -2.50, 0)
+size = Vector3(18.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_20" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 348.00, 0.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_20Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 348.00, -2.50, 0)
+size = Vector3(10.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_21" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 356.00, 0.00, 0)
+size = Vector3(6.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_21Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 356.00, -2.50, 0)
+size = Vector3(6.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_22" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62.00, 3.00, 0)
+size = Vector3(30.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_22Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62.00, 0.50, 0)
+size = Vector3(30.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_23" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_23Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_24" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_24Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_25" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_25Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_26" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_26Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_27" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 137.00, 3.00, 0)
+size = Vector3(44.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_27Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 137.00, 0.50, 0)
+size = Vector3(44.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_28" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_28Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_29" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 216.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_29Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 216.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_30" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 3.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_30Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 0.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_31" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 236.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_31Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 236.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_32" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 334.00, 3.00, 0)
+size = Vector3(18.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_32Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 334.00, 0.50, 0)
+size = Vector3(18.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_33" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 354.00, 3.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_33Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 354.00, 0.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_34" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 357.00, 3.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_34Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 357.00, 0.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_35" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 6.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_35Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.00, 3.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_36" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 6.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_36Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 96.00, 3.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_37" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 6.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_37Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 102.00, 3.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_38" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.00, 6.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_38Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.00, 3.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_39" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 138.00, 6.00, 0)
+size = Vector3(42.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_39Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 138.00, 3.50, 0)
+size = Vector3(42.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_40" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 6.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_40Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 3.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_41" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 236.00, 6.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_41Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 236.00, 3.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_42" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 356.00, 6.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_42Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 356.00, 3.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_43" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 6.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_43Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 3.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_44" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 118.00, 9.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_44Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 118.00, 6.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_45" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.00, 9.00, 0)
+size = Vector3(40.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_45Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.00, 6.50, 0)
+size = Vector3(40.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_46" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 9.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_46Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 6.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_47" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 9.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_47Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 6.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_48" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 125.00, 12.00, 0)
+size = Vector3(12.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_48Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 125.00, 9.50, 0)
+size = Vector3(12.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_49" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 12.00, 0)
+size = Vector3(28.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_49Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 9.50, 0)
+size = Vector3(28.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_50" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 12.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_50Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 11.00, 0)
+size = Vector3(36.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_51" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 12.00, 0)
+size = Vector3(4.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_51Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.00, 9.50, 0)
+size = Vector3(4.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_52" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 244.00, 12.00, 0)
+size = Vector3(6.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_52Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 244.00, 11.00, 0)
+size = Vector3(6.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_53" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 12.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_53Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 9.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_54" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 15.00, 0)
+size = Vector3(28.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_54Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 12.50, 0)
+size = Vector3(28.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_55" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 164.00, 15.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_55Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 164.00, 12.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_56" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 15.00, 0)
+size = Vector3(34.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_56Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 12.50, 0)
+size = Vector3(34.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_57" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 15.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_57Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 12.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_58" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 18.00, 0)
+size = Vector3(28.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_58Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 15.50, 0)
+size = Vector3(28.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_59" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 18.00, 0)
+size = Vector3(34.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_59Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 15.50, 0)
+size = Vector3(34.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_60" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.00, 18.00, 0)
+size = Vector3(8.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_60Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 253.00, 17.00, 0)
+size = Vector3(8.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_61" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 18.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_61Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 15.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_62" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 21.00, 0)
+size = Vector3(28.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_62Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 18.50, 0)
+size = Vector3(28.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_63" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 21.00, 0)
+size = Vector3(34.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_63Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 18.50, 0)
+size = Vector3(34.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_64" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 21.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_64Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 18.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_65" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 24.00, 0)
+size = Vector3(28.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_65Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 145.00, 21.50, 0)
+size = Vector3(28.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_66" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 265.00, 24.00, 0)
+size = Vector3(12.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_66Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 265.00, 23.00, 0)
+size = Vector3(12.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_67" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 24.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_67Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 21.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_68" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 27.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_68Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 24.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_69" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 283.00, 30.00, 0)
+size = Vector3(20.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_69Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 283.00, 29.00, 0)
+size = Vector3(20.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_70" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 30.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_70Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 27.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_71" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 33.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_71Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 32.00, 0)
+size = Vector3(36.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_72" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255.00, 33.00, 0)
+size = Vector3(12.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_72Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 255.00, 32.00, 0)
+size = Vector3(12.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_73" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 33.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_73Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 30.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_74" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 36.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_74Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 33.50, 0)
+size = Vector3(36.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_75" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 211.00, 36.00, 0)
+size = Vector3(24.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_75Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 211.00, 35.00, 0)
+size = Vector3(24.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_76" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 36.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_76Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 33.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_77" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 39.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_77Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 36.50, 0)
+size = Vector3(36.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_78" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 39.00, 0)
+size = Vector3(2.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_78Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 358.00, 36.50, 0)
+size = Vector3(2.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_79" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 42.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_79Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 39.50, 0)
+size = Vector3(36.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_80" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 243.00, 42.00, 0)
+size = Vector3(12.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_80Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 243.00, 41.00, 0)
+size = Vector3(12.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_81" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 45.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_81Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 42.50, 0)
+size = Vector3(36.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_82" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 48.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_82Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 45.50, 0)
+size = Vector3(36.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_83" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 230.00, 48.00, 0)
+size = Vector3(10.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_83Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 230.00, 47.00, 0)
+size = Vector3(10.00, 1.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_84" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 51.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_84Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 48.50, 0)
+size = Vector3(36.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_85" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 54.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_85Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 51.50, 0)
+size = Vector3(36.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Platform_86" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 57.00, 0)
+size = Vector3(36.00, 1, 4)
+material = ExtResource("1_GrassMat")
+
+
+[node name="Platform_86Rock" type="CSGBox3D" parent="Level/TrackCSG"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.00, 54.50, 0)
+size = Vector3(36.00, 4.00, 3.8)
+material = ExtResource("2_RockMat")
+
+
+[node name="Ring_0" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.00, 1.20, 0)
+
+
+[node name="Ring_1" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.00, 1.20, 0)
+
+
+[node name="Ring_2" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.00, 1.20, 0)
+
+
+[node name="Ring_3" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.00, 1.20, 0)
+
+
+[node name="Ring_4" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.00, 1.20, 0)
+
+
+[node name="Ring_5" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.00, 1.20, 0)
+
+
+[node name="Ring_6" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.00, 1.20, 0)
+
+
+[node name="Ring_7" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.00, 1.20, 0)
+
+
+[node name="Ring_8" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.00, 1.20, 0)
+
+
+[node name="Ring_9" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.00, 1.20, 0)
+
+
+[node name="Ring_10" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.00, 1.20, 0)
+
+
+[node name="Ring_11" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.00, 1.20, 0)
+
+
+[node name="Ring_12" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.00, 1.20, 0)
+
+
+[node name="Ring_13" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.00, 1.20, 0)
+
+
+[node name="Ring_14" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 94.00, 1.20, 0)
+
+
+[node name="Ring_15" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.00, 1.20, 0)
+
+
+[node name="Ring_16" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100.00, 1.20, 0)
+
+
+[node name="Ring_17" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.00, 1.20, 0)
+
+
+[node name="Ring_18" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 106.00, 1.20, 0)
+
+
+[node name="Ring_19" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108.00, 1.20, 0)
+
+
+[node name="Ring_20" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 110.00, 1.20, 0)
+
+
+[node name="Ring_21" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.00, 1.20, 0)
+
+
+[node name="Ring_22" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.00, 1.20, 0)
+
+
+[node name="Ring_23" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 192.00, 1.20, 0)
+
+
+[node name="Ring_24" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 194.00, 1.20, 0)
+
+
+[node name="Ring_25" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 196.00, 1.20, 0)
+
+
+[node name="Ring_26" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 198.00, 1.20, 0)
+
+
+[node name="Ring_27" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250.00, 1.20, 0)
+
+
+[node name="Ring_28" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 252.00, 1.20, 0)
+
+
+[node name="Ring_29" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 254.00, 1.20, 0)
+
+
+[node name="Ring_30" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 256.00, 1.20, 0)
+
+
+[node name="Ring_31" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 258.00, 1.20, 0)
+
+
+[node name="Ring_32" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 260.00, 1.20, 0)
+
+
+[node name="Ring_33" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 262.00, 1.20, 0)
+
+
+[node name="Ring_34" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 264.00, 1.20, 0)
+
+
+[node name="Ring_35" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 266.00, 1.20, 0)
+
+
+[node name="Ring_36" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 290.00, 1.20, 0)
+
+
+[node name="Ring_37" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 292.00, 1.20, 0)
+
+
+[node name="Ring_38" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 294.00, 1.20, 0)
+
+
+[node name="Ring_39" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296.00, 1.20, 0)
+
+
+[node name="Ring_40" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 310.00, 1.20, 0)
+
+
+[node name="Ring_41" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 312.00, 1.20, 0)
+
+
+[node name="Ring_42" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 314.00, 1.20, 0)
+
+
+[node name="Ring_43" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 316.00, 1.20, 0)
+
+
+[node name="Ring_44" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.00, 4.20, 0)
+
+
+[node name="Ring_45" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.00, 4.20, 0)
+
+
+[node name="Ring_46" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.00, 4.20, 0)
+
+
+[node name="Ring_47" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.00, 4.20, 0)
+
+
+[node name="Ring_48" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.00, 4.20, 0)
+
+
+[node name="Ring_49" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48.00, 4.20, 0)
+
+
+[node name="Ring_50" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50.00, 4.20, 0)
+
+
+[node name="Ring_51" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.00, 4.20, 0)
+
+
+[node name="Ring_52" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.00, 4.20, 0)
+
+
+[node name="Ring_53" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.00, 4.20, 0)
+
+
+[node name="Ring_54" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58.00, 4.20, 0)
+
+
+[node name="Ring_55" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.00, 4.20, 0)
+
+
+[node name="Ring_56" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.00, 4.20, 0)
+
+
+[node name="Ring_57" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 94.00, 4.20, 0)
+
+
+[node name="Ring_58" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.00, 4.20, 0)
+
+
+[node name="Ring_59" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 100.00, 4.20, 0)
+
+
+[node name="Ring_60" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 114.00, 4.20, 0)
+
+
+[node name="Ring_61" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.00, 4.20, 0)
+
+
+[node name="Ring_62" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 226.00, 4.20, 0)
+
+
+[node name="Ring_63" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 252.00, 4.20, 0)
+
+
+[node name="Ring_64" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 254.00, 4.20, 0)
+
+
+[node name="Ring_65" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 256.00, 4.20, 0)
+
+
+[node name="Ring_66" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 258.00, 4.20, 0)
+
+
+[node name="Ring_67" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 260.00, 4.20, 0)
+
+
+[node name="Ring_68" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 262.00, 4.20, 0)
+
+
+[node name="Ring_69" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.00, 7.20, 0)
+
+
+[node name="Ring_70" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58.00, 7.20, 0)
+
+
+[node name="Ring_71" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60.00, 7.20, 0)
+
+
+[node name="Ring_72" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.00, 7.20, 0)
+
+
+[node name="Ring_73" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.00, 7.20, 0)
+
+
+[node name="Ring_74" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 226.00, 7.20, 0)
+
+
+[node name="Ring_75" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 118.00, 10.20, 0)
+
+
+[node name="Ring_76" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.00, 10.20, 0)
+
+
+[node name="Ring_77" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 226.00, 10.20, 0)
+
+
+[node name="Ring_78" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.00, 13.20, 0)
+
+
+[node name="Ring_79" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.00, 13.20, 0)
+
+
+[node name="Ring_80" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 226.00, 13.20, 0)
+
+
+[node name="Ring_81" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 242.00, 13.20, 0)
+
+
+[node name="Ring_82" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 244.00, 13.20, 0)
+
+
+[node name="Ring_83" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 246.00, 13.20, 0)
+
+
+[node name="Ring_84" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130.00, 16.20, 0)
+
+
+[node name="Ring_85" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.00, 16.20, 0)
+
+
+[node name="Ring_86" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 226.00, 16.20, 0)
+
+
+[node name="Ring_87" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130.00, 19.20, 0)
+
+
+[node name="Ring_88" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.00, 19.20, 0)
+
+
+[node name="Ring_89" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 226.00, 19.20, 0)
+
+
+[node name="Ring_90" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 248.00, 19.20, 0)
+
+
+[node name="Ring_91" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 250.00, 19.20, 0)
+
+
+[node name="Ring_92" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 252.00, 19.20, 0)
+
+
+[node name="Ring_93" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 254.00, 19.20, 0)
+
+
+[node name="Ring_94" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 256.00, 19.20, 0)
+
+
+[node name="Ring_95" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130.00, 22.20, 0)
+
+
+[node name="Ring_96" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160.00, 22.20, 0)
+
+
+[node name="Ring_97" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 168.00, 22.20, 0)
+
+
+[node name="Ring_98" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 170.00, 22.20, 0)
+
+
+[node name="Ring_99" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 172.00, 22.20, 0)
+
+
+[node name="Ring_100" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 174.00, 22.20, 0)
+
+
+[node name="Ring_101" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 176.00, 22.20, 0)
+
+
+[node name="Ring_102" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 178.00, 22.20, 0)
+
+
+[node name="Ring_103" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180.00, 22.20, 0)
+
+
+[node name="Ring_104" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 22.20, 0)
+
+
+[node name="Ring_105" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184.00, 22.20, 0)
+
+
+[node name="Ring_106" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 186.00, 22.20, 0)
+
+
+[node name="Ring_107" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 188.00, 22.20, 0)
+
+
+[node name="Ring_108" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 190.00, 22.20, 0)
+
+
+[node name="Ring_109" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 192.00, 22.20, 0)
+
+
+[node name="Ring_110" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 194.00, 22.20, 0)
+
+
+[node name="Ring_111" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 196.00, 22.20, 0)
+
+
+[node name="Ring_112" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 198.00, 22.20, 0)
+
+
+[node name="Ring_113" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 258.00, 22.20, 0)
+
+
+[node name="Ring_114" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130.00, 25.20, 0)
+
+
+[node name="Ring_115" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 168.00, 25.20, 0)
+
+
+[node name="Ring_116" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 170.00, 25.20, 0)
+
+
+[node name="Ring_117" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 172.00, 25.20, 0)
+
+
+[node name="Ring_118" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 174.00, 25.20, 0)
+
+
+[node name="Ring_119" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 176.00, 25.20, 0)
+
+
+[node name="Ring_120" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 178.00, 25.20, 0)
+
+
+[node name="Ring_121" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180.00, 25.20, 0)
+
+
+[node name="Ring_122" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 25.20, 0)
+
+
+[node name="Ring_123" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184.00, 25.20, 0)
+
+
+[node name="Ring_124" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 186.00, 25.20, 0)
+
+
+[node name="Ring_125" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 188.00, 25.20, 0)
+
+
+[node name="Ring_126" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 190.00, 25.20, 0)
+
+
+[node name="Ring_127" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 192.00, 25.20, 0)
+
+
+[node name="Ring_128" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 194.00, 25.20, 0)
+
+
+[node name="Ring_129" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 196.00, 25.20, 0)
+
+
+[node name="Ring_130" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 198.00, 25.20, 0)
+
+
+[node name="Ring_131" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 260.00, 25.20, 0)
+
+
+[node name="Ring_132" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 262.00, 25.20, 0)
+
+
+[node name="Ring_133" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 264.00, 25.20, 0)
+
+
+[node name="Ring_134" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 266.00, 25.20, 0)
+
+
+[node name="Ring_135" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 268.00, 25.20, 0)
+
+
+[node name="Ring_136" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 270.00, 25.20, 0)
+
+
+[node name="Ring_137" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130.00, 28.20, 0)
+
+
+[node name="Ring_138" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 168.00, 28.20, 0)
+
+
+[node name="Ring_139" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 170.00, 28.20, 0)
+
+
+[node name="Ring_140" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 172.00, 28.20, 0)
+
+
+[node name="Ring_141" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 174.00, 28.20, 0)
+
+
+[node name="Ring_142" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 176.00, 28.20, 0)
+
+
+[node name="Ring_143" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 178.00, 28.20, 0)
+
+
+[node name="Ring_144" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180.00, 28.20, 0)
+
+
+[node name="Ring_145" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 182.00, 28.20, 0)
+
+
+[node name="Ring_146" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 184.00, 28.20, 0)
+
+
+[node name="Ring_147" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 186.00, 28.20, 0)
+
+
+[node name="Ring_148" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 188.00, 28.20, 0)
+
+
+[node name="Ring_149" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 190.00, 28.20, 0)
+
+
+[node name="Ring_150" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 192.00, 28.20, 0)
+
+
+[node name="Ring_151" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 194.00, 28.20, 0)
+
+
+[node name="Ring_152" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 196.00, 28.20, 0)
+
+
+[node name="Ring_153" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 198.00, 28.20, 0)
+
+
+[node name="Ring_154" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 262.00, 28.20, 0)
+
+
+[node name="Ring_155" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 270.00, 28.20, 0)
+
+
+[node name="Ring_156" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 132.00, 31.20, 0)
+
+
+[node name="Ring_157" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 262.00, 31.20, 0)
+
+
+[node name="Ring_158" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 270.00, 31.20, 0)
+
+
+[node name="Ring_159" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 272.00, 31.20, 0)
+
+
+[node name="Ring_160" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 274.00, 31.20, 0)
+
+
+[node name="Ring_161" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 276.00, 31.20, 0)
+
+
+[node name="Ring_162" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 278.00, 31.20, 0)
+
+
+[node name="Ring_163" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 280.00, 31.20, 0)
+
+
+[node name="Ring_164" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 282.00, 31.20, 0)
+
+
+[node name="Ring_165" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 284.00, 31.20, 0)
+
+
+[node name="Ring_166" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 286.00, 31.20, 0)
+
+
+[node name="Ring_167" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 288.00, 31.20, 0)
+
+
+[node name="Ring_168" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 290.00, 31.20, 0)
+
+
+[node name="Ring_169" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 134.00, 34.20, 0)
+
+
+[node name="Ring_170" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 260.00, 34.20, 0)
+
+
+[node name="Ring_171" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 262.00, 34.20, 0)
+
+
+[node name="Ring_172" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200.00, 37.20, 0)
+
+
+[node name="Ring_173" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 202.00, 37.20, 0)
+
+
+[node name="Ring_174" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.00, 37.20, 0)
+
+
+[node name="Ring_175" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.00, 37.20, 0)
+
+
+[node name="Ring_176" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 208.00, 37.20, 0)
+
+
+[node name="Ring_177" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210.00, 37.20, 0)
+
+
+[node name="Ring_178" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.00, 37.20, 0)
+
+
+[node name="Ring_179" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 214.00, 37.20, 0)
+
+
+[node name="Ring_180" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 216.00, 37.20, 0)
+
+
+[node name="Ring_181" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 218.00, 37.20, 0)
+
+
+[node name="Ring_182" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 220.00, 37.20, 0)
+
+
+[node name="Ring_183" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 222.00, 37.20, 0)
+
+
+[node name="Ring_184" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200.00, 40.20, 0)
+
+
+[node name="Ring_185" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 202.00, 40.20, 0)
+
+
+[node name="Ring_186" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.00, 40.20, 0)
+
+
+[node name="Ring_187" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.00, 40.20, 0)
+
+
+[node name="Ring_188" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 208.00, 40.20, 0)
+
+
+[node name="Ring_189" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210.00, 40.20, 0)
+
+
+[node name="Ring_190" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.00, 40.20, 0)
+
+
+[node name="Ring_191" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 214.00, 40.20, 0)
+
+
+[node name="Ring_192" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 216.00, 40.20, 0)
+
+
+[node name="Ring_193" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 218.00, 40.20, 0)
+
+
+[node name="Ring_194" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 220.00, 40.20, 0)
+
+
+[node name="Ring_195" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 222.00, 40.20, 0)
+
+
+[node name="Ring_196" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200.00, 43.20, 0)
+
+
+[node name="Ring_197" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 202.00, 43.20, 0)
+
+
+[node name="Ring_198" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.00, 43.20, 0)
+
+
+[node name="Ring_199" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.00, 43.20, 0)
+
+
+[node name="Ring_200" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 208.00, 43.20, 0)
+
+
+[node name="Ring_201" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210.00, 43.20, 0)
+
+
+[node name="Ring_202" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 212.00, 43.20, 0)
+
+
+[node name="Ring_203" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 214.00, 43.20, 0)
+
+
+[node name="Ring_204" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 216.00, 43.20, 0)
+
+
+[node name="Ring_205" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 218.00, 43.20, 0)
+
+
+[node name="Ring_206" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 220.00, 43.20, 0)
+
+
+[node name="Ring_207" parent="InteractiveObjects/Rings" instance=ExtResource("5_RingScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 222.00, 43.20, 0)
+
+
+[node name="SpringV_0" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 226.00, 0.50, 0)
+
+
+[node name="SpringV_1" parent="InteractiveObjects" instance=ExtResource("6_SpringScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 130.00, 12.50, 0)
+
+
+[node name="Enemy_0" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 174.00, 1.00, 0)
+Speed = 3.00
+
+
+[node name="Enemy_1" parent="InteractiveObjects/Enemies" instance=ExtResource("8_EnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 186.00, 1.00, 0)
+Speed = 3.00
+
+
+[node name="Cactus_0" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.00, 1.00, 0)
+Speed = 1.25
+
+
+[node name="Cactus_1" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.00, 1.00, 0)
+Speed = 1.25
+
+
+[node name="Cactus_2" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 210.00, 1.00, 0)
+Speed = 1.25
+
+
+[node name="Cactus_3" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 240.00, 1.00, 0)
+Speed = 1.25
+
+
+[node name="Cactus_4" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 284.00, 1.00, 0)
+Speed = 1.25
+
+
+[node name="Cactus_5" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 302.00, 1.00, 0)
+Speed = 1.25
+
+
+[node name="Cactus_6" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62.00, 4.00, 0)
+Speed = 1.25
+
+
+[node name="Cactus_7" parent="InteractiveObjects/Enemies" instance=ExtResource("9_CactusEnemyScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 146.00, 25.00, 0)
+Speed = 1.25
+
+
+[node name="Goal_0" parent="InteractiveObjects" instance=ExtResource("11_LevelFinishScene")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 338.00, 8.00, 0)

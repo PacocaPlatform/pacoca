@@ -1,4 +1,4 @@
-level: valedafloresta
+level: forest_level_01
 name: Vale da Floresta
 theme: forest
 xstep: 2.0

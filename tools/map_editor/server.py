@@ -571,6 +571,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         level = str(payload.get("level", "")).strip()
         fmt = payload.get("format", "txt")
         content = payload.get("content", "")
+        builtin = bool(payload.get("builtin", False))
 
         # Sanitize the level id so it can only ever be a filename-safe token.
         safe_level = "".join(ch for ch in level if ch.isalnum())
@@ -597,6 +598,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         cmd = [sys.executable, CONVERTER, "--input", map_path, "--level", safe_level]
+        if builtin:
+            cmd.append("--builtin")
         try:
             proc = subprocess.run(cmd, cwd=GODOT_ROOT, capture_output=True, text=True)
         except Exception as exc:  # pragma: no cover - environment failure
