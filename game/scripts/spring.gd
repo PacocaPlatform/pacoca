@@ -17,11 +17,14 @@ func _ready() -> void:
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
-		# Project launch force
-		var boost_vel := LaunchDirection * LaunchForce
+		var player := body as Player
+		# Project launch force and preserve perpendicular velocity (like horizontal momentum)
+		var parallel_vel: Vector3 = LaunchDirection * player.velocity.dot(LaunchDirection)
+		var perpendicular_vel: Vector3 = player.velocity - parallel_vel
+		var boost_vel: Vector3 = LaunchDirection * LaunchForce + perpendicular_vel
 
 		# Apply boost to player
-		body.apply_boost(boost_vel, ControlLockDuration)
+		player.apply_boost(boost_vel, ControlLockDuration)
 
 		# Play procedural spring bounce animation using Tween
 		if _mesh_node != null and not _is_animating:
