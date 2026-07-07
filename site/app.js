@@ -80,8 +80,10 @@
 
       var name = text(el("span", "level-name"), lv.name || t("level.noname"));
       var by = lv.author_name ? t("level.by") + lv.author_name : t("level.anon");
-      var meta = text(el("span", "level-meta"),
-        by + " · " + (lv.play_count || 0) + " " + t("level.plays") + " · " + (lv.like_count || 0) + " ❤");
+      var meta = el("span", "level-meta");
+      meta.textContent = by + " · " + (lv.play_count || 0) + " " + t("level.plays") +
+        " · " + (lv.like_count || 0) + " ";
+      meta.appendChild(iconSvg("heart"));
 
       card.appendChild(badges);
       card.appendChild(name);
@@ -97,8 +99,10 @@
     authors.forEach(function (a, i) {
       var card = el("div", "level-card");
       var name = text(el("span", "level-name"), (i + 1) + ". " + (a.author_name || t("author.fallback")));
-      var meta = text(el("span", "level-meta"),
-        (a.plays || 0) + " " + t("level.plays") + " · " + (a.levels || 0) + " " + t("level.levels") + " · " + (a.likes || 0) + " ❤");
+      var meta = el("span", "level-meta");
+      meta.textContent = (a.plays || 0) + " " + t("level.plays") + " · " + (a.levels || 0) + " " + t("level.levels") +
+        " · " + (a.likes || 0) + " ";
+      meta.appendChild(iconSvg("heart"));
       card.appendChild(name);
       card.appendChild(meta);
       host.appendChild(card);
@@ -113,4 +117,18 @@
 
   function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
   function text(e, t) { e.textContent = t; return e; }
+
+  // Inline <svg class="icon"><use href="…icons.svg#name"/></svg> — pixel-art icon
+  // from the shared sprite. SVG namespace + both href/xlink:href for compatibility.
+  var ICON_BASE = "assets/icons.svg#";
+  function iconSvg(name) {
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "icon");
+    svg.setAttribute("aria-hidden", "true");
+    var use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttribute("href", ICON_BASE + name);
+    use.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", ICON_BASE + name);
+    svg.appendChild(use);
+    return svg;
+  }
 })();

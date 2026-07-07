@@ -61,7 +61,8 @@
           statusTag +
         '</span>' +
         '<span class="level-name">' + esc(lv.name || "Fase sem nome") + '</span>' +
-        '<span class="level-meta">' + (lv.play_count || 0) + ' jogadas · ' + (lv.like_count || 0) + ' ❤</span>' +
+        '<span class="level-meta">' + (lv.play_count || 0) + ' jogadas · ' + (lv.like_count || 0) +
+          ' <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#heart"/></svg></span>' +
         '<span class="my-actions">' +
           '<a class="btn btn-secondary btn-sm" href="../l/' + encodeURIComponent(lv.id) + '">Abrir</a>' +
           '<a class="btn btn-secondary btn-sm" href="../editor/?id=' + encodeURIComponent(lv.id) + '">Editar</a>' +

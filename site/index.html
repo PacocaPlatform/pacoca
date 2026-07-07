@@ -13,7 +13,7 @@
     <meta property="og:image" content="assets/hero.png">
     <meta property="og:type" content="website">
 
-    <!-- Fonts: Press Start 2P (pixel display) + Outfit (UI) -->
+    <!-- Fonts: Pixelify Sans (pixel display) + Outfit (UI) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -35,8 +35,9 @@
     <!-- NAV -->
     <header class="nav">
         <a class="nav-brand" href="#top">
-            <span class="nav-badge">2.5D</span>
+            <svg class="icon icon-dino" aria-hidden="true"><use href="assets/icons.svg#dino"/></svg>
             <span class="nav-name">Paçoca</span>
+            <span class="nav-badge">2.5D</span>
         </a>
         <nav class="nav-links">
             <a href="#recursos" data-i18n="nav.recursos">Recursos</a>
@@ -72,14 +73,14 @@
 
             <div class="cta-row">
                 <a class="btn btn-play" data-link="play" href="#">
-                    <span class="btn-icon">▶</span>
+                    <span class="btn-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#play"/></svg></span>
                     <span class="btn-text">
                         <strong data-i18n="hero.play.title">Jogar agora</strong>
                         <small data-i18n="hero.play.sub">Roda no navegador</small>
                     </span>
                 </a>
                 <a class="btn btn-editor" data-link="editor" href="#">
-                    <span class="btn-icon">✎</span>
+                    <span class="btn-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#pencil"/></svg></span>
                     <span class="btn-text">
                         <strong data-i18n="hero.editor.title">Map Editor</strong>
                         <small data-i18n="hero.editor.sub">Crie suas fases</small>
@@ -96,22 +97,22 @@
         <h2 class="section-title" data-i18n="features.title">O que tem em Paçoca</h2>
         <div class="feature-grid">
             <article class="feature">
-                <div class="feature-emoji">🏃</div>
+                <div class="feature-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#run"/></svg></div>
                 <h3 data-i18n="feature.physics.title">Física com momentum</h3>
                 <p data-i18n="feature.physics.desc">Aceleração, atrito, força de rampa, giro carregável, investida diagonal no ar, coyote time e jump buffering.</p>
             </article>
             <article class="feature">
-                <div class="feature-emoji">🗺️</div>
+                <div class="feature-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#map"/></svg></div>
                 <h3 data-i18n="feature.editor.title">Map Editor visual</h3>
                 <p data-i18n="feature.editor.desc">Pinte plataformas, rampas, moedas, molas e inimigos. Ferramentas de linha, retângulo, balde e seleção — com undo/redo completo.</p>
             </article>
             <article class="feature">
-                <div class="feature-emoji">🎮</div>
+                <div class="feature-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#gamepad"/></svg></div>
                 <h3 data-i18n="feature.test.title">Teste em um clique</h3>
                 <p data-i18n="feature.test.desc">Jogue sua fase direto no navegador — o jogo a monta na hora. Sem instalar nada, sem download.</p>
             </article>
             <article class="feature">
-                <div class="feature-emoji">🌍</div>
+                <div class="feature-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#globe"/></svg></div>
                 <h3 data-i18n="feature.community.title">Fases da comunidade</h3>
                 <p data-i18n="feature.community.desc">Publique o que você criou e jogue as fases de outras pessoas — carregadas direto no motor do jogo.</p>
             </article>
@@ -149,22 +150,31 @@
 
         <p class="feed-browse-cta">
             <a class="btn btn-editor" href="fases/">
-                <span class="btn-icon">🗂️</span>
+                <span class="btn-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#folder"/></svg></span>
                 <span class="btn-text"><strong data-i18n="community.browse.title">Ver todas as fases</strong><small data-i18n="community.browse.sub">Filtre por autor, dificuldade e data</small></span>
             </a>
         </p>
 
-        <h3 class="feed-title" data-i18n="community.feed.popular">🔥 Mais jogadas</h3>
+        <h3 class="feed-title">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#fire"/></svg>
+            <span data-i18n="community.feed.popular">Mais jogadas</span>
+        </h3>
         <div class="community" data-feed="popular">
             <p class="community-empty" data-i18n="community.loadingLevels">Carregando fases…</p>
         </div>
 
-        <h3 class="feed-title" data-i18n="community.feed.liked">❤ Mais curtidas</h3>
+        <h3 class="feed-title">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#heart"/></svg>
+            <span data-i18n="community.feed.liked">Mais curtidas</span>
+        </h3>
         <div class="community" data-feed="liked">
             <p class="community-empty" data-i18n="community.loadingLevels">Carregando fases…</p>
         </div>
 
-        <h3 class="feed-title" data-i18n="community.feed.authors">🏆 Autores em destaque</h3>
+        <h3 class="feed-title">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#trophy"/></svg>
+            <span data-i18n="community.feed.authors">Autores em destaque</span>
+        </h3>
         <div class="community" data-feed="authors">
             <p class="community-empty" data-i18n="community.loadingAuthors">Carregando autores…</p>
         </div>
@@ -175,11 +185,11 @@
         <h2 data-i18n="cta.title">Pronto pra correr?</h2>
         <div class="cta-row cta-row--center">
             <a class="btn btn-play" data-link="play" href="#">
-                <span class="btn-icon">▶</span>
+                <span class="btn-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#play"/></svg></span>
                 <span class="btn-text"><strong data-i18n="cta.play.title">Jogar agora</strong><small data-i18n="cta.play.sub">Roda no navegador</small></span>
             </a>
             <a class="btn btn-editor" data-link="editor" href="#">
-                <span class="btn-icon">✎</span>
+                <span class="btn-icon"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#pencil"/></svg></span>
                 <span class="btn-text"><strong data-i18n="cta.editor.title">Abrir o Map Editor</strong><small data-i18n="cta.editor.sub">Crie suas fases</small></span>
             </a>
         </div>

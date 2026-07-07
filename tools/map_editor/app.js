@@ -201,11 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
             else setDrawer(false);
             return;
         }
-        if (e.key === "F5") {
-            e.preventDefault(); // do not reload the page
-            testLevel();
-            return;
-        }
         if (typing) return;
         if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
             e.preventDefault();

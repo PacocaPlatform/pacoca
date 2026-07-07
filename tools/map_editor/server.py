@@ -200,6 +200,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=EDITOR_DIR, **kwargs)
 
+    def end_headers(self):
+        # Dev server: never let the browser cache static assets (app.js, css,
+        # html). The JSON API responses already send no-store in _json().
+        self.send_header("Cache-Control", "no-store, must-revalidate")
+        super().end_headers()
+
     # -- routing ------------------------------------------------------------ #
     def do_GET(self):
         route = self.path.split("?", 1)[0]
@@ -615,7 +621,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
 

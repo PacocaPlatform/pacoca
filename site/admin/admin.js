@@ -58,7 +58,8 @@
         '</span>' +
         '<span class="level-name">' + esc(lv.name || "Fase sem nome") + '</span>' +
         '<span class="level-meta">por ' + esc(lv.author_name || "anônimo") + ' · ' +
-          (lv.play_count || 0) + ' jogadas · ' + (lv.like_count || 0) + ' ❤</span>' +
+          (lv.play_count || 0) + ' jogadas · ' + (lv.like_count || 0) +
+          ' <svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#heart"/></svg></span>' +
         '<span class="my-actions">' + actionsFor(lv) + '</span>';
       grid.appendChild(card);
     });
