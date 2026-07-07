@@ -2,9 +2,16 @@
   "levels": [
     {
       "id": "01",
+      "name": "Planície",
+      "theme": "forest",
+      "scene": "res://scenes/levels/forest_level_01.tscn",
+      "builtin": true
+    },
+    {
+      "id": "02",
       "name": "Vale da Floresta",
       "theme": "forest",
-      "scene": "res://scenes/levels/level_forestlevel01.tscn",
+      "scene": "res://scenes/levels/forest_level_02.tscn",
       "builtin": true
     },
     {

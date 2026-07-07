@@ -5,6 +5,7 @@ var _score_label: Label
 var _rings_label: Label
 var _time_label: Label
 var _continue_button: Button
+var _menu_button: Button
 
 # Procedural sound effects player
 var _audio_player: AudioStreamPlayer
@@ -20,9 +21,11 @@ func _ready() -> void:
 	_rings_label = get_node("%RingsValueLabel")
 	_time_label = get_node("%TimeValueLabel")
 	_continue_button = get_node("%ContinueButton")
+	_menu_button = get_node("%MenuButton")
 
-	# Connect button signal
+	# Connect button signals
 	_continue_button.pressed.connect(_on_continue_pressed)
+	_menu_button.pressed.connect(_on_menu_pressed)
 
 	# Setup WAV sound player
 	_sfx_wav_player = AudioStreamPlayer.new()
@@ -76,8 +79,15 @@ func show_screen(rings: int, score: int, time_elapsed: float) -> void:
 	var centiseconds := int(time_elapsed * 100) % 100
 	_time_label.text = "%d' %02d\" %02d" % [minutes, seconds, centiseconds]
 
-	# Focus the continue button for keyboard/gamepad navigation
-	_continue_button.grab_focus()
+	# Check if there is a next level
+	var current_level := GameSettings.level_to_load
+	var next_level := _get_next_level_path(current_level)
+	if next_level == "res://scenes/menu.tscn" or GameSettings.is_web_custom_map():
+		_continue_button.visible = false
+		_menu_button.grab_focus()
+	else:
+		_continue_button.visible = true
+		_continue_button.grab_focus()
 
 	# Pop-in animation for the panel
 	var panel: PanelContainer = get_node_or_null("MarginContainer/PanelContainer")
@@ -103,7 +113,8 @@ func _translate_ui() -> void:
 	rings_name.text = "MOEDAS" if is_pt else "RINGS"
 	var time_name: Label = get_node("MarginContainer/PanelContainer/Margin/VBox/StatsGrid/TimeName")
 	time_name.text = "TEMPO" if is_pt else "TIME"
-	_continue_button.text = "CONTINUAR" if is_pt else "CONTINUE"
+	_continue_button.text = "PRÓXIMA FASE" if is_pt else "NEXT LEVEL"
+	_menu_button.text = "VOLTAR AO MENU" if is_pt else "BACK TO MENU"
 
 
 func _on_continue_pressed() -> void:
@@ -119,16 +130,8 @@ func _on_continue_pressed() -> void:
 				get_tree().change_scene_to_file("res://scenes/menu.tscn"))
 		return
 
-	# Detach statistics and load next scene
 	var current_level := GameSettings.level_to_load
-	var next_level := "res://scenes/menu.tscn"
-
-	if current_level.contains("_01.tscn"):
-		next_level = current_level.replace("_01.tscn", "_02.tscn")
-	elif current_level.contains("_02.tscn"):
-		next_level = current_level.replace("_02.tscn", "_03.tscn")
-	elif current_level.contains("_03.tscn"):
-		next_level = current_level.replace("_03.tscn", "_04.tscn")
+	var next_level := _get_next_level_path(current_level)
 
 	# Wait brief moment for the click sound before changing scene
 	get_tree().create_timer(0.2).timeout.connect(func() -> void:
@@ -137,6 +140,34 @@ func _on_continue_pressed() -> void:
 		else:
 			GameSettings.level_to_load = next_level
 			get_tree().change_scene_to_file("res://scenes/main.tscn"))
+
+
+func _on_menu_pressed() -> void:
+	if _transitioning:
+		return
+	_transitioning = true
+
+	_play_menu_sound("forward", 1046.50, 0.15, 0.4) # Victory confirm chime
+
+	# Wait brief moment for the click sound before changing scene
+	get_tree().create_timer(0.2).timeout.connect(func() -> void:
+		get_tree().change_scene_to_file("res://scenes/menu.tscn"))
+
+
+func _get_next_level_path(current_level_path: String) -> String:
+	const MANIFEST_PATH := "res://scenes/levels/levels.json"
+	if FileAccess.file_exists(MANIFEST_PATH):
+		var file := FileAccess.open(MANIFEST_PATH, FileAccess.READ)
+		var parsed: Variant = JSON.parse_string(file.get_as_text())
+		if parsed is Dictionary and parsed.has("levels"):
+			var levels: Array = parsed["levels"]
+			for i in range(levels.size()):
+				var item = levels[i]
+				if item is Dictionary and item.get("scene", "") == current_level_path:
+					if i + 1 < levels.size():
+						return str(levels[i + 1].get("scene", ""))
+					break
+	return "res://scenes/menu.tscn"
 
 
 # Plays a menu sound based on the selected audio theme

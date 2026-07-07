@@ -158,17 +158,36 @@ horizontal_alignment = 2
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ContinueButton" type="Button" parent="MarginContainer/PanelContainer/Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 50)
+[node name="ButtonsContainer" type="HBoxContainer" parent="MarginContainer/PanelContainer/Margin/VBox"]
 layout_mode = 2
-size_flags_horizontal = 4
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="ContinueButton" type="Button" parent="MarginContainer/PanelContainer/Margin/VBox/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(185, 50)
+layout_mode = 2
 theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
 theme_override_constants/outline_size = 5
 theme_override_fonts/font = ExtResource("3_FontRetro")
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 10
 theme_override_styles/normal = SubResource("StyleBoxTexture_btn_normal")
 theme_override_styles/hover = SubResource("StyleBoxTexture_btn_hover")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_btn_pressed")
 theme_override_styles/focus = SubResource("StyleBoxTexture_btn_hover")
-text = "CONTINUAR"
+text = "PRÓXIMA FASE"
+
+[node name="MenuButton" type="Button" parent="MarginContainer/PanelContainer/Margin/VBox/ButtonsContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(185, 50)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0.12, 0.08, 0.04, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("3_FontRetro")
+theme_override_font_sizes/font_size = 10
+theme_override_styles/normal = SubResource("StyleBoxTexture_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxTexture_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_btn_pressed")
+theme_override_styles/focus = SubResource("StyleBoxTexture_btn_hover")
+text = "VOLTAR AO MENU"
+

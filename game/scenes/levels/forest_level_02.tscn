@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://c33r1q6joc2lforestlevel01"]
+[gd_scene format=3 uid="uid://budsp5o8ywy53"]
 
 [ext_resource type="Material" path="res://materials/grass.tres" id="1_GrassMat"]
 [ext_resource type="Material" path="res://materials/rock.tres" id="2_RockMat"]
