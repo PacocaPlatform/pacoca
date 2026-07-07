@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
     <!-- Google Fonts: Outfit (modern sans) and JetBrains Mono (coding font) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <!-- Lucide Icons for premium visual indicator icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Google Identity Services (Sign in with Google) -->
@@ -29,16 +32,17 @@
          Honours the language chosen on the landing page (localStorage pacoca_lang). -->
     <script src="i18n.js"></script>
 </head>
+
 <body>
     <div class="app pre-config">
         <!-- TOP BAR -->
         <header class="topbar">
             <div class="brand">
-                <span class="logo-badge">2.5D</span>
-                <h1>Paçoca <span class="accent">Map Editor</span></h1>
+                <h1><span class="accent">Map Editor</span></h1>
             </div>
 
-            <button class="btn btn-secondary btn-settings" id="btn-settings" onclick="openSettings()" data-i18n-attr="title:settings.title" title="Configurações gerais da fase">
+            <button class="btn btn-secondary btn-settings" id="btn-settings" onclick="openSettings()"
+                data-i18n-attr="title:settings.title" title="Configurações gerais da fase">
                 <i data-lucide="sliders-horizontal"></i>
                 <span class="settings-summary" id="settings-summary">Nova Fase</span>
             </button>
@@ -46,26 +50,37 @@
             <div class="topbar-spacer"></div>
 
             <div class="topbar-field view-controls">
-                <button class="icon-btn active" id="btn-toggle-grid" onclick="toggleGridlines()" data-i18n-attr="title:view.toggleGrid" title="Toggle gridlines"><i data-lucide="grid-3x3"></i></button>
-                <button class="icon-btn" id="btn-toggle-preview" onclick="togglePreview()" data-i18n-attr="title:view.togglePreview" title="Toggle level preview (minimap)"><i data-lucide="map"></i></button>
-                <button class="icon-btn" id="btn-toggle-theme" onclick="toggleTheme()" data-i18n-attr="title:view.toggleTheme" title="Toggle light/dark theme"><i data-lucide="moon"></i></button>
-                <button class="icon-btn lang-toggle" data-lang-toggle type="button" title="Switch to English">EN</button>
+                <button class="icon-btn active" id="btn-toggle-grid" onclick="toggleGridlines()"
+                    data-i18n-attr="title:view.toggleGrid" title="Toggle gridlines"><i
+                        data-lucide="grid-3x3"></i></button>
+                <button class="icon-btn" id="btn-toggle-preview" onclick="togglePreview()"
+                    data-i18n-attr="title:view.togglePreview" title="Toggle level preview (minimap)"><i
+                        data-lucide="map"></i></button>
+                <button class="icon-btn" id="btn-toggle-theme" onclick="toggleTheme()"
+                    data-i18n-attr="title:view.toggleTheme" title="Toggle light/dark theme"><i
+                        data-lucide="moon"></i></button>
             </div>
 
             <div class="topbar-actions">
-                <button class="btn btn-secondary" id="btn-toggle-output" onclick="toggleOutput()" data-i18n-attr="title:action.code.title" title="Exportar código (ASCII / JSON)">
+                <button class="btn btn-secondary" id="btn-toggle-output" onclick="toggleOutput()"
+                    data-i18n-attr="title:action.code.title" title="Exportar código (ASCII / JSON)">
                     <i data-lucide="code-2"></i> <span data-i18n="action.code">Código</span>
                 </button>
-                <button class="btn btn-primary" id="btn-test-level" onclick="testLevel()" data-i18n-attr="title:action.test.title" title="Testar a fase no navegador (WebAssembly)">
-                    <i data-lucide="flask-conical"></i> <span data-i18n="action.test">Testar</span>
+                <button class="btn btn-run" id="btn-test-level" onclick="testLevel()"
+                    data-i18n-attr="title:action.test.title" title="Testar a fase no navegador (WebAssembly)">
+                    <i data-lucide="play"></i> <span data-i18n="action.test">Testar</span>
                 </button>
-                <button class="btn btn-publish" id="btn-publish" onclick="publishLevel()" data-i18n-attr="title:publish.title" title="Publicar a fase para a comunidade">
+                <button class="btn btn-publish" id="btn-publish" onclick="publishLevel()"
+                    data-i18n-attr="title:publish.title" title="Publicar a fase para a comunidade">
                     <i data-lucide="upload-cloud"></i> <span data-i18n="action.publish">Publicar</span>
                 </button>
-                <button class="btn btn-secondary" id="btn-promote-builtin" onclick="openPromoteModal()" style="display:none;" title="Promover fase a builtin localmente">
+                <button class="btn btn-secondary" id="btn-promote-builtin" onclick="openPromoteModal()"
+                    style="display:none;" title="Promover fase a builtin localmente">
                     <i data-lucide="star"></i> <span>Promover</span>
                 </button>
-                <button class="btn btn-secondary" id="btn-share" onclick="shareLevel()" data-i18n-attr="title:action.share.title" title="Publique a fase para gerar o link de compartilhamento" disabled>
+                <button class="btn btn-secondary" id="btn-share" onclick="shareLevel()"
+                    data-i18n-attr="title:action.share.title"
+                    title="Publique a fase para gerar o link de compartilhamento" disabled>
                     <i data-lucide="share-2"></i> <span data-i18n="action.share">Compartilhar</span>
                 </button>
                 <!-- Auth: login button (logged out) OR user chip (logged in) -->
@@ -73,8 +88,10 @@
                     <div id="gsi-button" data-i18n-attr="title:auth.google.title" title="Entrar com Google"></div>
                     <span id="user-chip" class="user-chip" hidden>
                         <span id="user-name"></span>
-                        <a class="btn btn-secondary btn-sm" href="../minhas/" data-i18n="auth.mylevels" data-i18n-attr="title:auth.mylevels" title="Minhas fases">Minhas fases</a>
-                        <button class="btn btn-secondary btn-sm" onclick="logout()" data-i18n="auth.logout" data-i18n-attr="title:auth.logout" title="Sair">Sair</button>
+                        <a class="btn btn-secondary btn-sm" href="../minhas/" data-i18n="auth.mylevels"
+                            data-i18n-attr="title:auth.mylevels" title="Minhas fases">Minhas fases</a>
+                        <button class="btn btn-secondary btn-sm" onclick="logout()" data-i18n="auth.logout"
+                            data-i18n-attr="title:auth.logout" title="Sair">Sair</button>
                     </span>
                 </div>
             </div>
@@ -85,25 +102,32 @@
             <!-- LEFT DOCK: tools + palette -->
             <aside class="dock">
                 <div class="dock-tools">
-                    <button class="tool-btn active" id="tool-paint" onclick="setToolMode('paint')" data-i18n-attr="title:tool.paint" title="Paint (B)">
+                    <button class="tool-btn active" id="tool-paint" onclick="setToolMode('paint')"
+                        data-i18n-attr="title:tool.paint" title="Paint (B)">
                         <i data-lucide="pencil"></i>
                     </button>
-                    <button class="tool-btn" id="tool-erase" onclick="setToolMode('erase')" data-i18n-attr="title:tool.erase" title="Eraser (E)">
+                    <button class="tool-btn" id="tool-erase" onclick="setToolMode('erase')"
+                        data-i18n-attr="title:tool.erase" title="Eraser (E)">
                         <i data-lucide="eraser"></i>
                     </button>
-                    <button class="tool-btn" id="tool-line" onclick="setToolMode('line')" data-i18n-attr="title:tool.line" title="Line (L) — drag to draw a straight line">
+                    <button class="tool-btn" id="tool-line" onclick="setToolMode('line')"
+                        data-i18n-attr="title:tool.line" title="Line (L) — drag to draw a straight line">
                         <i data-lucide="pen-line"></i>
                     </button>
-                    <button class="tool-btn" id="tool-rect" onclick="setToolMode('rect')" data-i18n-attr="title:tool.rect" title="Rectangle (R) — drag to fill a rectangle">
+                    <button class="tool-btn" id="tool-rect" onclick="setToolMode('rect')"
+                        data-i18n-attr="title:tool.rect" title="Rectangle (R) — drag to fill a rectangle">
                         <i data-lucide="square"></i>
                     </button>
-                    <button class="tool-btn" id="tool-fill" onclick="setToolMode('fill')" data-i18n-attr="title:tool.fill" title="Fill bucket (G) — fill a connected region">
+                    <button class="tool-btn" id="tool-fill" onclick="setToolMode('fill')"
+                        data-i18n-attr="title:tool.fill" title="Fill bucket (G) — fill a connected region">
                         <i data-lucide="paint-bucket"></i>
                     </button>
-                    <button class="tool-btn" id="tool-select" onclick="setToolMode('select')" data-i18n-attr="title:tool.select" title="Select (M) — drag to select; Ctrl+C/X/V, Del">
+                    <button class="tool-btn" id="tool-select" onclick="setToolMode('select')"
+                        data-i18n-attr="title:tool.select" title="Select (M) — drag to select; Ctrl+C/X/V, Del">
                         <i data-lucide="box-select"></i>
                     </button>
-                    <button class="tool-btn tool-danger" onclick="clearGrid()" data-i18n-attr="title:tool.clear" title="Clear all">
+                    <button class="tool-btn tool-danger" onclick="clearGrid()" data-i18n-attr="title:tool.clear"
+                        title="Clear all">
                         <i data-lucide="trash-2"></i>
                     </button>
                 </div>
@@ -125,10 +149,13 @@
 
                 <!-- Floating zoom controls (top-right of the grid) -->
                 <div class="zoom-float">
-                    <button class="icon-btn" onclick="adjustZoom(-0.1)" data-i18n-attr="title:view.zoomOut" title="Zoom Out"><i data-lucide="zoom-out"></i></button>
+                    <button class="icon-btn" onclick="adjustZoom(-0.1)" data-i18n-attr="title:view.zoomOut"
+                        title="Zoom Out"><i data-lucide="zoom-out"></i></button>
                     <span class="zoom-level" id="zoom-label">70%</span>
-                    <button class="icon-btn" onclick="adjustZoom(0.1)" data-i18n-attr="title:view.zoomIn" title="Zoom In"><i data-lucide="zoom-in"></i></button>
-                    <button class="icon-btn" onclick="adjustZoom(0, true)" data-i18n-attr="title:view.zoomReset" title="Reset Zoom"><i data-lucide="maximize-2"></i></button>
+                    <button class="icon-btn" onclick="adjustZoom(0.1)" data-i18n-attr="title:view.zoomIn"
+                        title="Zoom In"><i data-lucide="zoom-in"></i></button>
+                    <button class="icon-btn" onclick="adjustZoom(0, true)" data-i18n-attr="title:view.zoomReset"
+                        title="Reset Zoom"><i data-lucide="maximize-2"></i></button>
                 </div>
 
                 <div class="preview-strip hidden" id="preview-strip" title="Level preview — click to navigate">
@@ -136,11 +163,13 @@
                 </div>
 
                 <div class="statusbar">
-                    <span class="coord-info" id="coord-display" data-i18n="coord.initial">X: 0, Y: 0 | Real: 0.0m, 0.0m</span>
+                    <span class="coord-info" id="coord-display" data-i18n="coord.initial">X: 0, Y: 0 | Real: 0.0m,
+                        0.0m</span>
                     <span class="live-indicator" id="live-indicator" hidden></span>
                     <div class="quick-nav">
                         <i data-lucide="move-horizontal"></i>
-                        <input type="range" id="scroll-slider" min="0" max="100" value="0" data-i18n-attr="title:status.nav.title" title="Horizontal navigation">
+                        <input type="range" id="scroll-slider" min="0" max="100" value="0"
+                            data-i18n-attr="title:status.nav.title" title="Horizontal navigation">
                     </div>
                 </div>
             </section>
@@ -149,13 +178,15 @@
             <aside class="drawer" id="drawer">
                 <div class="drawer-head">
                     <span class="drawer-title" data-i18n="drawer.title">Código & Publicar</span>
-                    <button class="icon-btn" onclick="toggleOutput()" data-i18n-attr="title:drawer.close" title="Close (Esc)"><i data-lucide="x"></i></button>
+                    <button class="icon-btn" onclick="toggleOutput()" data-i18n-attr="title:drawer.close"
+                        title="Close (Esc)"><i data-lucide="x"></i></button>
                 </div>
                 <div class="tabs-header">
                     <button class="tab-btn active" onclick="switchTab('tab-ascii')">ASCII</button>
                     <button class="tab-btn" onclick="switchTab('tab-json')">JSON</button>
                     <button class="tab-btn" onclick="switchTab('tab-import')" data-i18n="tab.import">Import</button>
-                    <button class="tab-btn" onclick="switchTab('tab-instructions')" data-i18n="tab.publish">Publicar</button>
+                    <button class="tab-btn" onclick="switchTab('tab-instructions')"
+                        data-i18n="tab.publish">Publicar</button>
                 </div>
 
                 <div class="tabs-content">
@@ -187,8 +218,10 @@
 
                     <!-- Import Tab -->
                     <div class="tab-panel" id="tab-import">
-                        <p class="tab-note" data-i18n="import.note">Paste an ASCII Grid map (with headers) or JSON to load it into the editor.</p>
-                        <textarea id="import-input" class="code-view input-view" data-i18n-attr="placeholder:import.ph" placeholder="Paste your level_XX_map.txt or .json here..." spellcheck="false"></textarea>
+                        <p class="tab-note" data-i18n="import.note">Paste an ASCII Grid map (with headers) or JSON to
+                            load it into the editor.</p>
+                        <textarea id="import-input" class="code-view input-view" data-i18n-attr="placeholder:import.ph"
+                            placeholder="Paste your level_XX_map.txt or .json here..." spellcheck="false"></textarea>
                         <div class="tab-actions justify-end">
                             <button class="btn btn-primary" onclick="importMap()">
                                 <i data-lucide="upload"></i> <span data-i18n="import.load">Load in Editor</span>
@@ -202,17 +235,20 @@
                             <h4 data-i18n="publish.head">Publicar para a comunidade</h4>
 
                             <div class="live-compile-card">
-                                <p data-i18n="publish.blurb">Publique a fase direto do navegador. Ela vira JSON estruturado que o jogo monta em tempo real — jogável na hora, sem compilar nada.</p>
+                                <p data-i18n="publish.blurb">Publique a fase direto do navegador. Ela vira JSON
+                                    estruturado que o jogo monta em tempo real — jogável na hora, sem compilar nada.</p>
                                 <label for="author-name" data-i18n="publish.author.label">Seu nome (opcional)</label>
                                 <input type="text" id="author-name" class="inp" spellcheck="false"
-                                       data-i18n-attr="placeholder:publish.author.ph" placeholder="Anônimo" maxlength="80"
-                                       oninput="localStorage.setItem('pacoca_author', this.value)">
+                                    data-i18n-attr="placeholder:publish.author.ph" placeholder="Anônimo" maxlength="80"
+                                    oninput="localStorage.setItem('pacoca_author', this.value)">
                                 <div class="tab-actions justify-end" style="margin-top:.6rem">
-                                    <button class="btn btn-secondary" onclick="testLevel()" data-i18n-attr="title:publish.testBeforeTitle" title="Testar antes de publicar">
-                                        <i data-lucide="flask-conical"></i> <span data-i18n="action.test">Testar</span>
+                                    <button class="btn btn-run" onclick="testLevel()"
+                                        data-i18n-attr="title:publish.testBeforeTitle" title="Testar antes de publicar">
+                                        <i data-lucide="play"></i> <span data-i18n="action.test">Testar</span>
                                     </button>
                                     <button class="btn btn-primary" onclick="publishLevel()">
-                                        <i data-lucide="upload-cloud"></i> <span data-i18n="publish.now">Publicar agora</span>
+                                        <i data-lucide="upload-cloud"></i> <span data-i18n="publish.now">Publicar
+                                            agora</span>
                                     </button>
                                 </div>
                             </div>
@@ -220,11 +256,16 @@
                             <div class="metrics-card">
                                 <h5 data-i18n="metrics.head">Métricas importantes (Platformer Kit)</h5>
                                 <ul>
-                                    <li data-i18n-html="metrics.li1"><strong>Grade X (largura)</strong>: cada bloco <code>#</code> ou rampa <code>/</code> mede <strong>2m</strong>.</li>
-                                    <li data-i18n-html="metrics.li2"><strong>Grade Y (altura)</strong>: cada linha mede <strong>3m</strong> (<code>ystep: 3.0</code>).</li>
-                                    <li data-i18n-html="metrics.li3"><strong>Pulo médio</strong>: 4m na horizontal (parado), até 15m (em velocidade máxima).</li>
-                                    <li data-i18n-html="metrics.li4"><strong>Molas</strong>: verticais lançam até 22m; diagonais para travessias rápidas.</li>
-                                    <li data-i18n-html="metrics.li5"><strong>Queda fatal</strong>: evite plataformas em Y &lt; -15m.</li>
+                                    <li data-i18n-html="metrics.li1"><strong>Grade X (largura)</strong>: cada bloco
+                                        <code>#</code> ou rampa <code>/</code> mede <strong>2m</strong>.</li>
+                                    <li data-i18n-html="metrics.li2"><strong>Grade Y (altura)</strong>: cada linha mede
+                                        <strong>3m</strong> (<code>ystep: 3.0</code>).</li>
+                                    <li data-i18n-html="metrics.li3"><strong>Pulo médio</strong>: 4m na horizontal
+                                        (parado), até 15m (em velocidade máxima).</li>
+                                    <li data-i18n-html="metrics.li4"><strong>Molas</strong>: verticais lançam até 22m;
+                                        diagonais para travessias rápidas.</li>
+                                    <li data-i18n-html="metrics.li5"><strong>Queda fatal</strong>: evite plataformas em
+                                        Y &lt; -15m.</li>
                                 </ul>
                             </div>
                         </div>
@@ -238,23 +279,29 @@
         <div class="modal-overlay" id="settings-modal" hidden onclick="onSettingsBackdrop(event)">
             <div class="modal modal-lg">
                 <div class="modal-head">
-                    <span><i data-lucide="sliders-horizontal"></i> <span id="settings-title" data-i18n="settings.head">Configurações da fase</span></span>
-                    <button class="icon-btn" id="settings-close" onclick="closeSettings()" data-i18n-attr="title:settings.close" title="Fechar (Esc)"><i data-lucide="x"></i></button>
+                    <span><i data-lucide="sliders-horizontal"></i> <span id="settings-title"
+                            data-i18n="settings.head">Configurações da fase</span></span>
+                    <button class="icon-btn" id="settings-close" onclick="closeSettings()"
+                        data-i18n-attr="title:settings.close" title="Fechar (Esc)"><i data-lucide="x"></i></button>
                 </div>
                 <div class="modal-body settings-body">
-                    <p class="settings-intro" id="settings-intro" data-i18n="settings.intro">Defina as informações gerais para começar a construir a sua fase.</p>
+                    <p class="settings-intro" id="settings-intro" data-i18n="settings.intro">Defina as informações
+                        gerais para começar a construir a sua fase.</p>
 
                     <!-- Identity -->
                     <fieldset class="settings-group">
                         <legend data-i18n="settings.identity">Identidade</legend>
                         <label class="settings-field">
                             <span class="settings-label" data-i18n="topbar.level">Fase</span>
-                            <input type="text" id="level-name" value="Nova Fase" class="inp" data-i18n-attr="title:level.name.title;placeholder:level.name.ph" title="Nome da fase" placeholder="Nome da fase">
+                            <input type="text" id="level-name" value="Nova Fase" class="inp"
+                                data-i18n-attr="title:level.name.title;placeholder:level.name.ph" title="Nome da fase"
+                                placeholder="Nome da fase">
                         </label>
                         <div class="settings-row">
                             <label class="settings-field">
                                 <span class="settings-label" data-i18n="settings.theme.label">Tema</span>
-                                <select id="level-theme" class="inp" data-i18n-attr="title:theme.title" title="Tema da fase (materiais do terreno)">
+                                <select id="level-theme" class="inp" data-i18n-attr="title:theme.title"
+                                    title="Tema da fase (materiais do terreno)">
                                     <option value="forest" data-i18n="theme.forest">Forest</option>
                                     <option value="glacial" data-i18n="theme.glacial">Glacial</option>
                                     <option value="cidade" data-i18n="theme.city">City</option>
@@ -263,7 +310,8 @@
                             </label>
                             <label class="settings-field">
                                 <span class="settings-label" data-i18n="settings.difficulty.label">Dificuldade</span>
-                                <select id="level-difficulty" class="inp" data-i18n-attr="title:difficulty.title" title="Grau de dificuldade da fase">
+                                <select id="level-difficulty" class="inp" data-i18n-attr="title:difficulty.title"
+                                    title="Grau de dificuldade da fase">
                                     <option value="infantil" data-i18n="diff.infantil">Infantil</option>
                                     <option value="iniciante" data-i18n="diff.iniciante">Iniciante</option>
                                     <option value="normal" selected data-i18n="diff.normal">Normal</option>
@@ -272,27 +320,32 @@
                                 </select>
                             </label>
                         </div>
-                        <p class="settings-hint" data-i18n="settings.identity.hint">O nome define a identidade da fase. O tema muda os materiais do cenário.</p>
+                        <p class="settings-hint" data-i18n="settings.identity.hint">O nome define a identidade da fase.
+                            O tema muda os materiais do cenário.</p>
                     </fieldset>
 
                     <!-- Grid size presets -->
                     <fieldset class="settings-group">
                         <legend data-i18n="settings.size">Tamanho da grade</legend>
                         <div class="preset-row" id="grid-presets">
-                            <button type="button" class="preset-btn" data-preset="small" onclick="selectGridPreset('small')">
+                            <button type="button" class="preset-btn" data-preset="small"
+                                onclick="selectGridPreset('small')">
                                 <span class="preset-name" data-i18n="settings.size.small">Pequeno</span>
                                 <span class="preset-dim">50 × 12</span>
                             </button>
-                            <button type="button" class="preset-btn active" data-preset="medium" onclick="selectGridPreset('medium')">
+                            <button type="button" class="preset-btn active" data-preset="medium"
+                                onclick="selectGridPreset('medium')">
                                 <span class="preset-name" data-i18n="settings.size.medium">Médio</span>
                                 <span class="preset-dim">100 × 15</span>
                             </button>
-                            <button type="button" class="preset-btn" data-preset="large" onclick="selectGridPreset('large')">
+                            <button type="button" class="preset-btn" data-preset="large"
+                                onclick="selectGridPreset('large')">
                                 <span class="preset-name" data-i18n="settings.size.large">Grande</span>
                                 <span class="preset-dim">180 × 20</span>
                             </button>
                         </div>
-                        <p class="settings-hint" data-i18n="settings.size.hint">Cada coluna vale 2m e cada linha 3m. Precisa de outro tamanho? Use as opções avançadas.</p>
+                        <p class="settings-hint" data-i18n="settings.size.hint">Cada coluna vale 2m e cada linha 3m.
+                            Precisa de outro tamanho? Use as opções avançadas.</p>
                     </fieldset>
 
                     <!-- Advanced: exact grid + scale -->
@@ -305,30 +358,40 @@
                             <div class="settings-row">
                                 <label class="settings-field">
                                     <span class="settings-label" data-i18n="grid.width.title">Largura (colunas)</span>
-                                    <input type="number" id="grid-width" value="100" min="10" max="1000" class="inp" oninput="syncGridPreset()" data-i18n-attr="title:grid.width.title" title="Largura (colunas)">
+                                    <input type="number" id="grid-width" value="100" min="10" max="1000" class="inp"
+                                        oninput="syncGridPreset()" data-i18n-attr="title:grid.width.title"
+                                        title="Largura (colunas)">
                                 </label>
                                 <label class="settings-field">
                                     <span class="settings-label" data-i18n="grid.height.title">Altura (linhas)</span>
-                                    <input type="number" id="grid-height" value="15" min="5" max="100" class="inp" oninput="syncGridPreset()" data-i18n-attr="title:grid.height.title" title="Altura (linhas)">
+                                    <input type="number" id="grid-height" value="15" min="5" max="100" class="inp"
+                                        oninput="syncGridPreset()" data-i18n-attr="title:grid.height.title"
+                                        title="Altura (linhas)">
                                 </label>
                             </div>
                             <div class="settings-row">
                                 <label class="settings-field">
                                     <span class="settings-label" data-i18n="scale.x.title">Passo X (m)</span>
-                                    <input type="number" id="x-step" value="2.0" step="0.1" min="0.5" max="5.0" class="inp" data-i18n-attr="title:scale.x.title" title="Largura da coluna (passo X em metros)">
+                                    <input type="number" id="x-step" value="2.0" step="0.1" min="0.5" max="5.0"
+                                        class="inp" data-i18n-attr="title:scale.x.title"
+                                        title="Largura da coluna (passo X em metros)">
                                 </label>
                                 <label class="settings-field">
                                     <span class="settings-label" data-i18n="scale.y.title">Passo Y (m)</span>
-                                    <input type="number" id="y-step" value="3.0" step="0.1" min="0.5" max="5.0" class="inp" data-i18n-attr="title:scale.y.title" title="Altura da linha (passo Y em metros)">
+                                    <input type="number" id="y-step" value="3.0" step="0.1" min="0.5" max="5.0"
+                                        class="inp" data-i18n-attr="title:scale.y.title"
+                                        title="Altura da linha (passo Y em metros)">
                                 </label>
                             </div>
-                            <p class="settings-hint" data-i18n="settings.scale.hint">Os valores padrão de escala (2.0 / 3.0) casam com a física do jogo. Mude só se souber o efeito.</p>
+                            <p class="settings-hint" data-i18n="settings.scale.hint">Os valores padrão de escala (2.0 /
+                                3.0) casam com a física do jogo. Mude só se souber o efeito.</p>
                         </div>
                     </details>
                 </div>
                 <div class="modal-actions">
                     <button class="btn btn-primary" id="settings-apply" onclick="applySettings()">
-                        <i data-lucide="check"></i> <span id="settings-apply-label" data-i18n="settings.start">Começar a construir</span>
+                        <i data-lucide="check"></i> <span id="settings-apply-label" data-i18n="settings.start">Começar a
+                            construir</span>
                     </button>
                 </div>
             </div>
@@ -339,7 +402,8 @@
             <div class="modal modal-lg">
                 <div class="modal-head">
                     <span><i data-lucide="folder"></i> <span data-i18n="maps.head">Minhas fases</span></span>
-                    <button class="icon-btn" onclick="closeMaps()" data-i18n-attr="title:maps.close" title="Fechar (Esc)"><i data-lucide="x"></i></button>
+                    <button class="icon-btn" onclick="closeMaps()" data-i18n-attr="title:maps.close"
+                        title="Fechar (Esc)"><i data-lucide="x"></i></button>
                 </div>
                 <div class="modal-body">
                     <div class="maps-savebar">
@@ -360,11 +424,14 @@
             <div class="modal">
                 <div class="modal-head">
                     <span><i data-lucide="star"></i> <span>Promover a Built-in (Admin Localhost)</span></span>
-                    <button class="icon-btn" onclick="closePromoteModal()" title="Fechar (Esc)"><i data-lucide="x"></i></button>
+                    <button class="icon-btn" onclick="closePromoteModal()" title="Fechar (Esc)"><i
+                            data-lucide="x"></i></button>
                 </div>
                 <div class="modal-body settings-body">
-                    <p class="settings-intro">Esta ação compilará a fase localmente como um nível built-in do jogo, gerando a cena <code>.tscn</code>, o script Python <code>.py</code> e atualizando o arquivo <code>levels.json</code>.</p>
-                    
+                    <p class="settings-intro">Esta ação compilará a fase localmente como um nível built-in do jogo,
+                        gerando a cena <code>.tscn</code>, o script Python <code>.py</code> e atualizando o arquivo
+                        <code>levels.json</code>.</p>
+
                     <label class="settings-field">
                         <span class="settings-label">ID do Nível (para arquivo e menu)</span>
                         <input type="text" id="promote-level-id" class="inp" placeholder="Ex: 02, caverna_01">
@@ -414,4 +481,5 @@
         }
     </script>
 </body>
+
 </html>
