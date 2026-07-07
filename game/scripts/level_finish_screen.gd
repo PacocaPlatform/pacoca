@@ -113,6 +113,12 @@ func _on_continue_pressed() -> void:
 
 	_play_menu_sound("forward", 1046.50, 0.15, 0.4) # Victory confirm chime
 
+	if GameSettings.is_web_custom_map():
+		get_tree().create_timer(0.2).timeout.connect(func() -> void:
+			if not GameSettings.exit_to_site():
+				get_tree().change_scene_to_file("res://scenes/menu.tscn"))
+		return
+
 	# Detach statistics and load next scene
 	var current_level := GameSettings.level_to_load
 	var next_level := "res://scenes/menu.tscn"

@@ -55,8 +55,14 @@ func _translate_ui() -> void:
 	var title: Label = get_node("MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Title")
 	title.text = "JOGO PAUSADO" if is_pt else "GAME PAUSED"
 	_resume_button.text = "Continuar" if is_pt else "Resume"
-	_main_menu_button.text = "Menu Principal" if is_pt else "Main Menu"
-	_exit_button.text = "Sair" if is_pt else "Exit"
+	
+	if GameSettings.is_web_custom_map():
+		_main_menu_button.visible = false
+		_exit_button.text = "Voltar ao Editor" if is_pt else "Back to Editor"
+	else:
+		_main_menu_button.text = "Menu Principal" if is_pt else "Main Menu"
+		_main_menu_button.visible = true
+		_exit_button.text = "Sair" if is_pt else "Exit"
 
 
 func _connect_ui_feedback(node: Node) -> void:

@@ -284,6 +284,14 @@ static func finalize_telemetry(node: Node) -> void:
 	req.request(telemetry_url, ["Content-Type: application/json"], HTTPClient.METHOD_POST, "{\"exit\":true}")
 
 
+# Web only: check if we are in web custom map test mode (contains custom=1 in the URL).
+static func is_web_custom_map() -> bool:
+	if not OS.has_feature("web"):
+		return false
+	var search := str(JavaScriptBridge.eval("window.location.search || ''", true))
+	return search.contains("custom=1")
+
+
 # Leaving the game via a "Sair"/"Exit" button. On the web build the game is
 # embedded at /play/ (opened by a full-page navigation from the site), so
 # get_tree().quit() does nothing useful — instead send the browser back to the
@@ -294,6 +302,15 @@ static func exit_to_site() -> bool:
 	if not OS.has_feature("web"):
 		return false
 	JavaScriptBridge.eval(
-		"(function(){ if (window.history.length > 1) { window.history.back(); }" +
-		" else { window.location.href = '../'; } })();", true)
+		"(function(){" +
+		"  var search = window.location.search || '';" +
+		"  if (search.indexOf('custom=1') !== -1) {" +
+		"    window.close();" +
+		"    setTimeout(function() { window.location.href = '../editor/'; }, 100);" +
+		"  } else if (window.history.length > 1) {" +
+		"    window.history.back();" +
+		"  } else {" +
+		"    window.location.href = '../';" +
+		"  }" +
+		"})();", true)
 	return true

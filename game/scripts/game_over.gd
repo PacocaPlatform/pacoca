@@ -81,9 +81,18 @@ func _go_to_main_menu() -> void:
 		var tween := create_tween()
 		tween.tween_property(panel, "modulate", Color(1, 1, 1, 0), 0.3)
 		tween.tween_callback(func() -> void:
-			get_tree().change_scene_to_file("res://scenes/menu.tscn"))
+			if GameSettings.is_web_custom_map():
+				if not GameSettings.exit_to_site():
+					get_tree().change_scene_to_file("res://scenes/menu.tscn")
+			else:
+				get_tree().change_scene_to_file("res://scenes/menu.tscn")
+		)
 	else:
-		get_tree().change_scene_to_file("res://scenes/menu.tscn")
+		if GameSettings.is_web_custom_map():
+			if not GameSettings.exit_to_site():
+				get_tree().change_scene_to_file("res://scenes/menu.tscn")
+		else:
+			get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
 
 func _play_game_over_tune() -> void:
