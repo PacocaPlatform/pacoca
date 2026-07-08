@@ -4,6 +4,8 @@ extends Camera3D
 @export var TargetPath: NodePath
 @export var FollowSpeed := 6.0
 @export var Offset := Vector2(2.0, 4.5) # Look slightly ahead of player
+@export var LookDownOffset := 6.0 # How far down the camera pans when holding down
+@export var LookDownFollowSpeed := 3.0 # Speed of the camera when looking down
 
 var _target: Node3D
 var _original_z := 0.0
@@ -71,7 +73,10 @@ func _physics_process(delta: float) -> void:
 	var half_height := distance * tan(fov_rad / 2.0)
 
 	if is_grounded:
-		_target_y = target_pos.y + Offset.y
+		if Input.is_action_pressed("move_down") and absf(player_vel.x) < 1.0:
+			_target_y = target_pos.y + Offset.y - LookDownOffset
+		else:
+			_target_y = target_pos.y + Offset.y
 	else:
 		# In the air (jumping/falling):
 		# 1. If player passes 80% of the viewport height from bottom, push the camera target Y up.
@@ -100,7 +105,11 @@ func _physics_process(delta: float) -> void:
 	if target_camera_pos.y < 2.0:
 		target_camera_pos.y = 2.0
 
-	global_position = global_position.lerp(target_camera_pos, FollowSpeed * delta)
+	var current_follow_speed := FollowSpeed
+	if is_grounded and Input.is_action_pressed("move_down") and absf(player_vel.x) < 1.0:
+		current_follow_speed = LookDownFollowSpeed
+
+	global_position = global_position.lerp(target_camera_pos, current_follow_speed * delta)
 
 	# Enforce limit strictly
 	if global_position.x < _min_x:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_PlayerScript"]
 [ext_resource type="Material" path="res://materials/dino_skin.tres" id="2_DinoSkin"]
@@ -7,7 +7,11 @@
 [ext_resource type="Material" path="res://materials/eye_black.tres" id="5_EyeBlack"]
 [ext_resource type="PackedScene" uid="uid://oocxp2hv1a1p" path="res://models/paçoca-idle.fbx" id="6_IdleModel"]
 [ext_resource type="PackedScene" uid="uid://cqfqymxv162yn" path="res://models/paçoca-running.fbx" id="7_RunningModel"]
-[ext_resource type="PackedScene" uid="uid://kggrpasvch8" path="res://models/paçoca-JumpingUp.fbx" id="8_JumpingModel"]
+[ext_resource type="PackedScene" uid="uid://kggrpasvch8" path="res://models/paçoca-jumpingup.fbx" id="8_JumpingModel"]
+[ext_resource type="PackedScene" uid="uid://b06nq34nx216j" path="res://models/paçoca-stumble-backwards.fbx" id="9_StumbleModel"]
+[ext_resource type="PackedScene" uid="uid://ckeifeg3grman" path="res://models/paçoca-looking-down.fbx" id="10_LookingDownModel"]
+[ext_resource type="PackedScene" uid="uid://bn25g45kq62mx" path="res://models/paçoca-forward-flip.fbx" id="11_ForwardFlipModel"]
+
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_player"]
 radius = 0.55
@@ -73,6 +77,19 @@ visible = false
 [node name="JumpingModel" parent="Visuals/Body" instance=ExtResource("8_JumpingModel")]
 transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, -0.5, 0)
 visible = false
+
+[node name="StumbleModel" parent="Visuals/Body" instance=ExtResource("9_StumbleModel")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, -0.5, 0)
+visible = false
+
+[node name="LookingDownModel" parent="Visuals/Body" instance=ExtResource("10_LookingDownModel")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, -0.5, 0)
+visible = false
+
+[node name="ForwardFlipModel" parent="Visuals/Body" instance=ExtResource("11_ForwardFlipModel")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, -0.5, 0)
+visible = false
+
 
 [node name="DustParticles" type="CPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.45, 0)

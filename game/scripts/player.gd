@@ -49,6 +49,7 @@ var is_level_finished := false
 
 var _is_invincible := false
 var _invincibility_timer := 0.0
+var _hurt_timer := 0.0
 var _boost_timer := 0.0
 var _custom_boost_velocity := Vector3.ZERO
 var _ground_normal := Vector3.UP
@@ -83,9 +84,15 @@ var _body_node: Node3D
 var _idle_model: Node3D
 var _running_model: Node3D
 var _jumping_model: Node3D
+var _stumble_model: Node3D
+var _looking_down_model: Node3D
+var _forward_flip_model: Node3D
 var _idle_anim_player: AnimationPlayer
 var _running_anim_player: AnimationPlayer
 var _jumping_anim_player: AnimationPlayer
+var _stumble_anim_player: AnimationPlayer
+var _looking_down_anim_player: AnimationPlayer
+var _forward_flip_anim_player: AnimationPlayer
 var _dust_particles: CPUParticles3D
 var _speed_wind_particles: CPUParticles3D
 
@@ -104,9 +111,16 @@ func _ready() -> void:
 	_idle_model = get_node("Visuals/Body/IdleModel")
 	_running_model = get_node("Visuals/Body/RunningModel")
 	_jumping_model = get_node("Visuals/Body/JumpingModel")
+	_stumble_model = get_node("Visuals/Body/StumbleModel")
+	_looking_down_model = get_node("Visuals/Body/LookingDownModel")
+	_forward_flip_model = get_node("Visuals/Body/ForwardFlipModel")
+
 	_idle_anim_player = get_node("Visuals/Body/IdleModel/AnimationPlayer")
 	_running_anim_player = get_node("Visuals/Body/RunningModel/AnimationPlayer")
 	_jumping_anim_player = get_node("Visuals/Body/JumpingModel/AnimationPlayer")
+	_stumble_anim_player = get_node("Visuals/Body/StumbleModel/AnimationPlayer")
+	_looking_down_anim_player = get_node("Visuals/Body/LookingDownModel/AnimationPlayer")
+	_forward_flip_anim_player = get_node("Visuals/Body/ForwardFlipModel/AnimationPlayer")
 
 	# Set up animations to loop and play
 	if _idle_anim_player.has_animation("mixamo_com"):
@@ -125,6 +139,32 @@ func _ready() -> void:
 				anim.remove_track(i)
 		anim.loop_mode = Animation.LOOP_LINEAR
 		_jumping_anim_player.play("mixamo_com")
+	if _stumble_anim_player.has_animation("mixamo_com"):
+		_stumble_anim_player.get_animation("mixamo_com").loop_mode = Animation.LOOP_LINEAR
+		_stumble_anim_player.play("mixamo_com")
+	if _looking_down_anim_player.has_animation("mixamo_com"):
+		_looking_down_anim_player.get_animation("mixamo_com").loop_mode = Animation.LOOP_LINEAR
+		_looking_down_anim_player.play("mixamo_com")
+	if _forward_flip_anim_player.has_animation("mixamo_com"):
+		var anim := _forward_flip_anim_player.get_animation("mixamo_com")
+		# Remove root/hips translation tracks to prevent visual offset for flip
+		for i in range(anim.get_track_count() - 1, -1, -1):
+			var track_path := anim.track_get_path(i)
+			var track_type := anim.track_get_type(i)
+			if track_type == Animation.TYPE_POSITION_3D and String(track_path).contains("mixamorig_Hips"):
+				anim.remove_track(i)
+		anim.loop_mode = Animation.LOOP_LINEAR
+		_forward_flip_anim_player.play("mixamo_com")
+
+	# Align materials of the new models with the idle model to avoid color mismatch
+	var idle_mesh = _idle_model.get_node_or_null("Skeleton3D/temp") as MeshInstance3D
+	if idle_mesh:
+		var idle_material = idle_mesh.get_active_material(0)
+		if idle_material:
+			for model in [_stumble_model, _looking_down_model, _forward_flip_model]:
+				var mesh_inst = model.get_node_or_null("Skeleton3D/temp") as MeshInstance3D
+				if mesh_inst:
+					mesh_inst.material_override = idle_material
 
 	_dust_particles = get_node("DustParticles")
 	_speed_wind_particles = get_node("SpeedWindParticles")
@@ -245,6 +285,8 @@ func _physics_process(delta: float) -> void:
 	# Manage timers
 	if _boost_timer > 0.0:
 		_boost_timer -= delta
+	if _hurt_timer > 0.0:
+		_hurt_timer -= delta
 	if _is_invincible:
 		_invincibility_timer -= delta
 		if _invincibility_timer <= 0.0:
@@ -363,9 +405,9 @@ func _handle_inputs(delta: float, vel: Vector3) -> Vector3:
 	var is_jump_pressed := Input.is_action_just_pressed("jump")
 
 	# Set facing direction
-	if move_input > 0.05 and not is_spin_dashing:
+	if move_input > 0.05:
 		_facing_direction = 1
-	elif move_input < -0.05 and not is_spin_dashing:
+	elif move_input < -0.05:
 		_facing_direction = -1
 
 	if is_on_floor():
@@ -373,71 +415,37 @@ func _handle_inputs(delta: float, vel: Vector3) -> Vector3:
 		if is_rolling and absf(vel.x) < 1.0:
 			is_rolling = false
 
-		# Check for Spin Dash activation
-		if is_down_pressed and absf(vel.x) < 1.0:
-			if not is_spin_dashing:
-				is_spin_dashing = true
-				spin_dash_charge = 0.0
-				play_sound(440.0, 0.1, 0.4) # Procedural spin dash start
-
-			vel.x = move_toward(vel.x, 0, Friction * 2.0 * delta)
-
-			if is_jump_pressed:
-				spin_dash_charge = minf(spin_dash_charge + 6.0, SpinDashMaxCharge)
-				play_sound(440.0 + spin_dash_charge * 15.0, 0.1, 0.5) # Higher pitch as charged
-				# Add jump spin particle burst
-				_dust_particles.restart()
-
-			# Slow decay of charge
-			spin_dash_charge = move_toward(spin_dash_charge, SpinDashMinCharge, 4.0 * delta)
-		else:
-			# Release Spin Dash
-			if is_spin_dashing:
-				is_spin_dashing = false
-				is_rolling = true
-				vel.x = _facing_direction * (SpinDashMinCharge + spin_dash_charge)
-				play_sound(600.0, 0.25, 0.6) # Launch sound
-				_dust_particles.restart()
-				# Charging presses jump repeatedly; don't let the last press
-				# buffer into an accidental hop right after launching.
-				_jump_buffer_timer = 0.0
-
-			# Standard movement
-			if move_input != 0:
-				if is_rolling:
-					# Rolling movement - slower acceleration/deceleration on player inputs
-					vel.x = move_toward(vel.x, move_input * MaxSpeed, Acceleration * 0.4 * delta)
-				else:
-					# Standard running movement
-					# Decelerate (brake) faster than accelerating - interrupt immediately
-					var is_braking := (move_input > 0 and vel.x < 0) or (move_input < 0 and vel.x > 0)
-					if is_braking:
-						# Trigger skid dust burst
-						if absf(vel.x) > 5.0:
-							_dust_particles.restart()
-						vel.x = 0.0
-					else:
-						var target_speed := move_input * MaxSpeed
-						vel.x = move_toward(vel.x, target_speed, Acceleration * delta)
+		# Standard movement
+		if move_input != 0:
+			if is_rolling:
+				# Rolling movement - slower acceleration/deceleration on player inputs
+				vel.x = move_toward(vel.x, move_input * MaxSpeed, Acceleration * 0.4 * delta)
 			else:
-				# Apply Friction
-				var decel_rate := Friction * 0.25 if is_rolling else Friction
-				vel.x = move_toward(vel.x, 0, decel_rate * delta)
-				_dust_particles.emitting = false
+				# Standard running movement
+				# Decelerate (brake) faster than accelerating - interrupt immediately
+				var is_braking := (move_input > 0 and vel.x < 0) or (move_input < 0 and vel.x > 0)
+				if is_braking:
+					# Trigger skid dust burst
+					if absf(vel.x) > 5.0:
+						_dust_particles.restart()
+					vel.x = 0.0
+				else:
+					var target_speed := move_input * MaxSpeed
+					vel.x = move_toward(vel.x, target_speed, Acceleration * delta)
+		else:
+			# Apply Friction
+			var decel_rate := Friction * 0.25 if is_rolling else Friction
+			vel.x = move_toward(vel.x, 0, decel_rate * delta)
+			_dust_particles.emitting = false
 
-			# Initiate Roll by pressing down while running
-			if is_down_pressed and absf(vel.x) > 4.0 and not is_rolling:
-				is_rolling = true
-				play_sound(350.0, 0.1, 0.3)
-
-			# Jump (a press buffered just before landing also fires here)
-			if (is_jump_pressed or _jump_buffer_timer > 0.0) and not is_down_pressed:
-				vel.y = JumpVelocity
-				is_rolling = true
-				_jump_buffer_timer = 0.0
-				_coyote_timer = 0.0
-				play_sound(523.25, 0.15, 0.5) # C5 note jump sound
-				_dust_particles.restart()
+		# Jump (a press buffered just before landing also fires here)
+		if is_jump_pressed or _jump_buffer_timer > 0.0:
+			vel.y = JumpVelocity
+			is_rolling = true
+			_jump_buffer_timer = 0.0
+			_coyote_timer = 0.0
+			play_sound(523.25, 0.15, 0.5) # C5 note jump sound
+			_dust_particles.restart()
 	else:
 		# Air movement control
 		_dust_particles.emitting = false
@@ -454,19 +462,13 @@ func _handle_inputs(delta: float, vel: Vector3) -> Vector3:
 		elif is_jump_pressed and not _has_air_dashed:
 			_has_air_dashed = true
 			_jump_buffer_timer = 0.0
+			
+			# Force forward flip animation to restart from the beginning
+			if _forward_flip_anim_player.has_animation("mixamo_com"):
+				_forward_flip_anim_player.play("mixamo_com")
+				_forward_flip_anim_player.seek(0.0, true)
 
-			var move_input_x := Input.get_axis("move_left", "move_right")
-
-			# The second jump is primarily a vertical launch. Holding a direction adds only a
-			# modest sideways nudge (AirDashHorizontalSpeed) instead of a full 45 degree dash,
-			# so dashing toward a side no longer flings the player with uncontrollable speed.
-			var horizontal := 0.0
-			if move_input_x > 0.1:
-				horizontal = AirDashHorizontalSpeed
-			elif move_input_x < -0.1:
-				horizontal = -AirDashHorizontalSpeed
-
-			vel = Vector3(horizontal, AirDashSpeed, 0.0)
+			vel = Vector3(vel.x, AirDashSpeed, 0.0)
 
 			# State updates
 			is_rolling = true
@@ -512,16 +514,37 @@ func _update_visuals(delta: float) -> void:
 			Basis.from_euler(Vector3(0, _current_y_rotation, 0))
 
 	# Animate parts depending on status
-	if is_rolling:
+	if _hurt_timer > 0.0:
+		# Reset body position & local rotation
+		_body_node.position = _body_node.position.lerp(Vector3.ZERO, 10.0 * delta)
+		_body_node.rotation = _body_node.rotation.lerp(Vector3.ZERO, 10.0 * delta)
+		
+		_idle_model.visible = false
+		_running_model.visible = false
+		_jumping_model.visible = false
+		_forward_flip_model.visible = false
+		_looking_down_model.visible = false
+		_stumble_model.visible = true
+		_stumble_anim_player.speed_scale = 1.0
+	elif is_rolling:
 		# Reset body position & local rotation
 		_body_node.position = _body_node.position.lerp(Vector3.ZERO, 10.0 * delta)
 		_body_node.rotation = _body_node.rotation.lerp(Vector3.ZERO, 10.0 * delta)
 
-		# Show jumping model and hide others
 		_idle_model.visible = false
 		_running_model.visible = false
-		_jumping_model.visible = true
-		_jumping_anim_player.speed_scale = 1.0
+		_stumble_model.visible = false
+		_looking_down_model.visible = false
+		
+		# Show jumping model (or forward flip model if air dashed/double jumped)
+		if _has_air_dashed:
+			_jumping_model.visible = false
+			_forward_flip_model.visible = true
+			_forward_flip_anim_player.speed_scale = 1.0
+		else:
+			_jumping_model.visible = true
+			_forward_flip_model.visible = false
+			_jumping_anim_player.speed_scale = 1.0
 	elif is_spin_dashing:
 		# Shaking body effect
 		_animation_time += delta * 50.0
@@ -531,6 +554,9 @@ func _update_visuals(delta: float) -> void:
 		# Show jumping model for spin dash charging
 		_idle_model.visible = false
 		_running_model.visible = false
+		_stumble_model.visible = false
+		_looking_down_model.visible = false
+		_forward_flip_model.visible = false
 		_jumping_model.visible = true
 		_jumping_anim_player.speed_scale = 3.0
 		_body_node.rotation = Vector3(0, 0, -PI / 6)
@@ -542,11 +568,23 @@ func _update_visuals(delta: float) -> void:
 
 		var speed := absf(velocity.x)
 		if is_on_floor():
-			if speed > 0.1:
+			# Priority: 1. looking down, 2. running, 3. idle
+			if speed < 1.0 and Input.is_action_pressed("move_down"):
+				_idle_model.visible = false
+				_running_model.visible = false
+				_jumping_model.visible = false
+				_forward_flip_model.visible = false
+				_stumble_model.visible = false
+				_looking_down_model.visible = true
+				_looking_down_anim_player.speed_scale = 1.0
+			elif speed > 0.1:
 				# Show running model
 				_idle_model.visible = false
 				_running_model.visible = true
 				_jumping_model.visible = false
+				_forward_flip_model.visible = false
+				_stumble_model.visible = false
+				_looking_down_model.visible = false
 
 				# Adjust animation speed based on velocity
 				_running_anim_player.speed_scale = maxf(0.5, speed / MaxSpeed * 1.8)
@@ -555,11 +593,17 @@ func _update_visuals(delta: float) -> void:
 				_idle_model.visible = true
 				_running_model.visible = false
 				_jumping_model.visible = false
+				_forward_flip_model.visible = false
+				_stumble_model.visible = false
+				_looking_down_model.visible = false
 				_idle_anim_player.speed_scale = 1.0
 		else:
 			# In air but not rolling (e.g. falling)
 			_idle_model.visible = false
 			_running_model.visible = false
+			_stumble_model.visible = false
+			_looking_down_model.visible = false
+			_forward_flip_model.visible = false
 			_jumping_model.visible = true
 			_jumping_anim_player.speed_scale = 1.0
 
@@ -588,6 +632,7 @@ func hurt(hazard_source: Vector3) -> void:
 		rings = 0
 		_is_invincible = true
 		_invincibility_timer = 2.0
+		_hurt_timer = 0.7
 
 		# Bounce player away
 		var push_dir := (global_position - hazard_source).normalized()
@@ -625,6 +670,7 @@ func respawn() -> void:
 	rings = 0
 	velocity = Vector3.ZERO
 	_boost_timer = 0.0
+	_hurt_timer = 0.0
 	is_rolling = false
 	is_spin_dashing = false
 	_is_invincible = true
