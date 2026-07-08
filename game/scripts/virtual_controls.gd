@@ -82,24 +82,62 @@ func _input(event: InputEvent) -> void:
 		else:
 			_release(t.index)
 		return
+	
+	if event is InputEventScreenDrag:
+		var d := event as InputEventScreenDrag
+		_drag(d.index, d.position)
+		return
 
 	# Mouse emulation for desktop testing (force_visible). Finger index -1.
-	if force_visible and event is InputEventMouseButton:
-		var mb := event as InputEventMouseButton
-		if mb.button_index == MOUSE_BUTTON_LEFT:
-			if mb.pressed:
-				_press(-1, mb.position)
-			else:
-				_release(-1)
+	if force_visible:
+		if event is InputEventMouseButton:
+			var mb := event as InputEventMouseButton
+			if mb.button_index == MOUSE_BUTTON_LEFT:
+				if mb.pressed:
+					_press(-1, mb.position)
+				else:
+					_release(-1)
+		elif event is InputEventMouseMotion:
+			var mm := event as InputEventMouseMotion
+			if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+				_drag(-1, mm.position)
 
 
 func _press(index: int, pos: Vector2) -> void:
 	if _fingers.has(index):
 		return
 	var role := _hit_test(pos)
-	if role == Role.NONE:
-		return
 	_fingers[index] = role
+	if role != Role.NONE:
+		_press_role(role)
+
+
+func _release(index: int) -> void:
+	if not _fingers.has(index):
+		return
+	var role: int = _fingers[index]
+	_fingers.erase(index)
+	_release_role(role)
+
+
+func _drag(index: int, pos: Vector2) -> void:
+	if not _fingers.has(index):
+		var role := _hit_test(pos)
+		_fingers[index] = role
+		if role != Role.NONE:
+			_press_role(role)
+		return
+	
+	var old_role: int = _fingers[index]
+	var new_role := _hit_test(pos)
+	if old_role != new_role:
+		_fingers[index] = new_role
+		_release_role(old_role)
+		if new_role != Role.NONE:
+			_press_role(new_role)
+
+
+func _press_role(role: int) -> void:
 	match role:
 		Role.LEFT:
 			Input.action_press("move_left")
@@ -114,20 +152,23 @@ func _press(index: int, pos: Vector2) -> void:
 	queue_redraw()
 
 
-func _release(index: int) -> void:
-	if not _fingers.has(index):
-		return
-	var role: int = _fingers[index]
-	_fingers.erase(index)
-	match role:
-		Role.LEFT:
-			Input.action_release("move_left")
-		Role.RIGHT:
-			Input.action_release("move_right")
-		Role.DOWN:
-			Input.action_release("move_down")
-		Role.JUMP:
-			Input.action_release("jump")
+func _release_role(role: int) -> void:
+	var other_fingers_holding := false
+	for f in _fingers:
+		if _fingers[f] == role:
+			other_fingers_holding = true
+			break
+	
+	if not other_fingers_holding:
+		match role:
+			Role.LEFT:
+				Input.action_release("move_left")
+			Role.RIGHT:
+				Input.action_release("move_right")
+			Role.DOWN:
+				Input.action_release("move_down")
+			Role.JUMP:
+				Input.action_release("jump")
 	queue_redraw()
 
 
