@@ -9,7 +9,7 @@ function t(key, vars) {
 }
 
 // --- Application State ---
-let Y_STEP = 1.5;
+let Y_STEP = 2.0;
 let X_STEP = 3.0;
 // The level ID is internal: users only type a name, and the ID is derived
 // from it (see slugifyLevelName). Opening a saved map keeps the file's ID
@@ -21,8 +21,8 @@ let levelDifficulty = "normal"; // infantil | iniciante | normal | hard | imposs
 // When set (via ?id=... on the URL), "Publicar" edits this existing community
 // level in place (PUT /api/levels/:id) instead of creating a new one.
 let editingId = null;
-let gridWidth = 100;
-let gridHeight = 15;
+let gridWidth = 300;
+let gridHeight = 40;
 let grid = []; // 2D array: grid[c][r] where c is column (X), r is visual row (Y-inverted)
 let currentTool = "paint"; // paint | erase | line | rect | fill | select
 let selectedElement = "#"; // Current painting character symbol
@@ -1590,9 +1590,9 @@ let settingsFirstRun = true;
 // exact dimensions instead; typing values that don't match a preset falls back
 // to the "custom" (no highlight) state.
 const GRID_PRESETS = {
-    small:  { w: 50,  h: 12 },
-    medium: { w: 100, h: 15 },
-    large:  { w: 180, h: 20 },
+    small:  { w: 150, h: 20 },
+    medium: { w: 300, h: 40 },
+    large:  { w: 450, h: 50 },
 };
 
 // Applies a preset's dimensions to the advanced width/height inputs.

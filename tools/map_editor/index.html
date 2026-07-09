@@ -331,17 +331,17 @@
                             <button type="button" class="preset-btn" data-preset="small"
                                 onclick="selectGridPreset('small')">
                                 <span class="preset-name" data-i18n="settings.size.small">Pequeno</span>
-                                <span class="preset-dim">50 × 12</span>
+                                <span class="preset-dim">150 × 20</span>
                             </button>
                             <button type="button" class="preset-btn active" data-preset="medium"
                                 onclick="selectGridPreset('medium')">
                                 <span class="preset-name" data-i18n="settings.size.medium">Médio</span>
-                                <span class="preset-dim">100 × 15</span>
+                                <span class="preset-dim">300 × 40</span>
                             </button>
                             <button type="button" class="preset-btn" data-preset="large"
                                 onclick="selectGridPreset('large')">
                                 <span class="preset-name" data-i18n="settings.size.large">Grande</span>
-                                <span class="preset-dim">180 × 20</span>
+                                <span class="preset-dim">450 × 50</span>
                             </button>
                         </div>
                         <p class="settings-hint" data-i18n="settings.size.hint">Cada coluna vale 3m e cada linha 1,5m.
@@ -358,13 +358,13 @@
                             <div class="settings-row">
                                 <label class="settings-field">
                                     <span class="settings-label" data-i18n="grid.width.title">Largura (colunas)</span>
-                                    <input type="number" id="grid-width" value="100" min="10" max="1000" class="inp"
+                                    <input type="number" id="grid-width" value="300" min="10" max="1000" class="inp"
                                         oninput="syncGridPreset()" data-i18n-attr="title:grid.width.title"
                                         title="Largura (colunas)">
                                 </label>
                                 <label class="settings-field">
                                     <span class="settings-label" data-i18n="grid.height.title">Altura (linhas)</span>
-                                    <input type="number" id="grid-height" value="15" min="5" max="100" class="inp"
+                                    <input type="number" id="grid-height" value="40" min="5" max="100" class="inp"
                                         oninput="syncGridPreset()" data-i18n-attr="title:grid.height.title"
                                         title="Altura (linhas)">
                                 </label>
@@ -378,13 +378,13 @@
                                 </label>
                                 <label class="settings-field">
                                     <span class="settings-label" data-i18n="scale.y.title">Passo Y (m)</span>
-                                    <input type="number" id="y-step" value="1.5" step="0.1" min="0.5" max="5.0"
+                                    <input type="number" id="y-step" value="2.0" step="0.1" min="0.5" max="5.0"
                                         class="inp" data-i18n-attr="title:scale.y.title"
                                         title="Altura da linha (passo Y em metros)">
                                 </label>
                             </div>
                             <p class="settings-hint" data-i18n="settings.scale.hint">Os valores padrão de escala (3.0 /
-                                1.5) casam com a física do jogo. Mude só se souber o efeito.</p>
+                                2.0) casam com a física do jogo. Mude só se souber o efeito.</p>
                         </div>
                     </details>
                 </div>
