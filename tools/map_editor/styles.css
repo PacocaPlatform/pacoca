@@ -65,6 +65,7 @@
     --color-spikes: #e11d48; /* Rose */
     --color-spawn: #ec4899; /* Pink */
     --color-goal: #ffd700; /* Gold */
+    --color-moving-platform: #0284c7; /* Sky Blue */
 
     --transition-fast: 0.15s ease;
     --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -871,6 +872,22 @@ body {
     font-size: 0.75rem;
     font-weight: 800;
     box-shadow: 0 0 12px var(--color-goal);
+    border: 2px solid white;
+}
+
+.grid-cell.moving-platform { color: white; }
+.grid-cell.moving-platform::before {
+    content: 'T';
+    width: 28px;
+    height: 20px;
+    background: var(--color-moving-platform);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    box-shadow: 0 0 8px rgba(2, 132, 199, 0.5);
     border: 2px solid white;
 }
 

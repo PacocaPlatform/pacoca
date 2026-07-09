@@ -34,6 +34,7 @@ const ENEMY_SCENE := "res://scenes/enemy.tscn"
 const CACTUS_SCENE := "res://scenes/cactus_enemy.tscn"
 const SPIKES_SCENE := "res://scenes/spikes.tscn"
 const LEVEL_FINISH_SCENE := "res://scenes/level_finish.tscn"
+const MOVING_PLATFORM_SCENE := "res://scenes/moving_platform.tscn"
 
 # --- Safety limits for untrusted, user-generated maps ----------------------- #
 # A shared/community map is just data (no code), so the only risk is a
@@ -66,7 +67,8 @@ static func validate(data: Dictionary) -> Dictionary:
 	var object_count := _arr(data, "rings").size() + _arr(data, "springs_vert").size() \
 			+ _arr(data, "springs_diag").size() + _arr(data, "dash_pads").size() \
 			+ _arr(data, "enemies").size() + _arr(data, "cactus_enemies").size() \
-			+ _arr(data, "spikes").size() + _arr(data, "goals").size()
+			+ _arr(data, "spikes").size() + _arr(data, "goals").size() \
+			+ _arr(data, "moving_platforms").size()
 
 	if terrain_count > MAX_TERRAIN:
 		errors.append("too much terrain (%d pieces; limit %d)" % [terrain_count, MAX_TERRAIN])
@@ -139,7 +141,7 @@ static func build(data: Dictionary) -> Dictionary:
 	enemies_group.name = "Enemies"
 	objects.add_child(enemies_group)
 
-	_build_objects(objects, rings_group, enemies_group, data)
+	_build_objects(objects, rings_group, enemies_group, data, top_mat, rock_mat)
 
 	return {"ok": true, "root": root, "errors": [], "warnings": report["warnings"]}
 
@@ -294,7 +296,7 @@ static func _add_ramp_down(track: CSGCombiner3D, name: String, ramp: Dictionary,
 
 
 # --- Interactive objects --------------------------------------------------- #
-static func _build_objects(objects: Node3D, rings_group: Node3D, enemies_group: Node3D, data: Dictionary) -> void:
+static func _build_objects(objects: Node3D, rings_group: Node3D, enemies_group: Node3D, data: Dictionary, top_mat: Material, rock_mat: Material) -> void:
 	var ring_scene := _load_scene(RING_SCENE)
 	var spring_scene := _load_scene(SPRING_SCENE)
 	var dash_scene := _load_scene(DASH_PAD_SCENE)
@@ -364,6 +366,22 @@ static func _build_objects(objects: Node3D, rings_group: Node3D, enemies_group: 
 		var p: Variant = _pair(g)
 		if p != null and finish_scene != null:
 			_place(finish_scene, objects, "Goal_%d" % i, p as Vector2)
+		i += 1
+
+	var moving_platform_scene := _load_scene(MOVING_PLATFORM_SCENE)
+	i = 0
+	for mp in _arr(data, "moving_platforms"):
+		if mp is Dictionary and moving_platform_scene != null:
+			var pos := Vector2(_num(mp, "x", 0.0), _num(mp, "y", 0.0))
+			var inst := _place(moving_platform_scene, objects, "MovingPlatform_%d" % i, pos)
+			if inst != null:
+				inst.set("direction", str(mp.get("direction", "horizontal")))
+				inst.set("travel_range", _num(mp, "range", 4.0))
+				inst.set("speed", _num(mp, "speed", 2.0))
+				inst.set("width", _num(mp, "width", 2.0))
+				inst.set("rock_height", _num(mp, "rock_height", 4.0))
+				if inst.has_method("setup_materials"):
+					inst.call("setup_materials", top_mat, rock_mat)
 		i += 1
 
 

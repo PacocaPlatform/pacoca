@@ -43,6 +43,7 @@ let undoStack = [];
 let redoStack = [];
 let showGridlines = true;
 let activeTab = "tab-ascii";
+let cellProperties = {}; // key: "c,r", value: { direction: "horizontal", range: 4.0, speed: 2.0 }
 
 // --- Elements Catalog ---
 const ELEMENTS = [
@@ -57,7 +58,8 @@ const ELEMENTS = [
     { symbol: "C", name: "Cactus Enemy", class: "cactus", desc: "Patrolling cactus (Speed: 1.25)", color: "var(--color-cactus)" },
     { symbol: "S", name: "Spikes", class: "spikes", desc: "Ground spikes that cause damage", color: "var(--color-spikes)" },
     { symbol: "P", name: "Player Spawn", class: "spawn", desc: "Player starting point (Z:0, Y: Spawn + 0.5)", color: "var(--color-spawn)" },
-    { symbol: "G", name: "Goal Coin", class: "goal", desc: "Giant spinning coin that finishes the stage", color: "var(--color-goal)" }
+    { symbol: "G", name: "Goal Coin", class: "goal", desc: "Giant spinning coin that finishes the stage", color: "var(--color-goal)" },
+    { symbol: "T", name: "Moving Platform", class: "moving-platform", desc: "Platform that moves horizontally or vertically", color: "var(--color-moving-platform)" }
 ];
 
 // --- Initialization ---
@@ -348,6 +350,11 @@ function renderGrid() {
             cell.addEventListener("mouseenter", () => {
                 onCellEnter(c, r);
             });
+
+            cell.addEventListener("dblclick", (e) => {
+                e.preventDefault();
+                onCellDblClick(c, r);
+            });
             
             mapGrid.appendChild(cell);
         }
@@ -365,19 +372,23 @@ function getCellClass(char) {
 
 // --- Undo / Redo ---
 
-function snapshotGrid() {
-    return grid.map(col => col.slice());
+function snapshotState() {
+    return {
+        grid: grid.map(col => col.slice()),
+        properties: JSON.parse(JSON.stringify(cellProperties))
+    };
 }
 
 // Push the CURRENT state before a mutation (stroke start, clear, resize, import).
 function pushHistory() {
-    undoStack.push(snapshotGrid());
+    undoStack.push(snapshotState());
     if (undoStack.length > MAX_HISTORY) undoStack.shift();
     redoStack = [];
 }
 
 function restoreSnapshot(snapshot) {
-    grid = snapshot;
+    grid = snapshot.grid;
+    cellProperties = snapshot.properties || {};
     gridWidth = grid.length;
     gridHeight = grid[0] ? grid[0].length : 0;
     document.getElementById("grid-width").value = gridWidth;
@@ -388,13 +399,13 @@ function restoreSnapshot(snapshot) {
 
 function undo() {
     if (!undoStack.length) { showToast(t("toast.undoNothing"), "undo-2"); return; }
-    redoStack.push(snapshotGrid());
+    redoStack.push(snapshotState());
     restoreSnapshot(undoStack.pop());
 }
 
 function redo() {
     if (!redoStack.length) { showToast(t("toast.redoNothing"), "redo-2"); return; }
-    undoStack.push(snapshotGrid());
+    undoStack.push(snapshotState());
     restoreSnapshot(redoStack.pop());
 }
 
@@ -409,6 +420,17 @@ function setCellChar(c, r, char) {
         cell.className = "grid-cell " + getCellClass(char);
         const hideText = char === " " || char === "#" || char === "/" || char === "\\";
         cell.innerText = hideText ? "" : char;
+    }
+    
+    const propKey = `${c},${r}`;
+    if (char === "T") {
+        if (!cellProperties[propKey]) {
+            cellProperties[propKey] = { direction: "horizontal", range: 4.0, speed: 2.0 };
+        }
+    } else {
+        if (cellProperties[propKey]) {
+            delete cellProperties[propKey];
+        }
     }
 }
 
@@ -472,6 +494,48 @@ function onCellEnter(c, r) {
             if (dragStart) setSelection(dragStart.c, dragStart.r, c, r);
             break;
     }
+}
+
+let editingMPlatCell = null;
+
+function onCellDblClick(c, r) {
+    const char = grid[c][r];
+    if (char === "T") {
+        editingMPlatCell = { c, r };
+        const propKey = `${c},${r}`;
+        const props = cellProperties[propKey] || { direction: "horizontal", range: 4.0, speed: 2.0 };
+        
+        document.getElementById("mplat-direction").value = props.direction;
+        document.getElementById("mplat-range").value = props.range;
+        document.getElementById("mplat-speed").value = props.speed;
+        
+        document.getElementById("moving-platform-modal").hidden = false;
+        if (window.lucide && lucide.createIcons) lucide.createIcons();
+    }
+}
+
+function applyMovingPlatformSettings() {
+    if (editingMPlatCell) {
+        const { c, r } = editingMPlatCell;
+        const propKey = `${c},${r}`;
+        const direction = document.getElementById("mplat-direction").value;
+        const range = parseFloat(document.getElementById("mplat-range").value) || 4.0;
+        const speed = parseFloat(document.getElementById("mplat-speed").value) || 2.0;
+        
+        cellProperties[propKey] = { direction, range, speed };
+        generateExports();
+        document.getElementById("moving-platform-modal").hidden = true;
+        showToast(t("toast.mplatConfigured") || "Plataforma móvel configurada!", "check");
+    }
+}
+
+function closeMovingPlatformSettings() {
+    document.getElementById("moving-platform-modal").hidden = true;
+    editingMPlatCell = null;
+}
+
+function onMovingPlatformBackdrop(e) {
+    if (e.target === document.getElementById("moving-platform-modal")) closeMovingPlatformSettings();
 }
 
 function applyTool(c, r) {
@@ -712,6 +776,7 @@ function setToolMode(mode) {
 function clearGrid() {
     if (confirm(t("confirm.clear"))) {
         pushHistory();
+        cellProperties = {};
         for (let c = 0; c < gridWidth; c++) {
             for (let r = 0; r < gridHeight; r++) {
                 grid[c][r] = " ";
@@ -763,6 +828,7 @@ function rebuildGrid() {
     
     // Initialize new matrix
     grid = [];
+    let newProperties = {};
     for (let c = 0; c < gridWidth; c++) {
         grid[c] = [];
         for (let r = 0; r < gridHeight; r++) {
@@ -770,11 +836,16 @@ function rebuildGrid() {
             const oldR = r - (gridHeight - oldHeight);
             if (c < oldWidth && oldR >= 0 && oldR < oldHeight) {
                 grid[c][r] = oldGrid[c][oldR];
+                const oldPropKey = `${c},${oldR}`;
+                if (cellProperties[oldPropKey]) {
+                    newProperties[`${c},${r}`] = cellProperties[oldPropKey];
+                }
             } else {
                 grid[c][r] = " ";
             }
         }
     }
+    cellProperties = newProperties;
     
     renderGrid();
     generateExports();
@@ -879,11 +950,16 @@ function generateASCIIExport() {
     output += `name: ${levelName}\n`;
     output += `theme: ${levelTheme}\n`;
     output += `xstep: ${X_STEP.toFixed(1)}\n`;
-    // Emit ystep so convert_map.py parses rows at the same scale the editor draws
-    // them (Y_STEP). Without this, the converter falls back to its default and the
-    // map comes out vertically compressed.
-    output += `ystep: ${Y_STEP.toFixed(1)}\n\n`;
-    output += `[grid]\n`;
+    output += `ystep: ${Y_STEP.toFixed(1)}\n`;
+    
+    // Append moving platform configurations in the headers
+    for (const key in cellProperties) {
+        const props = cellProperties[key];
+        const [c, r] = key.split(",");
+        output += `moving_platform_${c}_${r}: ${props.direction},${props.range.toFixed(1)},${props.speed.toFixed(1)}\n`;
+    }
+    
+    output += `\n[grid]\n`;
     
     // We output line-by-line from row r = 0 to gridHeight - 1
     for (let r = 0; r < gridHeight; r++) {
@@ -916,11 +992,13 @@ function buildStructuredMap() {
     let cactus_enemies = [];
     let spikes = [];
     let goals = [];
+    let moving_platforms = [];
     
     // Scanners and mergers
     let visitedHashes = new Set();
     let visitedRampsUp = new Set();
     let visitedRampsDown = new Set();
+    let visitedMoving = new Set();
     
     // Helper check cell
     function getCell(c, r) {
@@ -1110,6 +1188,62 @@ function buildStructuredMap() {
         }
     }
 
+    // 3c. Horizontal runs of moving platforms 'T'
+    for (let r = 0; r < gridHeight; r++) {
+        const yCoord = (gridHeight - 1 - r) * Y_STEP;
+        let c = 0;
+        while (c < gridWidth) {
+            if (getCell(c, r) === "T" && !visitedMoving.has(`${c},${r}`)) {
+                let cStart = c;
+                while (c < gridWidth && getCell(c, r) === "T") {
+                    visitedMoving.add(`${c},${r}`);
+                    c++;
+                }
+                let cEnd = c - 1;
+
+                let width = (cEnd - cStart + 1) * X_STEP;
+                let x = ((cStart + cEnd) / 2.0) * X_STEP;
+
+                // Detect if floating
+                let isFloating = r < gridHeight - 1;
+                if (isFloating) {
+                    for (let col = cStart; col <= cEnd; col++) {
+                        let charBelow = getCell(col, r + 1);
+                        if (charBelow === "#" || charBelow === "/" || charBelow === "\\" || charBelow === "T") {
+                            isFloating = false;
+                            break;
+                        }
+                    }
+                }
+
+                // Get properties from the leftmost cell, or fallback to any cell in the run
+                let props = null;
+                for (let col = cStart; col <= cEnd; col++) {
+                    let key = `${col},${r}`;
+                    if (cellProperties[key]) {
+                        props = cellProperties[key];
+                        break;
+                    }
+                }
+                if (!props) {
+                    props = { direction: "horizontal", range: 4.0, speed: 2.0 };
+                }
+
+                moving_platforms.push({
+                    x: parseFloat(x.toFixed(2)),
+                    y: parseFloat(yCoord.toFixed(2)),
+                    width: parseFloat(width.toFixed(2)),
+                    rock_height: isFloating ? 1.0 : 4.0,
+                    direction: props.direction,
+                    range: parseFloat(props.range.toFixed(2)),
+                    speed: parseFloat(props.speed.toFixed(2))
+                });
+            } else {
+                c++;
+            }
+        }
+    }
+
     // 4. Parse Items
     for (let r = 0; r < gridHeight; r++) {
         for (let c = 0; c < gridWidth; c++) {
@@ -1162,7 +1296,8 @@ function buildStructuredMap() {
         enemies: enemies,
         cactus_enemies: cactus_enemies,
         spikes: spikes,
-        goals: goals
+        goals: goals,
+        moving_platforms: moving_platforms
     };
 
     return jsonObj;
@@ -1203,6 +1338,7 @@ function importMap() {
 
 function importJSON(data) {
     if (grid.length) pushHistory();
+    cellProperties = {};
     levelName = data.name || t("import.defaultName");
     // Keep the file's ID so recompiling updates the same level; renaming
     // re-derives it.
@@ -1425,6 +1561,31 @@ function importJSON(data) {
         });
     }
     
+    if (data.moving_platforms) {
+        data.moving_platforms.forEach(item => {
+            const colWidth = Math.max(1, Math.round((item.width || 2.0) / import_X_STEP));
+            const colCenter = item.x / import_X_STEP;
+            const cStart = Math.round(colCenter - colWidth / 2.0);
+            const cEnd = cStart + colWidth - 1;
+            const r = Math.round(item.y / import_Y_STEP);
+            const r_visual = gridHeight - 1 - r;
+            
+            for (let c = cStart; c <= cEnd; c++) {
+                if (c >= 0 && c < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
+                    grid[c][r_visual] = "T";
+                }
+            }
+            // Save settings on the leftmost cell
+            if (cStart >= 0 && cStart < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
+                cellProperties[`${cStart},${r_visual}`] = {
+                    direction: item.direction || "horizontal",
+                    range: item.range || 4.0,
+                    speed: item.speed || 2.0
+                };
+            }
+        });
+    }
+    
     renderGrid();
     generateExports();
     showToast(t("toast.jsonImported", { id: levelId }), "upload");
@@ -1432,6 +1593,7 @@ function importJSON(data) {
 
 function importASCII(text) {
     if (grid.length) pushHistory();
+    cellProperties = {};
     const lines = text.split(/\r?\n/);
     let inGrid = false;
     let gridLines = [];
@@ -1474,6 +1636,18 @@ function importASCII(text) {
                     Y_STEP = parseFloat(val);
                 } else if (key === "xstep" || key === "x_step") {
                     X_STEP = parseFloat(val);
+                } else if (key.startsWith("moving_platform_")) {
+                    const parts2 = key.split("_");
+                    const c = parseInt(parts2[2]);
+                    const r = parseInt(parts2[3]);
+                    const vals = val.split(",");
+                    if (vals.length >= 3) {
+                        cellProperties[`${c},${r}`] = {
+                            direction: vals[0].trim(),
+                            range: parseFloat(vals[1]) || 4.0,
+                            speed: parseFloat(vals[2]) || 2.0
+                        };
+                    }
                 }
             }
         }
@@ -2262,6 +2436,7 @@ const THEME_PREVIEW_COLORS = {
 const OBJECT_PREVIEW_COLORS = {
     "o": "#fbbf24", "V": "#ef4444", "F": "#f97316", "D": "#06b6d4",
     "E": "#a855f7", "C": "#22c55e", "S": "#94a3b8", "P": "#3b82f6", "G": "#facc15",
+    "T": "#0284c7",
 };
 
 function togglePreview() {

@@ -61,6 +61,7 @@ TSCN_TEMPLATE = """[gd_scene format=3 uid="uid://c33r1q6joc2l{level}"]
 [ext_resource type="PackedScene" path="res://scenes/cactus_enemy.tscn" id="9_CactusEnemyScene"]
 [ext_resource type="PackedScene" path="res://scenes/spikes.tscn" id="10_SpikesScene"]
 [ext_resource type="PackedScene" path="res://scenes/level_finish.tscn" id="11_LevelFinishScene"]
+[ext_resource type="PackedScene" path="res://scenes/moving_platform.tscn" id="12_MovingPlatformScene"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_water"]
 material = ExtResource("3_WaterMat")
@@ -202,6 +203,7 @@ def parse_ascii_grid(lines: list[str]) -> dict:
     cactus_enemies = []
     spikes = []
     goals = []
+    moving_platforms = []
     spawn = None
     
     visited_hashes = set()
@@ -349,8 +351,66 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 ramps_down.append({"x": start_x, "y": start_y, "width": width, "height": Y_STEP})
             else:
                 c += 1
+
+    # 4. Merge moving platforms 'T'
+    visited_moving = set()
+    for r in range(H):
+        c = 0
+        while c < W:
+            if get_char(c, r) == 'T' and (c, r) not in visited_moving:
+                # Start merging horizontally
+                c_start = c
+                while c < W and get_char(c, r) == 'T':
+                    visited_moving.add((c, r))
+                    c += 1
+                c_end = c - 1
+
+                y = r * Y_STEP
+                width = (c_end - c_start + 1) * X_STEP
+                x = ((c_start + c_end) / 2.0) * X_STEP
+
+                # Detect if floating
+                is_floating = r > 0
+                if is_floating:
+                    for col in range(c_start, c_end + 1):
+                        char_below = get_char(col, r - 1)
+                        if char_below in ('#', '/', '\\', 'T'):
+                            is_floating = False
+                            break
+
+                # Get properties of the leftmost cell, or fallback to any cell in the run
+                props_str = None
+                for col in range(c_start, c_end + 1):
+                    key_to_check = f"moving_platform_{col}_{r}"
+                    if key_to_check in settings:
+                        props_str = settings[key_to_check]
+                        break
+                
+                if props_str is None:
+                    props_str = "horizontal,4.0,2.0"
+                
+                vals = props_str.split(",")
+                direction = "horizontal"
+                travel_range = 4.0
+                speed = 2.0
+                if len(vals) >= 3:
+                    direction = vals[0].strip()
+                    travel_range = float(vals[1])
+                    speed = float(vals[2])
+
+                moving_platforms.append({
+                    "x": x,
+                    "y": y,
+                    "width": width,
+                    "rock_height": 1.0 if is_floating else 4.0,
+                    "direction": direction,
+                    "range": travel_range,
+                    "speed": speed
+                })
+            else:
+                c += 1
  
-    # 4. Parse items
+    # 5. Parse items
     warnings = []
     OBJECT_CHARS = "oVFD>ECSPG"
     for r in range(H):
@@ -410,7 +470,8 @@ def parse_ascii_grid(lines: list[str]) -> dict:
         "enemies": enemies,
         "cactus_enemies": cactus_enemies,
         "spikes": spikes,
-        "goals": goals
+        "goals": goals,
+        "moving_platforms": moving_platforms
     }
 
 # --------------------------------------------------------------------------- #
@@ -492,6 +553,15 @@ def generate_python_module(level_data: dict, source_file: str) -> str:
         for i, goal in enumerate(level_data["goals"]):
             build_lines.append(
                 f'    b.add_level_finish("Goal_{i}", {goal[0]:.2f}, {goal[1]:.2f})'
+            )
+        
+    # 12. Moving Platforms
+    if "moving_platforms" in level_data:
+        for i, plat in enumerate(level_data["moving_platforms"]):
+            build_lines.append(
+                f'    b.add_moving_platform("MovingPlatform_{i}", {plat["x"]:.2f}, {plat["y"]:.2f}, '
+                f'direction="{plat["direction"]}", travel_range={plat["range"]:.2f}, speed={plat["speed"]:.2f}, '
+                f'width={plat["width"]:.2f}, rock_height={plat["rock_height"]:.2f})'
             )
         
     build_code = "\n".join(build_lines)
@@ -622,6 +692,7 @@ def main() -> int:
                                     break
                     plat["rock_height"] = 1.0 if is_floating else 4.0
             level_data.setdefault("warnings", [])
+            level_data.setdefault("moving_platforms", [])
             if not level_data.get("goals"):
                 level_data["warnings"].append("no goal in the map: the level cannot be completed.")
             if not level_data.get("spawn"):

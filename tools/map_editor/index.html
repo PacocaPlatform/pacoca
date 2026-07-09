@@ -462,6 +462,38 @@
             </div>
         </div>
 
+        <!-- MOVING PLATFORM CONFIG MODAL -->
+        <div class="modal-overlay" id="moving-platform-modal" hidden onclick="onMovingPlatformBackdrop(event)">
+            <div class="modal">
+                <div class="modal-head">
+                    <span><i data-lucide="sliders-horizontal"></i> <span data-i18n="moving_platform_modal.title">Configurar Plataforma Móvel</span></span>
+                    <button class="icon-btn" onclick="closeMovingPlatformSettings()"><i data-lucide="x"></i></button>
+                </div>
+                <div class="modal-body settings-body">
+                    <label class="settings-field">
+                        <span class="settings-label" data-i18n="moving_platform_modal.direction">Direção do Movimento</span>
+                        <select id="mplat-direction" class="inp">
+                            <option value="horizontal" data-i18n="moving_platform_modal.horizontal">Lateral / Horizontal</option>
+                            <option value="vertical" data-i18n="moving_platform_modal.vertical">Vertical</option>
+                        </select>
+                    </label>
+                    <label class="settings-field">
+                        <span class="settings-label" data-i18n="moving_platform_modal.range">Distância (metros)</span>
+                        <input type="number" id="mplat-range" class="inp" step="0.5" min="0.5" max="50.0" value="4.0">
+                    </label>
+                    <label class="settings-field">
+                        <span class="settings-label" data-i18n="moving_platform_modal.speed">Velocidade (m/s)</span>
+                        <input type="number" id="mplat-speed" class="inp" step="0.1" min="0.1" max="20.0" value="2.0">
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="applyMovingPlatformSettings()">
+                        <i data-lucide="check"></i> <span data-i18n="moving_platform_modal.apply">Aplicar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- LOADING OVERLAY -->
         <div class="loading-overlay" id="loading-overlay">
             <div class="spinner"></div>

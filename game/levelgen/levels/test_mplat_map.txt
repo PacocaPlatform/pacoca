@@ -1,0 +1,20 @@
+level: testmplat
+name: Test Moving Platform
+theme: forest
+xstep: 3.0
+ystep: 2.0
+moving_platform_2_3: horizontal,6.0,3.0
+moving_platform_6_5: vertical,4.0,2.0
+
+[grid]
+          G
+          #
+
+
+      T
+
+
+  TT
+
+  P
+#####

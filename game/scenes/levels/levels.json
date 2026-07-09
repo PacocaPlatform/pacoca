@@ -29,11 +29,25 @@
       "builtin": true
     },
     {
+      "id": "forestlevel01",
+      "name": "Vale da Floresta",
+      "theme": "forest",
+      "scene": "res://scenes/levels/level_forestlevel01.tscn",
+      "builtin": false
+    },
+    {
       "id": "glacial_01",
       "name": "Glacial 1",
       "theme": "glacial",
       "scene": "res://scenes/levels/level_glacial_01.tscn",
       "builtin": true
+    },
+    {
+      "id": "testmplat",
+      "name": "Test Moving Platform",
+      "theme": "forest",
+      "scene": "res://scenes/levels/level_testmplat.tscn",
+      "builtin": false
     }
   ]
 }
