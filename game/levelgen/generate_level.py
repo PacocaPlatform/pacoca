@@ -72,35 +72,38 @@ material = ExtResource("2_RockMat")
 """)
 
     def add_ramp_up(self, name, start_x, start_y, width, height, bottom=-2.0):
+        # Grass cap: 1.0m vertical thickness parallel slab
         self.nodes.append(f"""
 [node name="{name}" type="CSGPolygon3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {start_x:.2f}, {start_y:.2f}, 0)
-polygon = PackedVector2Array(0, 0, {width:.2f}, {height:.2f}, {width:.2f}, {bottom:.2f}, 0, {bottom:.2f})
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {start_x:.2f}, {start_y:.2f}, 2)
+polygon = PackedVector2Array(0, 0, {width:.2f}, {height:.2f}, {width:.2f}, {height - 1.0:.2f}, 0, -1.0)
 depth = 4.0
 material = ExtResource("1_GrassMat")
 """)
+        # Sub rock base
         self.nodes.append(f"""
 [node name="{name}SubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {start_x:.2f}, {start_y:.2f}, 0)
-polygon = PackedVector2Array(0, 0, {width:.2f}, {height:.2f}, {width:.2f}, {bottom:.2f}, 0, {bottom:.2f})
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {start_x:.2f}, {start_y:.2f}, 1.9)
+polygon = PackedVector2Array(0, -1.0, {width:.2f}, {height - 1.0:.2f}, {width:.2f}, {bottom:.2f}, 0, {bottom:.2f})
 depth = 3.8
 material = ExtResource("2_RockMat")
 """)
 
-    def add_ramp_down(self, name, start_x, start_y, width, height, bottom_y=-3.0):
+    def add_ramp_down(self, name, start_x, start_y, width, height, bottom=-3.0):
         end_y = start_y - height
-        bottom_val = bottom_y - end_y
+        # Grass cap: 1.0m vertical thickness parallel slab
         self.nodes.append(f"""
 [node name="{name}" type="CSGPolygon3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {start_x:.2f}, {end_y:.2f}, 0)
-polygon = PackedVector2Array(0, {height:.2f}, {width:.2f}, 0, {width:.2f}, {bottom_val:.2f}, 0, {bottom_val:.2f})
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {start_x:.2f}, {end_y:.2f}, 2)
+polygon = PackedVector2Array(0, {height:.2f}, {width:.2f}, 0, {width:.2f}, -1.0, 0, {height - 1.0:.2f})
 depth = 4.0
 material = ExtResource("1_GrassMat")
 """)
+        # Sub rock base
         self.nodes.append(f"""
 [node name="{name}SubRock" type="CSGPolygon3D" parent="Level/TrackCSG"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {start_x:.2f}, {end_y:.2f}, 0)
-polygon = PackedVector2Array(0, {height:.2f}, {width:.2f}, 0, {width:.2f}, {bottom_val:.2f}, 0, {bottom_val:.2f})
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {start_x:.2f}, {end_y:.2f}, 1.9)
+polygon = PackedVector2Array(0, {height - 1.0:.2f}, {width:.2f}, -1.0, {width:.2f}, {bottom:.2f}, 0, {bottom:.2f})
 depth = 3.8
 material = ExtResource("2_RockMat")
 """)

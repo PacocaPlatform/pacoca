@@ -232,23 +232,28 @@ static func _add_ramp_up(track: CSGCombiner3D, name: String, ramp: Dictionary, t
 	if not _in_bounds(x, y):
 		return
 
-	var poly := PackedVector2Array([
-		Vector2(0, 0), Vector2(width, height), Vector2(width, bottom), Vector2(0, bottom)])
+	# Grass cap: 1.0m vertical thickness parallel slab
+	var grass_poly := PackedVector2Array([
+		Vector2(0, 0), Vector2(width, height), Vector2(width, height - 1.0), Vector2(0, -1.0)])
+
+	# Sub rock base
+	var rock_poly := PackedVector2Array([
+		Vector2(0, -1.0), Vector2(width, height - 1.0), Vector2(width, bottom), Vector2(0, bottom)])
 
 	var top := CSGPolygon3D.new()
 	top.name = name
-	top.polygon = poly
+	top.polygon = grass_poly
 	top.depth = 4.0
 	top.material = top_mat
-	top.position = Vector3(x, y, 0)
+	top.position = Vector3(x, y, 2.0)
 	track.add_child(top)
 
 	var rock := CSGPolygon3D.new()
 	rock.name = name + "SubRock"
-	rock.polygon = poly
+	rock.polygon = rock_poly
 	rock.depth = 3.8
 	rock.material = rock_mat
-	rock.position = Vector3(x, y, 0)
+	rock.position = Vector3(x, y, 1.9)
 	track.add_child(rock)
 
 
@@ -257,29 +262,34 @@ static func _add_ramp_down(track: CSGCombiner3D, name: String, ramp: Dictionary,
 	var start_y := _num(ramp, "y", 0.0)
 	var width := clampf(_num(ramp, "width", 2.0), 0.1, MAX_WIDTH)
 	var height := clampf(_num(ramp, "height", 3.0), 0.1, MAX_HEIGHT)
-	var bottom_y := -3.0
+	var bottom := -3.0
 	if not _in_bounds(x, start_y):
 		return
 
 	var end_y := start_y - height
-	var bottom_val := bottom_y - end_y
-	var poly := PackedVector2Array([
-		Vector2(0, height), Vector2(width, 0), Vector2(width, bottom_val), Vector2(0, bottom_val)])
+
+	# Grass cap: 1.0m vertical thickness parallel slab
+	var grass_poly := PackedVector2Array([
+		Vector2(0, height), Vector2(width, 0), Vector2(width, -1.0), Vector2(0, height - 1.0)])
+
+	# Sub rock base
+	var rock_poly := PackedVector2Array([
+		Vector2(0, height - 1.0), Vector2(width, -1.0), Vector2(width, bottom), Vector2(0, bottom)])
 
 	var top := CSGPolygon3D.new()
 	top.name = name
-	top.polygon = poly
+	top.polygon = grass_poly
 	top.depth = 4.0
 	top.material = top_mat
-	top.position = Vector3(x, end_y, 0)
+	top.position = Vector3(x, end_y, 2.0)
 	track.add_child(top)
 
 	var rock := CSGPolygon3D.new()
 	rock.name = name + "SubRock"
-	rock.polygon = poly
+	rock.polygon = rock_poly
 	rock.depth = 3.8
 	rock.material = rock_mat
-	rock.position = Vector3(x, end_y, 0)
+	rock.position = Vector3(x, end_y, 1.9)
 	track.add_child(rock)
 
 

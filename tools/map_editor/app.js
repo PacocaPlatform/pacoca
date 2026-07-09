@@ -9,8 +9,8 @@ function t(key, vars) {
 }
 
 // --- Application State ---
-let Y_STEP = 3.0;
-let X_STEP = 2.0;
+let Y_STEP = 1.5;
+let X_STEP = 3.0;
 // The level ID is internal: users only type a name, and the ID is derived
 // from it (see slugifyLevelName). Opening a saved map keeps the file's ID
 // until the name is edited.
@@ -1224,7 +1224,7 @@ function importJSON(data) {
             import_Y_STEP = 1.0;
         }
     }
-    let import_X_STEP = data.xstep || data.x_step || 2.0;
+    let import_X_STEP = data.xstep || data.x_step || 3.0;
     
     Y_STEP = import_Y_STEP;
     X_STEP = import_X_STEP;
@@ -1336,13 +1336,14 @@ function importJSON(data) {
     // Populate ramps up
     if (data.ramps_up) {
         data.ramps_up.forEach(ramp => {
-            const colWidth = Math.round(ramp.width / import_X_STEP);
+            const colWidth = Math.max(1, Math.round(ramp.width / import_X_STEP));
+            const height_rows = Math.round(ramp.height / import_Y_STEP);
             const cStart = Math.round((ramp.x + (import_X_STEP / 2.0)) / import_X_STEP);
             const rStart = Math.round((ramp.y - 0.5) / import_Y_STEP) + 1;
             
             for (let i = 0; i < colWidth; i++) {
                 const c = cStart + i;
-                const r = rStart + i;
+                const r = rStart + Math.floor(i * height_rows / colWidth);
                 const r_visual = gridHeight - 1 - r;
                 if (c >= 0 && c < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
                     grid[c][r_visual] = "/";
@@ -1354,13 +1355,14 @@ function importJSON(data) {
     // Populate ramps down
     if (data.ramps_down) {
         data.ramps_down.forEach(ramp => {
-            const colWidth = Math.round(ramp.width / import_X_STEP);
+            const colWidth = Math.max(1, Math.round(ramp.width / import_X_STEP));
+            const height_rows = Math.round(ramp.height / import_Y_STEP);
             const cStart = Math.round((ramp.x + (import_X_STEP / 2.0)) / import_X_STEP);
             const rStart = Math.round((ramp.y - 0.5) / import_Y_STEP);
             
             for (let i = 0; i < colWidth; i++) {
                 const c = cStart + i;
-                const r = rStart - i;
+                const r = rStart - Math.floor(i * height_rows / colWidth);
                 const r_visual = gridHeight - 1 - r;
                 if (c >= 0 && c < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
                     grid[c][r_visual] = "\\";
@@ -1435,8 +1437,8 @@ function importASCII(text) {
     let gridLines = [];
     
     // Reset steps/theme to standard defaults before parsing header
-    X_STEP = 2.0;
-    Y_STEP = 3.0;
+    X_STEP = 3.0;
+    Y_STEP = 1.5;
     setLevelTheme("forest");
 
     lines.forEach(line => {
@@ -1506,7 +1508,8 @@ function importASCII(text) {
     for (let r = 0; r < gridHeight; r++) {
         const line = gridLines[r];
         for (let c = 0; c < gridWidth; c++) {
-            const char = (c < line.length ? line[c] : " ");
+            let char = (c < line.length ? line[c] : " ");
+            if (char === ">") char = "D";
             grid[c][r] = char;
         }
     }
