@@ -28,4 +28,4 @@ def build(b: NodeBuilder) -> None:
     b.add_platform("Platform_1", 30.00, 18.00, width=3.00, rock_height=1.00)
     b.add_level_finish("Goal_0", 30.00, 20.00)
     b.add_moving_platform("MovingPlatform_0", 7.50, 6.00, direction="horizontal", travel_range=6.00, speed=3.00, width=6.00, rock_height=1.00)
-    b.add_moving_platform("MovingPlatform_1", 18.00, 12.00, direction="horizontal", travel_range=4.00, speed=2.00, width=3.00, rock_height=1.00)
+    b.add_moving_platform("MovingPlatform_1", 18.00, 12.00, direction="horizontal", travel_range=4.00, speed=4.00, width=3.00, rock_height=1.00)

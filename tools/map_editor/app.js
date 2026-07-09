@@ -43,11 +43,12 @@ let undoStack = [];
 let redoStack = [];
 let showGridlines = true;
 let activeTab = "tab-ascii";
-let cellProperties = {}; // key: "c,r", value: { direction: "horizontal", range: 4.0, speed: 2.0 }
+let cellProperties = {}; // key: "c,r", value: { direction: "horizontal", range: 4.0, speed: 4.0 }
 
 // --- Elements Catalog ---
 const ELEMENTS = [
     { symbol: "#", name: "Grass Platform", class: "platform", desc: "Basic solid block (CSGBox3D)", color: "var(--color-platform)" },
+    { symbol: "T", name: "Moving Platform", class: "moving-platform", desc: "Platform that moves horizontally or vertically", color: "var(--color-moving-platform)" },
     { symbol: "/", name: "Ramp Up", class: "ramp-up", desc: "Solid diagonal ramp rising right", color: "var(--color-slope)" },
     { symbol: "\\", name: "Ramp Down", class: "ramp-down", desc: "Solid diagonal ramp falling right", color: "var(--color-slope)" },
     { symbol: "o", name: "Ring", class: "ring", desc: "Collectible item for points/lives", color: "var(--color-ring)" },
@@ -58,8 +59,7 @@ const ELEMENTS = [
     { symbol: "C", name: "Cactus Enemy", class: "cactus", desc: "Patrolling cactus (Speed: 1.25)", color: "var(--color-cactus)" },
     { symbol: "S", name: "Spikes", class: "spikes", desc: "Ground spikes that cause damage", color: "var(--color-spikes)" },
     { symbol: "P", name: "Player Spawn", class: "spawn", desc: "Player starting point (Z:0, Y: Spawn + 0.5)", color: "var(--color-spawn)" },
-    { symbol: "G", name: "Goal Coin", class: "goal", desc: "Giant spinning coin that finishes the stage", color: "var(--color-goal)" },
-    { symbol: "T", name: "Moving Platform", class: "moving-platform", desc: "Platform that moves horizontally or vertically", color: "var(--color-moving-platform)" }
+    { symbol: "G", name: "Goal Coin", class: "goal", desc: "Giant spinning coin that finishes the stage", color: "var(--color-goal)" }
 ];
 
 // --- Initialization ---
@@ -425,7 +425,7 @@ function setCellChar(c, r, char) {
     const propKey = `${c},${r}`;
     if (char === "T") {
         if (!cellProperties[propKey]) {
-            cellProperties[propKey] = { direction: "horizontal", range: 4.0, speed: 2.0 };
+            cellProperties[propKey] = { direction: "horizontal", range: 4.0, speed: 4.0 };
         }
     } else {
         if (cellProperties[propKey]) {

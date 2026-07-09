@@ -387,12 +387,12 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                         break
                 
                 if props_str is None:
-                    props_str = "horizontal,4.0,2.0"
+                    props_str = "horizontal,4.0,4.0"
                 
                 vals = props_str.split(",")
                 direction = "horizontal"
                 travel_range = 4.0
-                speed = 2.0
+                speed = 4.0
                 if len(vals) >= 3:
                     direction = vals[0].strip()
                     travel_range = float(vals[1])
