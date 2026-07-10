@@ -161,7 +161,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {x:.2f}, {y:.2f}, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {x:.2f}, {y:.2f}, 0)
 """)
 
-    def add_moving_platform(self, name, x, y, direction="horizontal", travel_range=4.0, speed=2.0, width=2.0, rock_height=4.0):
+    def add_moving_platform(self, name, x, y, direction="horizontal", travel_range=4.0, speed=2.0, width=2.0, rock_height=4.0, initial_direction="default", invert_on_collision=True, use_range_limit=False):
         self.nodes.append(f"""
 [node name="{name}" parent="InteractiveObjects" instance=ExtResource("12_MovingPlatformScene")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, {x:.2f}, {y:.2f}, 0)
@@ -170,6 +170,9 @@ travel_range = {travel_range:.2f}
 speed = {speed:.2f}
 width = {width:.2f}
 rock_height = {rock_height:.2f}
+initial_direction = "{initial_direction}"
+invert_on_collision = {str(invert_on_collision).lower()}
+use_range_limit = {str(use_range_limit).lower()}
 top_material = ExtResource("1_GrassMat")
 rock_material = ExtResource("2_RockMat")
 """)

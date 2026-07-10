@@ -130,6 +130,68 @@ class TestItemsAndHeader(unittest.TestCase):
         self.assertEqual(data["theme"], "forest")
 
 
+class TestMovingPlatforms(unittest.TestCase):
+    def test_default_moving_platform(self):
+        data = parse(
+            "level: 06\n"
+            "name: Test Moving\n"
+            "moving_platform_0_2: horizontal,5.0,2.5\n"
+            "\n"
+            "[grid]\n"
+            "T\n"
+            "P\n"
+            "#####\n"
+        )
+        self.assertEqual(len(data["moving_platforms"]), 1)
+        mp = data["moving_platforms"][0]
+        self.assertEqual(mp["direction"], "horizontal")
+        self.assertEqual(mp["range"], 5.0)
+        self.assertEqual(mp["speed"], 2.5)
+        self.assertEqual(mp["initial_direction"], "default")
+        self.assertEqual(mp["invert_on_collision"], True)
+        self.assertEqual(mp["use_range_limit"], False)
+
+    def test_sophisticated_moving_platform(self):
+        data = parse(
+            "level: 06\n"
+            "name: Test Moving Advanced\n"
+            "moving_platform_0_2: vertical,8.0,4.0,down,false,true\n"
+            "\n"
+            "[grid]\n"
+            "T\n"
+            "P\n"
+            "#####\n"
+        )
+        self.assertEqual(len(data["moving_platforms"]), 1)
+        mp = data["moving_platforms"][0]
+        self.assertEqual(mp["direction"], "vertical")
+        self.assertEqual(mp["range"], 8.0)
+        self.assertEqual(mp["speed"], 4.0)
+        self.assertEqual(mp["initial_direction"], "down")
+        self.assertEqual(mp["invert_on_collision"], False)
+        self.assertEqual(mp["use_range_limit"], True)
+
+    def test_map_editor_top_down_format(self):
+        data = parse(
+            "level: 06\n"
+            "name: Test Map Editor Format\n"
+            "moving_platform_0_0: vertical,8.0,4.0,down,false,true\n"
+            "\n"
+            "[grid]\n"
+            "T\n"
+            "P\n"
+            "#####\n"
+        )
+        self.assertEqual(len(data["moving_platforms"]), 1)
+        mp = data["moving_platforms"][0]
+        self.assertEqual(mp["direction"], "vertical")
+        self.assertEqual(mp["range"], 8.0)
+        self.assertEqual(mp["speed"], 4.0)
+        self.assertEqual(mp["initial_direction"], "down")
+        self.assertEqual(mp["invert_on_collision"], False)
+        self.assertEqual(mp["use_range_limit"], True)
+
+
 class TestWarnings(unittest.TestCase):
     def test_missing_spawn_and_goal(self):
         data = parse("[grid]\n#####\n")

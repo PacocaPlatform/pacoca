@@ -7,6 +7,9 @@ extends AnimatableBody3D
 @export var rock_height: float = 4.0
 @export var top_material: Material
 @export var rock_material: Material
+@export var initial_direction: String = "default"
+@export var invert_on_collision: bool = true
+@export var use_range_limit: bool = false
 
 var start_position: Vector3
 var current_velocity: Vector3
@@ -14,14 +17,20 @@ var is_initialized: bool = false
 
 func _ready() -> void:
 	start_position = global_position
+	
+	# Determine speed multiplier based on initial direction
+	var speed_multiplier = 1.0
+	if initial_direction == "left" or initial_direction == "down":
+		speed_multiplier = -1.0
+		
 	# Define velocity vector based on movement direction
 	if direction == "horizontal":
-		current_velocity = Vector3(speed, 0, 0)
+		current_velocity = Vector3(speed * speed_multiplier, 0, 0)
 	else:
-		current_velocity = Vector3(0, speed, 0)
+		current_velocity = Vector3(0, speed * speed_multiplier, 0)
 	
-	# Enable mask=1 so we detect collision with static terrain (layer 1)
-	collision_mask = 1
+	# Enable mask=1 so we detect collision with static terrain (layer 1) only if invert_on_collision is true
+	collision_mask = 1 if invert_on_collision else 0
 	
 	# Dynamically assemble collision shape and visual meshes
 	_build_platform_nodes()
@@ -93,6 +102,21 @@ func _apply_materials() -> void:
 func _physics_process(delta: float) -> void:
 	# Move the platform and detect collisions
 	var collision := move_and_collide(current_velocity * delta)
-	if collision != null:
+	if collision != null and invert_on_collision:
 		# Reverse direction on contact with terrain
 		current_velocity = -current_velocity
+		
+	# Apply range limit rule if enabled (vertical only)
+	if direction == "vertical" and use_range_limit:
+		var current_offset = global_position.y - start_position.y
+		var is_down = (initial_direction == "down")
+		if is_down:
+			if current_offset <= -travel_range:
+				current_velocity.y = speed
+			elif current_offset >= 0.0:
+				current_velocity.y = -speed
+		else:
+			if current_offset >= travel_range:
+				current_velocity.y = -speed
+			elif current_offset <= 0.0:
+				current_velocity.y = speed

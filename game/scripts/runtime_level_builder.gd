@@ -380,6 +380,9 @@ static func _build_objects(objects: Node3D, rings_group: Node3D, enemies_group: 
 				inst.set("speed", _num(mp, "speed", 2.0))
 				inst.set("width", _num(mp, "width", 2.0))
 				inst.set("rock_height", _num(mp, "rock_height", 4.0))
+				inst.set("initial_direction", str(mp.get("initial_direction", "default")))
+				inst.set("invert_on_collision", bool(mp.get("invert_on_collision", true)))
+				inst.set("use_range_limit", bool(mp.get("use_range_limit", false)))
 				if inst.has_method("setup_materials"):
 					inst.call("setup_materials", top_mat, rock_mat)
 		i += 1

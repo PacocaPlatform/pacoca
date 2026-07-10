@@ -381,9 +381,15 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 # Get properties of the leftmost cell, or fallback to any cell in the run
                 props_str = None
                 for col in range(c_start, c_end + 1):
-                    key_to_check = f"moving_platform_{col}_{r}"
-                    if key_to_check in settings:
-                        props_str = settings[key_to_check]
+                    # Check top-down key (as exported by Map Editor, where row index is top-to-bottom)
+                    key_top_down = f"moving_platform_{col}_{H - 1 - r}"
+                    if key_top_down in settings:
+                        props_str = settings[key_top_down]
+                        break
+                    # Fallback to bottom-up key (where row index is bottom-to-top Y coordinate)
+                    key_bottom_up = f"moving_platform_{col}_{r}"
+                    if key_bottom_up in settings:
+                        props_str = settings[key_bottom_up]
                         break
                 
                 if props_str is None:
@@ -393,10 +399,19 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                 direction = "horizontal"
                 travel_range = 4.0
                 speed = 4.0
+                initial_direction = "default"
+                invert_on_collision = True
+                use_range_limit = False
                 if len(vals) >= 3:
                     direction = vals[0].strip()
                     travel_range = float(vals[1])
                     speed = float(vals[2])
+                if len(vals) >= 4:
+                    initial_direction = vals[3].strip()
+                if len(vals) >= 5:
+                    invert_on_collision = vals[4].strip().lower() == "true"
+                if len(vals) >= 6:
+                    use_range_limit = vals[5].strip().lower() == "true"
 
                 moving_platforms.append({
                     "x": x,
@@ -405,7 +420,10 @@ def parse_ascii_grid(lines: list[str]) -> dict:
                     "rock_height": 1.0 if is_floating else 4.0,
                     "direction": direction,
                     "range": travel_range,
-                    "speed": speed
+                    "speed": speed,
+                    "initial_direction": initial_direction,
+                    "invert_on_collision": invert_on_collision,
+                    "use_range_limit": use_range_limit
                 })
             else:
                 c += 1
@@ -558,10 +576,14 @@ def generate_python_module(level_data: dict, source_file: str) -> str:
     # 12. Moving Platforms
     if "moving_platforms" in level_data:
         for i, plat in enumerate(level_data["moving_platforms"]):
+            initial_dir = plat.get("initial_direction", "default")
+            invert_col = plat.get("invert_on_collision", True)
+            use_range = plat.get("use_range_limit", False)
             build_lines.append(
                 f'    b.add_moving_platform("MovingPlatform_{i}", {plat["x"]:.2f}, {plat["y"]:.2f}, '
                 f'direction="{plat["direction"]}", travel_range={plat["range"]:.2f}, speed={plat["speed"]:.2f}, '
-                f'width={plat["width"]:.2f}, rock_height={plat["rock_height"]:.2f})'
+                f'width={plat["width"]:.2f}, rock_height={plat["rock_height"]:.2f}, '
+                f'initial_direction="{initial_dir}", invert_on_collision={str(invert_col)}, use_range_limit={str(use_range)})'
             )
         
     build_code = "\n".join(build_lines)

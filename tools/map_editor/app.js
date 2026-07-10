@@ -126,6 +126,11 @@ document.addEventListener("DOMContentLoaded", () => {
         levelDifficulty = e.target.value;
     });
 
+    const mplatDir = document.getElementById("mplat-direction");
+    if (mplatDir) {
+        mplatDir.addEventListener("change", updateMPlatModalOptions);
+    }
+
     initAuth();
 
     document.getElementById("grid-width").addEventListener("change", (e) => {
@@ -498,6 +503,63 @@ function onCellEnter(c, r) {
 
 let editingMPlatCell = null;
 
+function updateMPlatModalOptions() {
+    const direction = document.getElementById("mplat-direction").value;
+    const initialDirSelect = document.getElementById("mplat-initial-direction");
+    const vertOnlyContainer = document.getElementById("mplat-vertical-only-container");
+    
+    const prevVal = initialDirSelect.value;
+    initialDirSelect.innerHTML = "";
+    
+    if (direction === "horizontal") {
+        vertOnlyContainer.hidden = true;
+        
+        const optDefault = document.createElement("option");
+        optDefault.value = "default";
+        optDefault.setAttribute("data-i18n", "moving_platform_modal.initial_direction_right");
+        optDefault.textContent = t("moving_platform_modal.initial_direction_right");
+        
+        const optRight = document.createElement("option");
+        optRight.value = "right";
+        optRight.setAttribute("data-i18n", "moving_platform_modal.initial_direction_right");
+        optRight.textContent = t("moving_platform_modal.initial_direction_right");
+        
+        const optLeft = document.createElement("option");
+        optLeft.value = "left";
+        optLeft.setAttribute("data-i18n", "moving_platform_modal.initial_direction_left");
+        optLeft.textContent = t("moving_platform_modal.initial_direction_left");
+        
+        initialDirSelect.appendChild(optDefault);
+        initialDirSelect.appendChild(optRight);
+        initialDirSelect.appendChild(optLeft);
+    } else {
+        vertOnlyContainer.hidden = false;
+        
+        const optDefault = document.createElement("option");
+        optDefault.value = "default";
+        optDefault.setAttribute("data-i18n", "moving_platform_modal.initial_direction_up");
+        optDefault.textContent = t("moving_platform_modal.initial_direction_up");
+        
+        const optUp = document.createElement("option");
+        optUp.value = "up";
+        optUp.setAttribute("data-i18n", "moving_platform_modal.initial_direction_up");
+        optUp.textContent = t("moving_platform_modal.initial_direction_up");
+        
+        const optDown = document.createElement("option");
+        optDown.value = "down";
+        optDown.setAttribute("data-i18n", "moving_platform_modal.initial_direction_down");
+        optDown.textContent = t("moving_platform_modal.initial_direction_down");
+        
+        initialDirSelect.appendChild(optDefault);
+        initialDirSelect.appendChild(optUp);
+        initialDirSelect.appendChild(optDown);
+    }
+    
+    if ([...initialDirSelect.options].some(o => o.value === prevVal)) {
+        initialDirSelect.value = prevVal;
+    }
+}
+
 function onCellDblClick(c, r) {
     const char = grid[c][r];
     if (char === "T") {
@@ -505,7 +567,13 @@ function onCellDblClick(c, r) {
         const propKey = `${c},${r}`;
         const props = cellProperties[propKey] || { direction: "horizontal", range: 4.0, speed: 2.0 };
         
-        document.getElementById("mplat-direction").value = props.direction;
+        document.getElementById("mplat-direction").value = props.direction || "horizontal";
+        updateMPlatModalOptions();
+        
+        document.getElementById("mplat-initial-direction").value = props.initial_direction || "default";
+        document.getElementById("mplat-invert-collision").checked = (props.invert_on_collision !== false);
+        document.getElementById("mplat-vertical-rule").value = props.use_range_limit ? "range" : "default";
+        
         document.getElementById("mplat-range").value = props.range;
         document.getElementById("mplat-speed").value = props.speed;
         
@@ -519,10 +587,21 @@ function applyMovingPlatformSettings() {
         const { c, r } = editingMPlatCell;
         const propKey = `${c},${r}`;
         const direction = document.getElementById("mplat-direction").value;
+        const initial_direction = document.getElementById("mplat-initial-direction").value;
+        const invert_on_collision = document.getElementById("mplat-invert-collision").checked;
+        const verticalRule = document.getElementById("mplat-vertical-rule").value;
+        const use_range_limit = (direction === "vertical" && verticalRule === "range");
         const range = parseFloat(document.getElementById("mplat-range").value) || 4.0;
         const speed = parseFloat(document.getElementById("mplat-speed").value) || 2.0;
         
-        cellProperties[propKey] = { direction, range, speed };
+        cellProperties[propKey] = { 
+            direction, 
+            range, 
+            speed, 
+            initial_direction, 
+            invert_on_collision, 
+            use_range_limit 
+        };
         generateExports();
         document.getElementById("moving-platform-modal").hidden = true;
         showToast(t("toast.mplatConfigured") || "Plataforma móvel configurada!", "check");
@@ -956,7 +1035,14 @@ function generateASCIIExport() {
     for (const key in cellProperties) {
         const props = cellProperties[key];
         const [c, r] = key.split(",");
-        output += `moving_platform_${c}_${r}: ${props.direction},${props.range.toFixed(1)},${props.speed.toFixed(1)}\n`;
+        let valStr = `${props.direction},${props.range.toFixed(1)},${props.speed.toFixed(1)}`;
+        if (props.initial_direction !== undefined || props.invert_on_collision !== undefined || props.use_range_limit !== undefined) {
+            const initDir = props.initial_direction || "default";
+            const invertCol = (props.invert_on_collision !== false);
+            const useRange = !!props.use_range_limit;
+            valStr += `,${initDir},${invertCol},${useRange}`;
+        }
+        output += `moving_platform_${c}_${r}: ${valStr}\n`;
     }
     
     output += `\n[grid]\n`;
@@ -1229,7 +1315,7 @@ function buildStructuredMap() {
                     props = { direction: "horizontal", range: 4.0, speed: 2.0 };
                 }
 
-                moving_platforms.push({
+                const mpObj = {
                     x: parseFloat(x.toFixed(2)),
                     y: parseFloat(yCoord.toFixed(2)),
                     width: parseFloat(width.toFixed(2)),
@@ -1237,7 +1323,17 @@ function buildStructuredMap() {
                     direction: props.direction,
                     range: parseFloat(props.range.toFixed(2)),
                     speed: parseFloat(props.speed.toFixed(2))
-                });
+                };
+                if (props.initial_direction !== undefined) {
+                    mpObj.initial_direction = props.initial_direction;
+                }
+                if (props.invert_on_collision !== undefined) {
+                    mpObj.invert_on_collision = props.invert_on_collision;
+                }
+                if (props.use_range_limit !== undefined) {
+                    mpObj.use_range_limit = props.use_range_limit;
+                }
+                moving_platforms.push(mpObj);
             } else {
                 c++;
             }
@@ -1577,11 +1673,21 @@ function importJSON(data) {
             }
             // Save settings on the leftmost cell
             if (cStart >= 0 && cStart < gridWidth && r_visual >= 0 && r_visual < gridHeight) {
-                cellProperties[`${cStart},${r_visual}`] = {
+                const propsObj = {
                     direction: item.direction || "horizontal",
                     range: item.range || 4.0,
                     speed: item.speed || 2.0
                 };
+                if (item.initial_direction !== undefined) {
+                    propsObj.initial_direction = item.initial_direction;
+                }
+                if (item.invert_on_collision !== undefined) {
+                    propsObj.invert_on_collision = item.invert_on_collision;
+                }
+                if (item.use_range_limit !== undefined) {
+                    propsObj.use_range_limit = item.use_range_limit;
+                }
+                cellProperties[`${cStart},${r_visual}`] = propsObj;
             }
         });
     }
@@ -1642,11 +1748,21 @@ function importASCII(text) {
                     const r = parseInt(parts2[3]);
                     const vals = val.split(",");
                     if (vals.length >= 3) {
-                        cellProperties[`${c},${r}`] = {
+                        const propsObj = {
                             direction: vals[0].trim(),
                             range: parseFloat(vals[1]) || 4.0,
                             speed: parseFloat(vals[2]) || 2.0
                         };
+                        if (vals.length >= 4) {
+                            propsObj.initial_direction = vals[3].trim();
+                        }
+                        if (vals.length >= 5) {
+                            propsObj.invert_on_collision = (vals[4].trim().toLowerCase() === "true");
+                        }
+                        if (vals.length >= 6) {
+                            propsObj.use_range_limit = (vals[5].trim().toLowerCase() === "true");
+                        }
+                        cellProperties[`${c},${r}`] = propsObj;
                     }
                 }
             }
